@@ -61,13 +61,19 @@ public class Hash3 {
         // @formatter:off
         return new Object[][] {
                 {
-                        new String[][] { { "yellowhat", "headgear" }, { "bluesunglasses", "eyewear" },
-                                { "green_turban", "headgear" } },
+                        new String[][] {
+                                { "yellowhat", "headgear" },
+                                { "bluesunglasses", "eyewear" },
+                                { "green_turban", "headgear" }
+                        },
                         5
                 },
                 {
-                        new String[][] { { "crowmask", "face" }, { "bluesunglasses", "face" },
-                                { "smoky_makeup", "face" } },
+                        new String[][] {
+                                { "crowmask", "face" },
+                                { "bluesunglasses", "face" },
+                                { "smoky_makeup", "face" }
+                        },
                         3
                 }
         };
