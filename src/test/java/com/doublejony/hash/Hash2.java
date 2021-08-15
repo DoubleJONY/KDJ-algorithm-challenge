@@ -1,6 +1,5 @@
 package com.doublejony.hash;
 
-import com.doublejony.common.AssertResolve;
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -10,6 +9,8 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
+
+import static com.doublejony.common.AssertResolve.resolve;
 
 /**
  * 전화번호 목록
@@ -82,8 +83,7 @@ public class Hash2 {
             }
         }
 
-        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
-                expected, answer, timer.stop());
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
 
     @Test
@@ -97,8 +97,7 @@ public class Hash2 {
         boolean answer = IntStream.range(0, phone_book.length - 1)
                 .noneMatch(i -> phone_book[i + 1].startsWith(phone_book[i]));
 
-        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
-                expected, answer, timer.stop());
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
 
 }

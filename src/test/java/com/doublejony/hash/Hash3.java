@@ -1,6 +1,5 @@
 package com.doublejony.hash;
 
-import com.doublejony.common.AssertResolve;
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -10,6 +9,8 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static com.doublejony.common.AssertResolve.resolve;
 
 /**
  * 위장
@@ -92,8 +93,7 @@ public class Hash3 {
 
         int answer = cache - 1;
 
-        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
-                expected, answer, timer.stop());
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
 
     @Test
@@ -108,8 +108,7 @@ public class Hash3 {
 
         int answer = hashMap.values().stream().mapToInt(count -> count + 1).reduce(1, (a, b) -> a * b) - 1;
 
-        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
-                expected, answer, timer.stop());
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
 
 }
