@@ -1,9 +1,10 @@
 package com.doublejony.hash;
 
+import com.doublejony.common.AssertResolve;
+import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,6 +69,8 @@ public class Hash2 {
     @UseDataProvider("dataProviderAdd")
     public void loopApi(String[] phone_book, boolean expected) {
 
+        Stopwatch timer = Stopwatch.createStarted();
+
         boolean answer = true;
 
         Arrays.sort(phone_book);
@@ -79,21 +82,23 @@ public class Hash2 {
             }
         }
 
-        System.out.println(answer);
-        Assert.assertEquals(expected, answer);
+        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
+                expected, answer, timer.stop());
     }
 
     @Test
     @UseDataProvider("dataProviderAdd")
     public void lambda(String[] phone_book, boolean expected) {
 
+        Stopwatch timer = Stopwatch.createStarted();
+
         Arrays.sort(phone_book);
 
         boolean answer = IntStream.range(0, phone_book.length - 1)
                 .noneMatch(i -> phone_book[i + 1].startsWith(phone_book[i]));
 
-        System.out.println(answer);
-        Assert.assertEquals(expected, answer);
+        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
+                expected, answer, timer.stop());
     }
 
 }

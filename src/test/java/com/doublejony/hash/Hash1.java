@@ -1,9 +1,10 @@
 package com.doublejony.hash;
 
+import com.doublejony.common.AssertResolve;
+import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -67,6 +68,8 @@ public class Hash1 {
     @UseDataProvider("dataProviderAdd")
     public void loopApi(String[] participant, String[] completion, String expected) {
 
+        Stopwatch timer = Stopwatch.createStarted();
+
         String answer = "";
 
         HashMap<String, Integer> hashMap = new HashMap<>();
@@ -83,13 +86,15 @@ public class Hash1 {
             }
         }
 
-        System.out.println(answer);
-        Assert.assertEquals(expected, answer);
+        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
+                expected, answer, timer.stop());
     }
 
     @Test
     @UseDataProvider("dataProviderAdd")
     public void lambda(String[] participant, String[] completion, String expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
 
         String answer;
 
@@ -99,7 +104,7 @@ public class Hash1 {
 
         answer = hashMap.keySet().stream().filter(key -> hashMap.get(key) != 0).findFirst().orElse("");
 
-        System.out.println(answer);
-        Assert.assertEquals(expected, answer);
+        AssertResolve.checkAndResolve(Thread.currentThread().getStackTrace()[1].getMethodName(),
+                expected, answer, timer.stop());
     }
 }
