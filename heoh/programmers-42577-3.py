@@ -4,7 +4,7 @@ from collections import defaultdict
 # defaultdict 재귀로 trie 쉽게 구현 및 사용 가능
 # def create_trie():
 #     return defaultdict(create_trie)
-def create_trie(): return defaultdict(create_trie)
+create_trie = lambda: defaultdict(create_trie)
 
 
 def check_and_add_phone_number(trie, phone_number):
