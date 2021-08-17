@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 
 import static com.doublejony.common.AssertResolve.resolve;
@@ -65,6 +66,11 @@ public class Hash1 {
         // @formatter:on
     }
 
+    /**
+     * hash 의 장점 - 검색 속도가 빠르다
+     * 길이기 간 배열에서 찾고자 하는 key 검색이 빠름을 이용하여 count를 만들고
+     * completion 을 모두 소거하고 남은 값을 확인하자
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void loopApi(String[] participant, String[] completion, String expected) {
@@ -84,12 +90,16 @@ public class Hash1 {
         for (String key : hashMap.keySet()) {
             if (hashMap.get(key) != 0) {
                 answer = key;
+                break;
             }
         }
 
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
 
+    /**
+     * Lambda 로 쓰면 더 간결해 보이나?
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void lambda(String[] participant, String[] completion, String expected) {

@@ -80,6 +80,10 @@ public class Hash3 {
         // @formatter:on
     }
 
+    /**
+     * 의상 종류별로 1씩 count를 올리고 모든 종류의 의상 개수의 제곱을 서로 곱하면 된다
+     * Hash를 쓰면 종류별로 객체를 만들지 않고 빠르게 저장할 수 있다.
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void loopApi(String[][] clothes, int expected) {

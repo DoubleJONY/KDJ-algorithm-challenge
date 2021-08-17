@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.doublejony.common.AssertResolve.resolve;
@@ -66,6 +68,9 @@ public class Hash2 {
         // @formatter:on
     }
 
+    /**
+     * phone_book 이 모두 숫자라면 정렬만 완료한다면 앞서 정렬된 값을 문자열로부터 탐색해서 찾는게 더 구현이 용이하다고 판단
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void loopApi(String[] phone_book, boolean expected) {
@@ -96,6 +101,30 @@ public class Hash2 {
 
         boolean answer = IntStream.range(0, phone_book.length - 1)
                 .noneMatch(i -> phone_book[i + 1].startsWith(phone_book[i]));
+
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
+    }
+
+    @Test
+    @UseDataProvider("dataProviderAdd")
+    public void useHashMap(String[] phone_book, boolean expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+
+        boolean answer = true;
+
+        Map<String, Integer> map = IntStream.range(0, phone_book.length).boxed()
+                .collect(Collectors.toMap(i -> phone_book[i], i -> i, (a, b) -> b));
+
+        for (String s : phone_book) {
+            int bound = s.length();
+            for (int j = 0; j < bound; j++) {
+                if (map.containsKey(s.substring(0, j))) {
+                    answer = false;
+                    break;
+                }
+            }
+        }
 
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }

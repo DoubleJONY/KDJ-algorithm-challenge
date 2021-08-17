@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -56,13 +55,16 @@ public class Hash4 {
         return new Object[][] {
                 {
                         new String[] { "classic", "pop", "classic", "classic", "pop" },
-                        new int[] {500, 600, 150, 800, 2500},
-                        new int[] {4, 1, 3, 0}
+                        new int[] { 500, 600, 150, 800, 2500 },
+                        new int[] { 4, 1, 3, 0 }
                 }
         };
         // @formatter:on
     }
 
+    /**
+     * 장르 별 많은 곡의 역정렬하고 최대값을 캐싱하여 반환
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void loopApi(String[] genres, int[] plays, int[] expected) {
@@ -71,7 +73,9 @@ public class Hash4 {
 
         HashMap<String, Integer> map = new HashMap<>();
 
-        IntStream.range(0, genres.length).forEach(i -> map.put(genres[i], map.getOrDefault(genres[i], 0) + plays[i]));
+        for (int i = 0; i < genres.length; i++) {
+            map.put(genres[i], map.getOrDefault(genres[i], 0) + plays[i]);
+        }
 
         List<String> keySetList = new ArrayList<>(map.keySet());
 
