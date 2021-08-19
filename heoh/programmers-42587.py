@@ -1,15 +1,15 @@
 class Printer:
     def __init__(self, priorities):
-        self.q = list(enumerate(priorities))
+        self.q = [(p, i) for i, p in enumerate(priorities)]
         self.pq = sorted(priorities, reverse=True)
 
     def print(self):
         printed = []
 
         while self.q:
-            j, p = self.q.pop(0)
+            p, j = self.q.pop(0)
             if p < self.pq[0]:
-                self.q.append((j, p))
+                self.q.append((p, j))
             else:
                 printed.append(j)
                 self.pq.pop(0)
