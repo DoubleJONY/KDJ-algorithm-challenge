@@ -11,3 +11,4 @@ def solution(prices):
         stack.append((t, p))
         
     return t_didnt_fall
+    

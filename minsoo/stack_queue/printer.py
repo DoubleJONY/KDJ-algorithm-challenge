@@ -17,3 +17,4 @@ def solution(priorities, location):
             turn += 1
         else:
             priorities.append(p)
+            
