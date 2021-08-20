@@ -14,4 +14,3 @@ def solution(prices):
         stack.append((i, price))
 
     return answer
-    
