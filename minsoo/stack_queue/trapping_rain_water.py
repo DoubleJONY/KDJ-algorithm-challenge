@@ -15,3 +15,4 @@ class Solution:
                 volume += (min(height[stk[-1]], h) - height[between]) * dist
             stk.append(i)
         return volume
+        
