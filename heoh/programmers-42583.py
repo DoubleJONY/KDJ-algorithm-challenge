@@ -21,8 +21,7 @@ class BridgeSimulator:
             updated = False
 
             try:
-                head_truck = bridge.get_head_truck()
-                if head_truck.is_arrived_end_of(bridge, t):
+                if bridge.head_truck.is_arrived_end_of(bridge, t):
                     head_truck = bridge.pop_head_truck()
                     self.add_arrived_truck(head_truck)
                     updated = True
@@ -30,8 +29,7 @@ class BridgeSimulator:
                 pass
 
             try:
-                next_truck = self.get_wating_truck()
-                if next_truck.can_get_on(bridge):
+                if self.wating_truck.can_get_on(bridge):
                     next_truck = self.pop_wating_truck()
                     next_truck.get_on(bridge, t)
                     updated = True
@@ -39,7 +37,7 @@ class BridgeSimulator:
                 pass
 
             if not updated:
-                t = head_truck.get_arriving_time(bridge)
+                t = bridge.head_truck.get_arriving_time(bridge)
             else:
                 t += 1
 
@@ -51,7 +49,8 @@ class BridgeSimulator:
     def add_arrived_truck(self, truck):
         self.arrived_trucks.append(truck)
 
-    def get_wating_truck(self):
+    @property
+    def wating_truck(self):
         return self.wating_trucks[0]
 
     def pop_wating_truck(self):
@@ -69,7 +68,8 @@ class Bridge:
     def free_weight(self):
         return self.max_weight - self.total_weight
 
-    def get_head_truck(self):
+    @property
+    def head_truck(self):
         return self.queue[0]
 
     def pop_head_truck(self):
