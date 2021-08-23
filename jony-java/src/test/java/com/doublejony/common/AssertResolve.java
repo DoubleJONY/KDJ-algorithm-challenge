@@ -3,6 +3,8 @@ package com.doublejony.common;
 import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 
+import java.util.Arrays;
+
 public class AssertResolve {
 
     public static void resolve(String testType, boolean expected, boolean answer, Stopwatch timer) {
@@ -48,8 +50,8 @@ public class AssertResolve {
 
         Assert.assertArrayEquals(expected, answer);
         System.out.println(testType
-                + " || expected : " + expected
-                + " || answer : " + answer
+                + " || expected : " + Arrays.toString(expected)
+                + " || answer : " + Arrays.toString(answer)
                 + " || " + timer
         );
     }
