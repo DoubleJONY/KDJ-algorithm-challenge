@@ -10,4 +10,3 @@ def solution(genres, plays):
     for s_info in sorted(s_lists.values(), key=lambda s_list: sum(map(play, s_list)), reverse=True):
         best_album.extend(map(lambda info: info[0], sorted(s_info, key=play, reverse=True)[:2]))
     return best_album
-    
