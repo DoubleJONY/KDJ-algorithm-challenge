@@ -18,4 +18,3 @@ def solution(bridge_length, weight, truck_weights):
                 q.append(0)
 
     return t_passed
-    

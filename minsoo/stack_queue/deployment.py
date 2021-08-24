@@ -11,4 +11,3 @@ def solution(progresses, speeds):
         else:
             published[-1] += 1
     return published
-    
