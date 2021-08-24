@@ -4,12 +4,14 @@ import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import lombok.Getter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.PriorityQueue;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -50,19 +52,91 @@ public class Stack2 {
     @DataProvider
     public static Object[][] dataProviderAdd() {
         // @formatter:off
-        return new Object[][] {
+        return new Object[][]{
                 {
-                        new int[] { 2, 1, 3, 2 },
+                        new int[]{2, 1, 3, 2},
                         2,
                         1
                 },
                 {
-                        new int[] { 1, 1, 9, 1, 1, 1 },
+                        new int[]{1, 1, 9, 1, 1, 1},
                         0,
                         5
+                },
+                {
+                        new int[]{1, 1, 9, 1, 1, 1},
+                        1,
+                        6
+                },
+                {
+                        new int[]{1, 2, 9, 1, 1, 1, 2, 3, 4},
+                        4,
+                        8
                 }
         };
         // @formatter:on
+    }
+
+    @Getter
+    public static class DocumentSet {
+        int index;
+        int prioritie;
+
+        public DocumentSet(int index, int prioritie) {
+            this.index = index;
+            this.prioritie = prioritie;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public int getPrioritie() {
+            return prioritie;
+        }
+    }
+
+    @Test
+    @UseDataProvider("dataProviderAdd")
+    public void loopApi(int[] priorities, int location, int expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+
+        Map<Integer, Integer> prioritiesList = IntStream.range(0, priorities.length).boxed().collect(Collectors.toMap(i -> i, i -> priorities[i], (a, b) -> b));
+
+        int answer = 0;
+        ArrayBlockingQueue<DocumentSet> queue = new ArrayBlockingQueue<>(prioritiesList.size());
+
+        for (int i = 0; i < prioritiesList.size(); i++) {
+            queue.add(new DocumentSet(i, prioritiesList.get(i)));
+        }
+
+        while (!queue.isEmpty()) {
+            int k = 0;
+            int l = 0;
+            for (int i = 0; i < prioritiesList.size(); i++) {
+                if (prioritiesList.get(i+l) != null) {
+                    if (queue.peek().getPrioritie() < prioritiesList.get(i+l)) {
+                        for (int j = 0; j < i - k; j++) {
+                            queue.add(queue.poll());
+                        }
+                        i = 0;
+                        k = 0;
+                        l++;
+                    }
+                } else {
+                    k++;
+                }
+            }
+            if (queue.peek().getIndex() == location) {
+                answer = (priorities.length + 1) - queue.size();
+                break;
+            }
+            prioritiesList.remove(queue.peek().getIndex());
+            queue.poll();
+        }
+
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
 
     @Test
