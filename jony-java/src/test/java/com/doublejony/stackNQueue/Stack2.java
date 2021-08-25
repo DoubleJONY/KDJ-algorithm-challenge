@@ -4,11 +4,13 @@ import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import lombok.Getter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -77,7 +79,6 @@ public class Stack2 {
         // @formatter:on
     }
 
-    @Getter
     public static class DocumentSet {
         int index;
         int prioritie;
@@ -96,6 +97,28 @@ public class Stack2 {
         }
     }
 
+    /* TODO : 무엇을 빼먹었을까?
+    테스트 1 〉	통과 (6.25ms, 60.6MB)
+    테스트 2 〉	통과 (10.50ms, 71.7MB)
+    테스트 3 〉	통과 (4.94ms, 69.4MB)
+    테스트 4 〉	통과 (5.04ms, 62.1MB)
+    테스트 5 〉	통과 (4.57ms, 60.4MB)
+    테스트 6 〉	실패 (6.19ms, 58.8MB)
+    테스트 7 〉	통과 (4.63ms, 59.2MB)
+    테스트 8 〉	통과 (9.33ms, 76.7MB)
+    테스트 9 〉	통과 (4.20ms, 71.4MB)
+    테스트 10 〉	통과 (5.28ms, 61.1MB)
+    테스트 11 〉	통과 (6.89ms, 73.9MB)
+    테스트 12 〉	통과 (3.97ms, 74.2MB)
+    테스트 13 〉	통과 (8.28ms, 60.4MB)
+    테스트 14 〉	통과 (4.08ms, 73.9MB)
+    테스트 15 〉	통과 (4.47ms, 71.8MB)
+    테스트 16 〉	통과 (4.39ms, 72.2MB)
+    테스트 17 〉	통과 (8.35ms, 59.6MB)
+    테스트 18 〉	통과 (3.76ms, 73.1MB)
+    테스트 19 〉	통과 (6.70ms, 71.2MB)
+    테스트 20 〉	통과 (6.56ms, 74.1MB)
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void loopApi(int[] priorities, int location, int expected) {
@@ -112,20 +135,77 @@ public class Stack2 {
         }
 
         while (!queue.isEmpty()) {
-            int k = 0;
-            int l = 0;
-            for (int i = 0; i < prioritiesList.size(); i++) {
-                if (prioritiesList.get(i+l) != null) {
-                    if (queue.peek().getPrioritie() < prioritiesList.get(i+l)) {
-                        for (int j = 0; j < i - k; j++) {
+            for (int i = 0; i < priorities.length; i++) {
+                if (prioritiesList.get(i) != null) {
+                    if (queue.peek().getPrioritie() < prioritiesList.get(i)) {
+                        queue.add(queue.poll());
+                        i = 0;
+                    }
+                }
+            }
+            if (queue.peek().getIndex() == location) {
+                answer = (priorities.length + 1) - queue.size();
+                break;
+            }
+            prioritiesList.remove(queue.peek().getIndex());
+            queue.poll();
+        }
+
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
+    }
+
+    /* TODO : 이것두 뭔가 다른 tc가 필요해 보인다
+    테스트 1 〉	통과 (7.43ms, 74.2MB)
+    테스트 2 〉	실패 (11.17ms, 57.5MB)
+    테스트 3 〉	실패 (7.11ms, 70.2MB)
+    테스트 4 〉	실패 (5.71ms, 59.4MB)
+    테스트 5 〉	통과 (3.81ms, 59.8MB)
+    테스트 6 〉	통과 (6.72ms, 71.6MB)
+    테스트 7 〉	실패 (5.82ms, 72.3MB)
+    테스트 8 〉	통과 (8.14ms, 60.6MB)
+    테스트 9 〉	실패 (4.51ms, 61.4MB)
+    테스트 10 〉	실패 (5.41ms, 59.2MB)
+    테스트 11 〉	실패 (11.56ms, 74.7MB)
+    테스트 12 〉	실패 (4.61ms, 73.7MB)
+    테스트 13 〉	실패 (9.37ms, 73.1MB)
+    테스트 14 〉	통과 (4.34ms, 75.2MB)
+    테스트 15 〉	통과 (5.14ms, 72.4MB)
+    테스트 16 〉	실패 (4.75ms, 58.8MB)
+    테스트 17 〉	통과 (7.49ms, 61.3MB)
+    테스트 18 〉	통과 (8.89ms, 60.6MB)
+    테스트 19 〉	통과 (10.11ms, 72.4MB)
+    테스트 20 〉	실패 (5.84ms, 74.8MB)
+     */
+    @Test
+    @UseDataProvider("dataProviderAdd")
+    public void loopApiWithSkippings(int[] priorities, int location, int expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+
+        Map<Integer, Integer> prioritiesList = IntStream.range(0, priorities.length).boxed().collect(Collectors.toMap(i -> i, i -> priorities[i], (a, b) -> b));
+
+        int answer = 0;
+        ArrayBlockingQueue<DocumentSet> queue = new ArrayBlockingQueue<>(prioritiesList.size());
+
+        for (int i = 0; i < prioritiesList.size(); i++) {
+            queue.add(new DocumentSet(i, prioritiesList.get(i)));
+        }
+
+        while (!queue.isEmpty()) {
+            int skipNullCount = 0;
+            int skipLowPriorityCount = 0;
+            for (int i = 0; i < priorities.length; i++) {
+                if (prioritiesList.get(i + skipLowPriorityCount) != null) {
+                    if (queue.peek().getPrioritie() < prioritiesList.get(i + skipLowPriorityCount)) {
+                        for (int j = 0; j < i - skipNullCount; j++) {
                             queue.add(queue.poll());
                         }
                         i = 0;
-                        k = 0;
-                        l++;
+                        skipNullCount = 0;
+                        skipLowPriorityCount++;
                     }
                 } else {
-                    k++;
+                    skipNullCount++;
                 }
             }
             if (queue.peek().getIndex() == location) {
