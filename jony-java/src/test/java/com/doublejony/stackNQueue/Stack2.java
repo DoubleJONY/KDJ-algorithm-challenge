@@ -74,6 +74,16 @@ public class Stack2 {
                         new int[]{1, 2, 9, 1, 1, 1, 2, 3, 4},
                         4,
                         8
+                },
+                {
+                        new int[]{1, 2, 4, 1, 5, 3, 7, 5, 6, 4, 3, 9, 1, 1, 1, 2, 3, 4},
+                        12,
+                        16
+                },
+                {
+                        new int[]{1, 2, 4, 1, 5, 3, 7, 5, 6, 4, 3, 9, 1, 1, 1, 2, 3, 4},
+                        6,
+                        2
                 }
         };
         // @formatter:on
@@ -141,71 +151,6 @@ public class Stack2 {
                         queue.add(queue.poll());
                         i = 0;
                     }
-                }
-            }
-            if (queue.peek().getIndex() == location) {
-                answer = (priorities.length + 1) - queue.size();
-                break;
-            }
-            prioritiesList.remove(queue.peek().getIndex());
-            queue.poll();
-        }
-
-        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
-    }
-
-    /* TODO : 이것두 뭔가 다른 tc가 필요해 보인다
-    테스트 1 〉	통과 (7.43ms, 74.2MB)
-    테스트 2 〉	실패 (11.17ms, 57.5MB)
-    테스트 3 〉	실패 (7.11ms, 70.2MB)
-    테스트 4 〉	실패 (5.71ms, 59.4MB)
-    테스트 5 〉	통과 (3.81ms, 59.8MB)
-    테스트 6 〉	통과 (6.72ms, 71.6MB)
-    테스트 7 〉	실패 (5.82ms, 72.3MB)
-    테스트 8 〉	통과 (8.14ms, 60.6MB)
-    테스트 9 〉	실패 (4.51ms, 61.4MB)
-    테스트 10 〉	실패 (5.41ms, 59.2MB)
-    테스트 11 〉	실패 (11.56ms, 74.7MB)
-    테스트 12 〉	실패 (4.61ms, 73.7MB)
-    테스트 13 〉	실패 (9.37ms, 73.1MB)
-    테스트 14 〉	통과 (4.34ms, 75.2MB)
-    테스트 15 〉	통과 (5.14ms, 72.4MB)
-    테스트 16 〉	실패 (4.75ms, 58.8MB)
-    테스트 17 〉	통과 (7.49ms, 61.3MB)
-    테스트 18 〉	통과 (8.89ms, 60.6MB)
-    테스트 19 〉	통과 (10.11ms, 72.4MB)
-    테스트 20 〉	실패 (5.84ms, 74.8MB)
-     */
-    @Test
-    @UseDataProvider("dataProviderAdd")
-    public void loopApiWithSkippings(int[] priorities, int location, int expected) {
-
-        Stopwatch timer = Stopwatch.createStarted();
-
-        Map<Integer, Integer> prioritiesList = IntStream.range(0, priorities.length).boxed().collect(Collectors.toMap(i -> i, i -> priorities[i], (a, b) -> b));
-
-        int answer = 0;
-        ArrayBlockingQueue<DocumentSet> queue = new ArrayBlockingQueue<>(prioritiesList.size());
-
-        for (int i = 0; i < prioritiesList.size(); i++) {
-            queue.add(new DocumentSet(i, prioritiesList.get(i)));
-        }
-
-        while (!queue.isEmpty()) {
-            int skipNullCount = 0;
-            int skipLowPriorityCount = 0;
-            for (int i = 0; i < priorities.length; i++) {
-                if (prioritiesList.get(i + skipLowPriorityCount) != null) {
-                    if (queue.peek().getPrioritie() < prioritiesList.get(i + skipLowPriorityCount)) {
-                        for (int j = 0; j < i - skipNullCount; j++) {
-                            queue.add(queue.poll());
-                        }
-                        i = 0;
-                        skipNullCount = 0;
-                        skipLowPriorityCount++;
-                    }
-                } else {
-                    skipNullCount++;
                 }
             }
             if (queue.peek().getIndex() == location) {
