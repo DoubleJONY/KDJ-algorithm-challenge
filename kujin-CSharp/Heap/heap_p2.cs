@@ -146,7 +146,8 @@ namespace Algo
 
             while (jobs.GetLength(0) > arrayIndex || jobList.Count != 0)
             {
-                if (jobList.Count == 0 && jobs[arrayIndex, 0] > time)
+                //solved heoheo
+                  if (jobList.Count == 0 && insertJobList[arrayIndex].Key > time)
                 {
                     //지금까지 넣어진 일이 끝나는 시점보다 뒤에 일이 올 때 그쪽으로 시간을 떙김
 
