@@ -4,11 +4,13 @@ import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import lombok.Getter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,12 +74,21 @@ public class Stack2 {
                         new int[]{1, 2, 9, 1, 1, 1, 2, 3, 4},
                         4,
                         8
+                },
+                {
+                        new int[]{1, 2, 4, 1, 5, 3, 7, 5, 6, 4, 3, 9, 1, 1, 1, 2, 3, 4},
+                        12,
+                        16
+                },
+                {
+                        new int[]{1, 2, 4, 1, 5, 3, 7, 5, 6, 4, 3, 9, 1, 1, 1, 2, 3, 4},
+                        6,
+                        2
                 }
         };
         // @formatter:on
     }
 
-    @Getter
     public static class DocumentSet {
         int index;
         int prioritie;
@@ -96,6 +107,28 @@ public class Stack2 {
         }
     }
 
+    /* TODO : 무엇을 빼먹었을까?
+    테스트 1 〉	통과 (6.25ms, 60.6MB)
+    테스트 2 〉	통과 (10.50ms, 71.7MB)
+    테스트 3 〉	통과 (4.94ms, 69.4MB)
+    테스트 4 〉	통과 (5.04ms, 62.1MB)
+    테스트 5 〉	통과 (4.57ms, 60.4MB)
+    테스트 6 〉	실패 (6.19ms, 58.8MB)
+    테스트 7 〉	통과 (4.63ms, 59.2MB)
+    테스트 8 〉	통과 (9.33ms, 76.7MB)
+    테스트 9 〉	통과 (4.20ms, 71.4MB)
+    테스트 10 〉	통과 (5.28ms, 61.1MB)
+    테스트 11 〉	통과 (6.89ms, 73.9MB)
+    테스트 12 〉	통과 (3.97ms, 74.2MB)
+    테스트 13 〉	통과 (8.28ms, 60.4MB)
+    테스트 14 〉	통과 (4.08ms, 73.9MB)
+    테스트 15 〉	통과 (4.47ms, 71.8MB)
+    테스트 16 〉	통과 (4.39ms, 72.2MB)
+    테스트 17 〉	통과 (8.35ms, 59.6MB)
+    테스트 18 〉	통과 (3.76ms, 73.1MB)
+    테스트 19 〉	통과 (6.70ms, 71.2MB)
+    테스트 20 〉	통과 (6.56ms, 74.1MB)
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void loopApi(int[] priorities, int location, int expected) {
@@ -112,20 +145,12 @@ public class Stack2 {
         }
 
         while (!queue.isEmpty()) {
-            int k = 0;
-            int l = 0;
-            for (int i = 0; i < prioritiesList.size(); i++) {
-                if (prioritiesList.get(i+l) != null) {
-                    if (queue.peek().getPrioritie() < prioritiesList.get(i+l)) {
-                        for (int j = 0; j < i - k; j++) {
-                            queue.add(queue.poll());
-                        }
+            for (int i = 0; i < priorities.length; i++) {
+                if (prioritiesList.get(i) != null) {
+                    if (queue.peek().getPrioritie() < prioritiesList.get(i)) {
+                        queue.add(queue.poll());
                         i = 0;
-                        k = 0;
-                        l++;
                     }
-                } else {
-                    k++;
                 }
             }
             if (queue.peek().getIndex() == location) {
