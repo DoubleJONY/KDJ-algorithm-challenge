@@ -22,17 +22,25 @@ namespace Algo
         }
 
         public int[] solution(string[] operations) {
-            int[] answer = new int[2];
+           int[] answer = new int[2];
             List<int> arr = new List<int>();
             foreach (var oper in operations)
             {
                 switch (oper)
                 {
                     case "D 1":
-                        arr.Remove(arr.IndexOf(arr.Max()));
+                        if (arr.Count != 0)
+                        {
+                            arr.RemoveAt(arr.IndexOf(arr.Max()));
+                        }
+
                         break;
                     case "D -1":
-                        arr.Remove(arr.IndexOf(arr.Min()));
+                        if (arr.Count != 0)
+                        {
+                            arr.RemoveAt(arr.IndexOf(arr.Min()));
+                        }
+
                         break;
                     default:
                         arr.Add(Convert.ToInt32(oper.Substring(2)));
