@@ -7,10 +7,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -159,6 +156,38 @@ public class Stack2 {
             }
             prioritiesList.remove(queue.peek().getIndex());
             queue.poll();
+        }
+
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
+    }
+
+    //List 하나로 관리하려다 실패
+    @Test
+    @UseDataProvider("dataProviderAdd")
+    public void useHashMap(int[] priorities, int location, int expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+
+        Map<Integer, Integer> prioritiesList = IntStream.range(0, priorities.length).boxed().collect(Collectors.toMap(integer -> integer, integer -> priorities[integer], (a, b) -> b, LinkedHashMap::new));
+
+        int answer = 0;
+
+        while (!prioritiesList.isEmpty()) {
+            Map.Entry<Integer, Integer> first = prioritiesList.entrySet().iterator().next();
+            for (int i = 0; i < priorities.length; i++) {
+                if (prioritiesList.get(i) != null) {
+                    if (first.getValue() < prioritiesList.get(i)) {
+                        prioritiesList.put(i, prioritiesList.get(i));
+                        prioritiesList.remove(i);
+                        i = 0;
+                    }
+                }
+            }
+            if (first.getKey() == location) {
+                answer = (priorities.length + 1) - prioritiesList.size();
+                break;
+            }
+            prioritiesList.remove(first.getKey());
         }
 
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
