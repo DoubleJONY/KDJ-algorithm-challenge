@@ -68,6 +68,7 @@ public class Heap3 {
 
         List<Integer> l = new ArrayList<>();
 
+        //mapToInt.max 시간 복잡도 확인 필요
         for (String operation : operations) {
             String o = operation.split(" ")[0];
             int num = Integer.parseInt(operation.split(" ")[1]);

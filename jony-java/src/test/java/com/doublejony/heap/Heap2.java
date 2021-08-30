@@ -101,6 +101,7 @@ public class Heap2 {
 
     private List<Jobs> sortByProgressTime(List<Jobs> l) {
 
+        //꼬리에 들어온 값을 역순으로 스왑 정렬
         for (int i = l.size() - 1; i > 0; i--) {
             if (l.get(i).progressTime < l.get(i - 1).progressTime) {
                 Jobs j1 = l.get(i);
@@ -123,12 +124,15 @@ public class Heap2 {
 
         int answer = 0;
 
+        //1차 : List를 빨리 걸리는 시간 순으로 정렬
         List<Jobs> l = new ArrayList<>();
-        for (int i = 0; i < jobs.length; i++) {
-            l.add(new Jobs(jobs[i][0], jobs[i][1]));
+        for (int[] job : jobs) {
+            l.add(new Jobs(job[0], job[1]));
             l = sortByProgressTime(l);
         }
 
+        //2차 : 시뮬 돌리면서 List에서 요청 시점에 부합하는 가장 앞에 있는 순으로 pop
+        //pop 할 때 경과 시간을 작업 처리 시간 만큼 바로 스킵
         int time = 0;
         while (true) {
             if (l.size() == 0) {
