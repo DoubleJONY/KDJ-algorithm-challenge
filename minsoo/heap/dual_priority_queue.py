@@ -28,9 +28,13 @@ class DEPQ:
                     half = (half + 1) // 2
 
                     if data[0] > number >= data[-1]:
-                        data.append(number)
                         if shift > len(data) // 2:
                             shift -= len(data)
+                            
+                        if shift < 0:
+                            data.append(number)
+                        else:
+                            data.appendleft(number)
                         data.rotate(shift)
                         break
         else:
