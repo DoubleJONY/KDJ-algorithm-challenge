@@ -9,7 +9,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.PriorityQueue;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -45,26 +46,38 @@ public class Heap3 {
     @DataProvider
     public static Object[][] dataProviderAdd() {
         // @formatter:off
-        return new Object[][] {
+        return new Object[][]{
                 {
-                        new String[] { "I 16", "D 1" },
-                        new int[] { 0, 0 }
+                        new String[]{"I 16", "D 1"},
+                        new int[]{0, 0}
                 },
                 {
-                        new String[] { "I 7", "I 5", "I -5", "D -1" },
-                        new int[] { 7, 5 }
+                        new String[]{"I 7", "I 5", "I -5", "D -1"},
+                        new int[]{7, 5}
+                },
+                {
+                        new String[]{"I 7", "I -2", "I -4", "D 1", "I 14", "I -18", "D -1", "I -7", "I 5", "I -5", "D -1", "D 1"},
+                        new int[]{5, -5}
                 }
         };
         // @formatter:on
     }
 
+    /*
+    테스트 1 〉	통과 (3.90ms, 71.8MB)
+    테스트 2 〉	통과 (3.69ms, 61.7MB)
+    테스트 3 〉	통과 (3.21ms, 61.1MB)
+    테스트 4 〉	통과 (2.95ms, 58.5MB)
+    테스트 5 〉	통과 (2.83ms, 59.7MB)
+    테스트 6 〉	통과 (1.90ms, 59.7MB)
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void useList(String[] operations, int[] expected) {
 
         Stopwatch timer = Stopwatch.createStarted();
 
-        int[] answer = {};
+        int[] answer;
 
         List<Integer> l = new ArrayList<>();
 
@@ -83,7 +96,50 @@ public class Heap3 {
             }
         }
 
-        answer = new int[] { l.stream().mapToInt(x -> x).max().orElse(0), l.stream().mapToInt(x -> x).min().orElse(0) };
+        answer = new int[]{
+                l.stream().mapToInt(x -> x).max().orElse(0),
+                l.stream().mapToInt(x -> x).min().orElse(0)
+        };
+
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
+    }
+
+    /*
+    테스트 1 〉	통과 (2.81ms, 57.8MB)
+    테스트 2 〉	통과 (1.94ms, 74.3MB)
+    테스트 3 〉	통과 (1.87ms, 69.4MB)
+    테스트 4 〉	통과 (1.98ms, 59MB)
+    테스트 5 〉	통과 (1.52ms, 72.5MB)
+    테스트 6 〉	통과 (1.85ms, 72.7MB)
+     */
+    @Test
+    @UseDataProvider("dataProviderAdd")
+    public void usePriorityQueue(String[] operations, int[] expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+
+        int[] answer;
+
+        PriorityQueue<Integer> l = new PriorityQueue<>();
+
+        for (String operation : operations) {
+            String o = operation.split(" ")[0];
+            int num = Integer.parseInt(operation.split(" ")[1]);
+            if (o.equals("I")) {
+                l.add(num);
+            } else if (o.equals("D")) {
+                if (num == 1) {
+                    l.remove(l.stream().mapToInt(x -> x).max().orElse(0));
+                } else if (num == -1) {
+                    l.poll();
+                }
+            }
+        }
+
+        answer = new int[]{
+                l.stream().mapToInt(x -> x).max().orElse(0),
+                Optional.ofNullable(l.peek()).orElse(0)
+        };
 
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, answer, timer.stop());
     }
