@@ -64,7 +64,8 @@ public class Heap1 {
 
         int answer = 0;
 
-        //PriorityQueue 는 Heap으로 구현되어있음 -> comparator
+        //PriorityQueue 는 Comparable 을 상속받아 add시 heap 구조로 계속 swap 하게 됨
+        //https://velog.io/@gillog/Java-Priority-Queue%EC%9A%B0%EC%84%A0-%EC%88%9C%EC%9C%84-%ED%81%90
         PriorityQueue<Integer> p = Arrays.stream(scoville).boxed().collect(Collectors.toCollection(PriorityQueue::new));
 
         try {
