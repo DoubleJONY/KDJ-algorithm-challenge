@@ -18,11 +18,11 @@ import static com.doublejony.common.AssertResolve.resolve;
  * 가장 큰 수
  * <p>
  * 0 또는 양의 정수가 주어졌을 때, 정수를 이어 붙여 만들 수 있는 가장 큰 수를 알아내 주세요.
- *
+ * <p>
  * 예를 들어, 주어진 정수가 [6, 10, 2]라면 [6102, 6210, 1062, 1026, 2610, 2106]를 만들 수 있고, 이중 가장 큰 수는 6210입니다.
- *
+ * <p>
  * 0 또는 양의 정수가 담긴 배열 numbers가 매개변수로 주어질 때, 순서를 재배치하여 만들 수 있는 가장 큰 수를 문자열로 바꾸어 return 하도록 solution 함수를 작성해주세요.
- *
+ * <p>
  * 제한 사항
  * numbers의 길이는 1 이상 100,000 이하입니다.
  * numbers의 원소는 0 이상 1,000 이하입니다.
@@ -86,7 +86,7 @@ public class Sort2 {
         };
         // @formatter:on
     }
-    
+
     @Test
     @UseDataProvider("dataProviderAdd")
     public void useRecurrence(int[] numbers, String expected) {
@@ -114,7 +114,7 @@ public class Sort2 {
         @Override
         public int compareTo(Comp o) {
 
-            if(this.number == o.number) {
+            if (this.number == o.number) {
                 return 1;
             }
 
@@ -143,7 +143,7 @@ public class Sort2 {
                 if (f == 2) {
                     if (String.valueOf(this.number).length() > String.valueOf(o.number).length()) {
                         return -1;
-                    } else if (String.valueOf(this.number).length() < String.valueOf(o.number).length()){
+                    } else if (String.valueOf(this.number).length() < String.valueOf(o.number).length()) {
                         return 1;
                     } else {
                         return this.number > o.number ? 1 : -1;
@@ -163,6 +163,19 @@ public class Sort2 {
         }
     }
 
+    /*
+    테스트 1 〉	통과 (712.66ms, 352MB)
+    테스트 2 〉	통과 (251.36ms, 195MB)
+    테스트 3 〉	통과 (767.04ms, 393MB)
+    테스트 4 〉	통과 (73.39ms, 75.6MB)
+    테스트 5 〉	통과 (512.86ms, 285MB)
+    테스트 6 〉	통과 (322.34ms, 260MB)
+    테스트 7 〉	통과 (5.74ms, 59.5MB)
+    테스트 8 〉	통과 (6.55ms, 71MB)
+    테스트 9 〉	통과 (7.85ms, 74.8MB)
+    테스트 10 〉	통과 (10.25ms, 56.5MB)
+    테스트 11 〉	통과 (3.56ms, 68MB)
+     */
     @Test
     @UseDataProvider("dataProviderAdd")
     public void useStringCompare(int[] numbers, String expected) {
@@ -188,8 +201,8 @@ public class Sort2 {
         @Override
         public int compareTo(Comp2 o) {
 
-            int a = Integer.parseInt(String.valueOf(this.number) + String.valueOf(o.number));
-            int b = Integer.parseInt(String.valueOf(o.number) + String.valueOf(this.number));
+            int a = Integer.parseInt(String.valueOf(this.number) + o.number);
+            int b = Integer.parseInt(String.valueOf(o.number) + this.number);
             return a <= b ? 1 : -1;
         }
     }
