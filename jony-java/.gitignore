@@ -1,3 +1,4 @@
 .idea
 target
 lib
+/src/test/java/com/doublejony/mobisTest/
