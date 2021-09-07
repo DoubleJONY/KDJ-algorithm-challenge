@@ -39,42 +39,6 @@ namespace Algo.Sort
                 answerBuilder.Append(numbers[i].ToString());
             }
             
-            // StringBuilder answerBuilder = new StringBuilder(); 
-            // Array.Sort(numbers);
-            //
-            //
-            // Dictionary<int, List<int>> makeBigNum = new Dictionary<int, List<int>>();
-            // makeBigNum.Add(9,new List<int>());
-            // makeBigNum.Add(8,new List<int>());
-            // makeBigNum.Add(7,new List<int>());
-            // makeBigNum.Add(6,new List<int>());
-            // makeBigNum.Add(5,new List<int>());
-            // makeBigNum.Add(4,new List<int>());
-            // makeBigNum.Add(3,new List<int>());
-            // makeBigNum.Add(2,new List<int>());
-            // makeBigNum.Add(1,new List<int>());
-            // makeBigNum.Add(0,new List<int>());
-            //
-            // foreach (var num in numbers)
-            // {
-            //     int temp = num;
-            //     while (temp > 9)
-            //     {
-            //         temp /= 10;
-            //        
-            //     }
-            //     makeBigNum[temp].Add(num);
-            // }
-            //
-            // foreach (var list in makeBigNum)
-            // {
-            //     foreach (var num in list.Value)
-            //     {
-            //         answerBuilder.Append(num.ToString());
-            //     }
-            // }
-
-
 
             answer = answerBuilder.ToString();
             
