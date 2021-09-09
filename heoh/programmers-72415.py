@@ -49,16 +49,14 @@ def find_min_cost(candidates, cur):
         cost_0 = 0
         cost_0 += flip_card(candidates, cur, cards[s][0])
         cost_0 += flip_card(candidates, cards[s][0], cards[s][1])
-        bitset_remove(candidates, s)
-        cost_0 += find_min_cost(candidates, cards[s][1])
-        bitset_add(candidates, s)
+        next_candidates = bitset_remove(candidates, s)
+        cost_0 += find_min_cost(next_candidates, cards[s][1])
 
         cost_1 = 0
         cost_1 += flip_card(candidates, cur, cards[s][1])
         cost_1 += flip_card(candidates, cards[s][1], cards[s][0])
-        bitset_remove(candidates, s)
-        cost_1 += find_min_cost(candidates, cards[s][0])
-        bitset_add(candidates, s)
+        next_candidates = bitset_remove(candidates, s)
+        cost_1 += find_min_cost(next_candidates, cards[s][0])
 
         min_cost = min(cost_0, cost_1)
 
