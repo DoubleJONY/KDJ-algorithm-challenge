@@ -16,3 +16,9 @@ def parse_cards(board):
             if shape != 0:
                 cards[shape].append((r, c))
     return cards
+
+def make_bitset(shapes):
+    b = 0
+    for s in shapes:
+        b |= 1 << s
+    return b
