@@ -90,6 +90,10 @@ def move_dir(cur, d):
     y, x = cur
     return (y + DY[d], x + DX[d])
 
+def point_in_board(p):
+    y, x = p
+    return (y in range(4)) and (x in range(4))
+
 def bitset_mask(i):
     return 1 << i
 
