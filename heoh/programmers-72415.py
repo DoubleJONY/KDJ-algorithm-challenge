@@ -1,10 +1,16 @@
 from collections import defaultdict
+from functools import lru_cache
+from queue import PriorityQueue
 
 MAX_COST = 0x7fffffff
+DY = [0, 1, 0, -1]
+DX = [-1, 0, 1, 0]
+
 cards = {}
 
-def solution(board, r, c):
+def solution(board_, r, c):
     global cards
+    board = board_
     cards = parse_cards(board)
     candidates = make_bitset(cards.keys())
     cur = (r, c)
@@ -55,6 +61,30 @@ def find_min_cost(candidates, cur):
         min_cost = min(cost_0, cost_1)
 
     return min_cost
+
+@lru_cache
+def flip_card(candidates, start, end):
+    visited = set()
+    pq = PriorityQueue()
+    pq.put((0, start))
+    visited.add(start)
+
+    while pq:
+        t, cur = pq.get()
+        if cur == end:
+            return t
+        
+        for d in range(0, 4):
+            next_ = move_dir(cur, d)
+            if point_in_board(next_) and (not next_ in visited):
+                pq.put((t+1, next_))
+    
+        for d in range(0, 4):
+            next_ = move_dir_ctrl(cur, d, candidates)
+            if point_in_board(next_) and (not next_ in visited):
+                pq.put((t+1, next_))
+    
+    return MAX_COST
 
 def bitset_mask(i):
     return 1 << i
