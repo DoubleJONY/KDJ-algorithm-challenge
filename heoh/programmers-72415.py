@@ -7,8 +7,10 @@ DY = [0, 1, 0, -1]
 DX = [-1, 0, 1, 0]
 
 cards = {}
+board = None
 
 def solution(board_, r, c):
+    global board
     global cards
     board = board_
     cards = parse_cards(board)
@@ -107,6 +109,11 @@ def move_dir_ctrl(cur, d, candidates):
             break
 
     return cur
+
+def point_on_card(cur, candidates):
+    r, c = cur
+    shape = board[r][c]
+    return (shape != 0 and bitset_has(candidates, shape))
 
 def bitset_mask(i):
     return 1 << i
