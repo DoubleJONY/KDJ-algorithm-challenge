@@ -55,3 +55,15 @@ def find_min_cost(candidates, cur):
         min_cost = min(cost_0, cost_1)
 
     return min_cost
+
+def bitset_mask(i):
+    return 1 << i
+
+def bitset_has(bitset, i):
+    return (bitset & bitset_mask(i)) != 0
+
+def bitset_add(bitset, i):
+    return bitset | bitset_mask(i)
+
+def bitset_remove(bitset, i):
+    return bitset & ~bitset_mask(i)
