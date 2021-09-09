@@ -37,6 +37,7 @@ def make_bitset(shapes):
 # - r, c: 현재 커서 위치
 # returns
 # - 현재 상황에서 최적으로 처리했을 때의 비용 (최소 이동 횟수)
+@lru_cache
 def find_min_cost(candidates, cur):
     if not candidates:
         return 0
@@ -94,8 +95,9 @@ def move_dir(cur, d):
 
 def point_in_board(p):
     y, x = p
-    return (y in range(4)) and (x in range(4))
+    return (0 <= y < 4) and (0 <= x < 4)
 
+@lru_cache
 def move_dir_ctrl(cur, d, candidates):
     next_ = (cur[0] + DY[d], cur[1] + DX[d])
 
