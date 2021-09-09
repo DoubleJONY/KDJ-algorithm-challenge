@@ -1,3 +1,7 @@
+cards = {}
+
 def solution(board, r, c):
-    answer = 0
-    return answer
+    global cards
+    cards = parse_cards(board)
+    candidates = make_bitset(cards.keys())
+    return find_min_cost(candidates, r, c)
