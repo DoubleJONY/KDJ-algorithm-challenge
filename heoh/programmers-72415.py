@@ -58,7 +58,7 @@ def find_min_cost(candidates, cur):
         next_candidates = bitset_remove(candidates, s)
         cost_1 += find_min_cost(next_candidates, cards[s][0])
 
-        min_cost = min(cost_0, cost_1)
+        min_cost = min(min_cost, cost_0, cost_1)
 
     return min_cost
 
