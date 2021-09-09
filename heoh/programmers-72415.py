@@ -86,6 +86,10 @@ def flip_card(candidates, start, end):
     
     return MAX_COST
 
+def move_dir(cur, d):
+    y, x = cur
+    return (y + DY[d], x + DX[d])
+
 def bitset_mask(i):
     return 1 << i
 
