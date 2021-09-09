@@ -96,6 +96,18 @@ def point_in_board(p):
     y, x = p
     return (y in range(4)) and (x in range(4))
 
+def move_dir_ctrl(cur, d, candidates):
+    next_ = (cur[0] + DY[d], cur[1] + DX[d])
+
+    while point_in_board(next_):
+        cur = next_
+        next_ = (cur[0] + DY[d], cur[1] + DX[d])
+
+        if point_on_card(cur, candidates):
+            break
+
+    return cur
+
 def bitset_mask(i):
     return 1 << i
 
