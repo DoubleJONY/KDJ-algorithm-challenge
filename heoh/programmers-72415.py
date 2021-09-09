@@ -79,13 +79,13 @@ def flip_card(candidates, start, end):
             next_ = move_dir(cur, d)
             if point_in_board(next_) and (not next_ in visited):
                 pq.put((t+1, next_))
-                visited.add(start)
+                visited.add(next_)
     
         for d in range(0, 4):
             next_ = move_dir_ctrl(cur, d, candidates)
             if point_in_board(next_) and (not next_ in visited):
                 pq.put((t+1, next_))
-                visited.add(start)
+                visited.add(next_)
     
     return MAX_COST
 
