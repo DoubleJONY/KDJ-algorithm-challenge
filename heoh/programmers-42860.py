@@ -42,18 +42,6 @@ def make_targets_bits(name: str):
             bits |= 1 << i
     return bits
 
-def count_right_margin(name: str):
-    for i, c in enumerate(name[1:]):
-        if c != 'A':
-            return i
-    return len(name) - 1
-
-def count_left_margin(name: str):
-    for i, c in enumerate(name[1:][::-1]):
-        if c != 'A':
-            return i
-    return len(name) - 1
-
 def find_optimal_up_down_count(name: str):
     count = 0
     for c in name:
