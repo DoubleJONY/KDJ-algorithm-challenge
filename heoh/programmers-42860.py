@@ -21,7 +21,7 @@ def find_optimal_left_right_count(name: str):
     n = len(name)
     sequences = find_all_name_sequences(name)
 
-    min_count = MAX_INT
+    min_count = n - 1
 
     for seq in sequences:
         left, right = seq
