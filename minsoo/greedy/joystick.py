@@ -1,31 +1,31 @@
 # https://programmers.co.kr/learn/courses/30/lessons/42860
 
-def cnt(curr, trgt):
-    curr, trgt = ord(curr), ord(trgt)
-    return min(trgt - curr, (curr - trgt) % 26)
+def get_char_cnt(letter):
+    return min((dist := ord(letter) - ord('A')), -dist % 26)
 
-def move_cnt(i, name, changed):
-    left, right = (i - 1) % len(name), (i + 1) % len(name)
-    left_cnt = right_cnt = 1
+def get_move_cnt(name, pos, visited, d):
+    if visited == (1 << len(name)) - 1:
+        return pos, 0
+
+    cnt = 0
+    while 1 << pos & visited:
+        pos = (pos + d) % len(name)
+        cnt += 1
+    return pos, cnt
+
+def find_minimum(name, visited, pos=0, cnt=0):
+    if visited == (1 << len(name)) - 1:
+        return cnt
+
+    cnt += get_char_cnt(name[pos])
+    visited |= 1 << pos
+    left_pos, left_cnt = get_move_cnt(name, pos, visited, -1)
+    right_pos, right_cnt = get_move_cnt(name, pos, visited, 1)
     
-    while left_cnt < len(name) - 1 and left in changed or name[left] == 'A':
-        left = (left - 1) % len(name)
-        left_cnt += 1
-        
-    while right_cnt < len(name) - 1 and right in changed or name[right] == 'A':
-        right = (right + 1) % len(name)
-        right_cnt += 1
-    
-    return (left_cnt, left) if left_cnt < right_cnt else (right_cnt, right)
+    return min(
+        find_minimum(name, visited, left_pos, cnt + left_cnt),
+        find_minimum(name, visited, right_pos, cnt + right_cnt)
+    )
 
 def solution(name):
-    curr = ['A' for _ in name]
-    changed = set()
-    i, tot_cnt = 0, 0
-    while i not in changed:
-        tot_cnt += cnt(curr[i], name[i])
-        changed.add(i)
-        move, i = move_cnt(i, name, changed)
-        tot_cnt += move
-    
-    return tot_cnt - move
+    return find_minimum(name, sum(1 << n for n, c in enumerate(name) if c == 'A'))
