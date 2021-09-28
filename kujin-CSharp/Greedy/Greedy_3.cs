@@ -50,6 +50,27 @@ namespace Algo.Greedy
             string answer = string.Join("",temp);
             return answer;
         }
+        
+        public string solution1(string number, int k) {
+            string answer = "";
+            
+            int nextIndex = 0;
+            for (int i = 0; i < number.Length-k; i++) {
+                char maxNum = number[nextIndex];
+                int maxIdx = nextIndex;
+                for (int j = nextIndex; j <= k + i; j++) {
+                    if (maxNum < number[j]) {
+                        maxNum = number[j];
+                        maxIdx = j;
+                    }
+                }
+                nextIndex = maxIdx + 1;
+                answer += number[maxIdx];
+            }
+            
+
+            return answer;
+        }
        
     }
     
