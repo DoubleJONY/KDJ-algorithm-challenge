@@ -157,6 +157,8 @@ public class Greedy3 {
                         if(s.get(j) < i) {
                             s.pop();
                             k--;
+                        } else {
+                            break;
                         }
                         if(k <= 0) {
                             break;
