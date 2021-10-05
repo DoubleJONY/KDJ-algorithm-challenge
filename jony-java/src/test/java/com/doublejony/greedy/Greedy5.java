@@ -8,32 +8,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.PriorityQueue;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
 /**
  * 구명보트
  * <p>
- * 무인도에 갇힌 사람들을 구명보트를 이용하여 구출하려고 합니다. 구명보트는 작아서 한 번에 최대 2명씩 밖에 탈 수 없고, 무게 제한도 있습니다.
+ * n개의 섬 사이에 다리를 건설하는 비용(costs)이 주어질 때, 최소의 비용으로 모든 섬이 서로 통행 가능하도록 만들 때 필요한 최소 비용을 return 하도록 solution을 완성하세요.
  *
- * 예를 들어, 사람들의 몸무게가 [70kg, 50kg, 80kg, 50kg]이고 구명보트의 무게 제한이 100kg이라면 2번째 사람과 4번째 사람은 같이 탈 수 있지만 1번째 사람과 3번째 사람의 무게의 합은 150kg이므로 구명보트의 무게 제한을 초과하여 같이 탈 수 없습니다.
- *
- * 구명보트를 최대한 적게 사용하여 모든 사람을 구출하려고 합니다.
- *
- * 사람들의 몸무게를 담은 배열 people과 구명보트의 무게 제한 limit가 매개변수로 주어질 때, 모든 사람을 구출하기 위해 필요한 구명보트 개수의 최솟값을 return 하도록 solution 함수를 작성해주세요.
+ * 다리를 여러 번 건너더라도, 도달할 수만 있으면 통행 가능하다고 봅니다. 예를 들어 A 섬과 B 섬 사이에 다리가 있고, B 섬과 C 섬 사이에 다리가 있으면 A 섬과 C 섬은 서로 통행 가능합니다.
  *
  * 제한사항
- * 무인도에 갇힌 사람은 1명 이상 50,000명 이하입니다.
- * 각 사람의 몸무게는 40kg 이상 240kg 이하입니다.
- * 구명보트의 무게 제한은 40kg 이상 240kg 이하입니다.
- * 구명보트의 무게 제한은 항상 사람들의 몸무게 중 최댓값보다 크게 주어지므로 사람들을 구출할 수 없는 경우는 없습니다.
+ *
+ * 섬의 개수 n은 1 이상 100 이하입니다.
+ * costs의 길이는 ((n-1) * n) / 2이하입니다.
+ * 임의의 i에 대해, costs[i][0] 와 costs[i] [1]에는 다리가 연결되는 두 섬의 번호가 들어있고, costs[i] [2]에는 이 두 섬을 연결하는 다리를 건설할 때 드는 비용입니다.
+ * 같은 연결은 두 번 주어지지 않습니다. 또한 순서가 바뀌더라도 같은 연결로 봅니다. 즉 0과 1 사이를 연결하는 비용이 주어졌을 때, 1과 0의 비용이 주어지지 않습니다.
+ * 모든 섬 사이의 다리 건설 비용이 주어지지 않습니다. 이 경우, 두 섬 사이의 건설이 불가능한 것으로 봅니다.
+ * 연결할 수 없는 섬은 주어지지 않습니다.
  * 입출력 예
- * people	        limit	return
- * [70, 50, 80, 50]	100	    3
- * [70, 80, 50]	    100	    3
+ *
+ * n	costs	                                    return
+ * 4	[[0,1,1],[0,2,2],[1,2,5],[1,3,1],[2,3,8]]	4
  */
 @RunWith(DataProviderRunner.class)
 public class Greedy5 {
@@ -43,70 +41,56 @@ public class Greedy5 {
         // @formatter:off
         return new Object[][]{
                 {
-                        new int[]{70, 50, 80, 50},
-                        100,
-                        3
-                },
-                {
-                        new int[]{70, 80, 50},
-                        100,
-                        3
+                        4,
+                        new int[][]{{0, 1, 1},{0, 2, 2},{1, 2, 5},{1, 3, 1},{2, 3, 8}},
+                        4
                 }
         };
         // @formatter:on
     }
 
-    /*
-    테스트 1 〉	통과 (4.46ms, 78.5MB)
-    테스트 2 〉	통과 (3.55ms, 72MB)
-    테스트 3 〉	통과 (5.86ms, 81.9MB)
-    테스트 4 〉	통과 (3.61ms, 90.1MB)
-    테스트 5 〉	통과 (2.21ms, 77MB)
-    테스트 6 〉	통과 (1.49ms, 74.3MB)
-    테스트 7 〉	통과 (2.00ms, 73.1MB)
-    테스트 8 〉	통과 (0.63ms, 77.3MB)
-    테스트 9 〉	통과 (0.75ms, 79.2MB)
-    테스트 10 〉	통과 (3.88ms, 78.7MB)
-    테스트 11 〉	통과 (3.43ms, 77.4MB)
-    테스트 12 〉	통과 (3.07ms, 73.9MB)
-    테스트 13 〉	통과 (3.50ms, 79.1MB)
-    테스트 14 〉	통과 (3.88ms, 78.3MB)
-    테스트 15 〉	통과 (0.84ms, 73.4MB)
-    효율성  테스트
-    테스트 1 〉	통과 (35.62ms, 56.7MB)
-    테스트 2 〉	통과 (34.18ms, 56.3MB)
-    테스트 3 〉	통과 (34.00ms, 55.6MB)
-    테스트 4 〉	통과 (30.71ms, 54.9MB)
-    테스트 5 〉	통과 (30.19ms, 55.4MB)
-     */
     @Test
     @UseDataProvider("testCase")
-    public void useFullScanLoop(int[] people, int limit, int expected) {
+    public void useFullScanLoop(int n, int[][] costs, int expected) {
 
         Stopwatch timer = Stopwatch.createStarted();
-        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(people, limit), timer.stop());
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(n, costs), timer.stop());
+    }
+    class CostMap implements Comparable<CostMap> {
+        int index;
+        int cost;
+
+        public CostMap(int index, int cost) {
+            this.index = index;
+            this.cost = cost;
+        }
+
+        @Override
+        public int compareTo(CostMap o) {
+
+            return this.cost > o.cost ? 1 : -1;
+        }
     }
 
     class Solution {
-        public int solution(int[] people, int limit) {
+        public int solution(int n, int[][] costs) {
             int answer = 0;
 
-            List<Integer> p = new ArrayList<>();
-            for (int person : people) {
-                Integer integer = person;
-                p.add(integer);
+            List<Integer> l = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                l.add(i);
             }
-            p.sort(null);
 
-            int leftIndex = 0;
-            int rightIndex = p.size() - 1;
+            PriorityQueue<CostMap> indexQueue = new PriorityQueue<>();
+            for (int i = 0; i < costs.length; i++) {
+                indexQueue.add(new CostMap(i, costs[i][2]));
+            }
 
-            while(leftIndex <= rightIndex) {
-                if (p.get(leftIndex) + p.get(rightIndex) <= limit) {
-                    leftIndex++;
-                }
-                rightIndex--;
-                answer++;
+            while (!l.isEmpty() && !indexQueue.isEmpty()) {
+                CostMap c = indexQueue.poll();
+                l.remove((Integer) costs[c.index][0]);
+                l.remove((Integer) costs[c.index][1]);
+                answer += c.cost;
             }
 
             return answer;
