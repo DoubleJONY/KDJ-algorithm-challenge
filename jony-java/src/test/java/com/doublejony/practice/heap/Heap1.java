@@ -1,4 +1,4 @@
-package com.doublejony.heap;
+package com.doublejony.practice.heap;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;

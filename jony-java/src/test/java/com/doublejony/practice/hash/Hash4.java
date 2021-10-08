@@ -1,4 +1,4 @@
-package com.doublejony.hash;
+package com.doublejony.practice.hash;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;

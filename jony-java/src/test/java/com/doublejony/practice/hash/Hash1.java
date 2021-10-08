@@ -1,4 +1,4 @@
-package com.doublejony.hash;
+package com.doublejony.practice.hash;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 
 import static com.doublejony.common.AssertResolve.resolve;

@@ -1,4 +1,4 @@
-package com.doublejony.greedy;
+package com.doublejony.practice.greedy;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -6,10 +6,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.doublejony.common.AssertResolve.resolve;
 

@@ -1,4 +1,4 @@
-package com.doublejony.greedy;
+package com.doublejony.practice.greedy;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -14,7 +14,7 @@ import java.util.PriorityQueue;
 import static com.doublejony.common.AssertResolve.resolve;
 
 /**
- * 구명보트
+ * 다리 건너기
  * <p>
  * n개의 섬 사이에 다리를 건설하는 비용(costs)이 주어질 때, 최소의 비용으로 모든 섬이 서로 통행 가능하도록 만들 때 필요한 최소 비용을 return 하도록 solution을 완성하세요.
  *

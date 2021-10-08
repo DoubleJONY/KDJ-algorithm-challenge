@@ -1,4 +1,4 @@
-package com.doublejony.sort;
+package com.doublejony.practice.sort;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;

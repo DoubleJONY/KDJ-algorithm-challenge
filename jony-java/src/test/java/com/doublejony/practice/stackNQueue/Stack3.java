@@ -1,4 +1,4 @@
-package com.doublejony.stackNQueue;
+package com.doublejony.practice.stackNQueue;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
