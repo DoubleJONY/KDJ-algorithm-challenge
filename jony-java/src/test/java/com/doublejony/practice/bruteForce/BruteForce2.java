@@ -1,4 +1,4 @@
-package com.doublejony.bruteForce;
+package com.doublejony.practice.bruteForce;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
