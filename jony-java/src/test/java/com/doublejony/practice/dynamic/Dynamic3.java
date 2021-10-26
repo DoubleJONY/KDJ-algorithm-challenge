@@ -56,9 +56,31 @@ public class Dynamic3 {
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(m, n, puddles), timer.stop());
     }
 
+    /**
+     * 테스트 1 〉	통과 (0.02ms, 74MB)
+     * 테스트 2 〉	통과 (0.02ms, 76MB)
+     * 테스트 3 〉	통과 (0.02ms, 74.8MB)
+     * 테스트 4 〉	통과 (0.03ms, 75.5MB)
+     * 테스트 5 〉	통과 (0.05ms, 73.4MB)
+     * 테스트 6 〉	통과 (0.05ms, 77MB)
+     * 테스트 7 〉	통과 (0.03ms, 76.1MB)
+     * 테스트 8 〉	통과 (0.06ms, 72.6MB)
+     * 테스트 9 〉	통과 (0.03ms, 73.4MB)
+     * 테스트 10 〉	통과 (0.02ms, 76.2MB)
+     * 효율성  테스트
+     * 테스트 1 〉	통과 (0.87ms, 52.4MB)
+     * 테스트 2 〉	통과 (0.43ms, 68.2MB)
+     * 테스트 3 〉	통과 (0.46ms, 52.2MB)
+     * 테스트 4 〉	통과 (0.61ms, 52.7MB)
+     * 테스트 5 〉	통과 (0.60ms, 52MB)
+     * 테스트 6 〉	통과 (0.51ms, 51.8MB)
+     * 테스트 7 〉	통과 (0.43ms, 52.3MB)
+     * 테스트 8 〉	통과 (0.73ms, 52.4MB)
+     * 테스트 9 〉	통과 (0.69ms, 51.5MB)
+     * 테스트 10 〉	통과 (0.68ms, 52.1MB)
+     */
     class Solution {
         public int solution(int m, int n, int[][] puddles) {
-            int answer = 0;
 
             int[][] map  = new int[n][m];
 
@@ -67,32 +89,23 @@ public class Dynamic3 {
             }
 
             map[0][0] = 1;
-            for (int i = 0; i < n-1; i++) {
-                for (int j = 0; j < m-1; j++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < m; j++) {
                     if(map[i][j] == -1) {
+                        map[i][j] = 0;
                         continue;
                     }
-                    if(map[i][j+1] != -1) {
-                        map[i][j+1] += 1;
+                    if(i != 0) {
+                        map[i][j] += map[i - 1][j] % 1000000007;
                     }
-                    if(map[i+1][j] != -1) {
-                        map[i+1][j] += 1;
+
+                    if(j != 0) {
+                        map[i][j] += map[i][j - 1] % 1000000007;
                     }
                 }
             }
 
-            for (int i = 0; i < n; i++) {
-                if(map[i][m-1] != -1) {
-                    answer += map[i][m-1];
-                }
-            }
-            for (int i = 0; i < m; i++) {
-                if(map[n-1][i] != -1) {
-                    answer += map[n-1][i];
-                }
-            }
-
-            return answer;
+            return map[n - 1][m - 1] % 1000000007;
         }
     }
 }
