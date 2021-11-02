@@ -3,5 +3,4 @@ target
 lib
 /src/test/java/com/doublejony/mobisTest/
 /src/test/java/com/doublejony/kakao2022/
-/src/test/java/com/doublejony/interview/kakao2022/
-/src/test/java/com/doublejony/interview/mobisTest/
+/src/test/java/com/doublejony/interview/
