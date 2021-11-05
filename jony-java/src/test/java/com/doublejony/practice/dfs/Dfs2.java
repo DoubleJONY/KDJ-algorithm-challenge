@@ -7,40 +7,43 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
 /**
- * n개의 음이 아닌 정수가 있습니다. 이 수를 적절히 더하거나 빼서 타겟 넘버를 만들려고 합니다. 예를 들어 [1, 1, 1, 1, 1]로 숫자 3을 만들려면 다음 다섯 방법을 쓸 수 있습니다.
+ * 네트워크
+ * 네트워크란 컴퓨터 상호 간에 정보를 교환할 수 있도록 연결된 형태를 의미합니다. 예를 들어, 컴퓨터 A와 컴퓨터 B가 직접적으로 연결되어있고, 컴퓨터 B와 컴퓨터 C가 직접적으로 연결되어 있을 때 컴퓨터 A와 컴퓨터 C도 간접적으로 연결되어 정보를 교환할 수 있습니다. 따라서 컴퓨터 A, B, C는 모두 같은 네트워크 상에 있다고 할 수 있습니다.
  *
- * -1+1+1+1+1 = 3
- * +1-1+1+1+1 = 3
- * +1+1-1+1+1 = 3
- * +1+1+1-1+1 = 3
- * +1+1+1+1-1 = 3
- * 사용할 수 있는 숫자가 담긴 배열 numbers, 타겟 넘버 target이 매개변수로 주어질 때 숫자를 적절히 더하고 빼서 타겟 넘버를 만드는 방법의 수를 return 하도록 solution 함수를 작성해주세요.
+ * 컴퓨터의 개수 n, 연결에 대한 정보가 담긴 2차원 배열 computers가 매개변수로 주어질 때, 네트워크의 개수를 return 하도록 solution 함수를 작성하시오.
  *
  * 제한사항
- * 주어지는 숫자의 개수는 2개 이상 20개 이하입니다.
- * 각 숫자는 1 이상 50 이하인 자연수입니다.
- * 타겟 넘버는 1 이상 1000 이하인 자연수입니다.
+ * 컴퓨터의 개수 n은 1 이상 200 이하인 자연수입니다.
+ * 각 컴퓨터는 0부터 n-1인 정수로 표현합니다.
+ * i번 컴퓨터와 j번 컴퓨터가 연결되어 있으면 computers[i][j]를 1로 표현합니다.
+ * computer[i][i]는 항상 1입니다.
  * 입출력 예
- * numbers	target	return
- * [1, 1, 1, 1, 1]	3	5
+ * n	computers	return
+ * 3	[[1, 1, 0], [1, 1, 0], [0, 0, 1]]	2
+ * 3	[[1, 1, 0], [1, 1, 1], [0, 1, 1]]	1
  */
 @RunWith(DataProviderRunner.class)
-public class Dfs1 {
+public class Dfs2 {
 
     @DataProvider
     public static Object[][] testCase() {
         // @formatter:off
         return new Object[][]{
                 {
-                        new int[] {1, 1, 1, 1, 1},
                         3,
-                        5
+                        new int[][] {{1, 1, 0}, {1, 1, 0}, {0, 0, 1}},
+                        2
+                },
+                {
+                        3,
+                        new int[][] {{1, 1, 0}, {1, 1, 1}, {0, 1, 1}},
+                        1
                 }
         };
         // @formatter:on
@@ -48,36 +51,73 @@ public class Dfs1 {
 
     @Test
     @UseDataProvider("testCase")
-    public void solution(int[] numbers, int target, int expected) {
+    public void solution(int n, int[][] computers, int expected) {
 
         Stopwatch timer = Stopwatch.createStarted();
-        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(numbers, target), timer.stop());
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(n, computers), timer.stop());
     }
 
+    /**
+     * 테스트 1 〉	통과 (0.08ms, 72.2MB)
+     * 테스트 2 〉	통과 (0.08ms, 82.8MB)
+     * 테스트 3 〉	통과 (0.57ms, 76.7MB)
+     * 테스트 4 〉	통과 (0.46ms, 76.8MB)
+     * 테스트 5 〉	통과 (0.07ms, 77.2MB)
+     * 테스트 6 〉	통과 (1.48ms, 74.2MB)
+     * 테스트 7 〉	통과 (0.10ms, 75.3MB)
+     * 테스트 8 〉	통과 (1.12ms, 78.5MB)
+     * 테스트 9 〉	통과 (0.80ms, 80.6MB)
+     * 테스트 10 〉	통과 (0.94ms, 78.4MB)
+     * 테스트 11 〉	통과 (8.23ms, 79.3MB)
+     * 테스트 12 〉	통과 (3.91ms, 76.6MB)
+     * 테스트 13 〉	통과 (1.72ms, 71.8MB)
+     */
     class Solution {
-        int answer;
-        int[] numbers;
-        int target;
-        public int solution(int[] numbers, int target) {
-            this.answer = 0;
-            this.numbers = numbers;
-            this.target = target;
+        int[][] computers;
+        int[][] duplicate;
 
-            dfs(0, 0);
+        public int solution(int n, int[][] computers){
+            this.computers = computers;
 
-            return answer;
-        }
-
-        private void dfs(int index, int value){
-            if(index == this.numbers.length) {
-                if(value == this.target) {
-                    this.answer++;
-                }
-                return;
+            duplicate = new int[n][n];
+            for (int[] i : duplicate) {
+                Arrays.fill(i, 0); //0으로 초기화
             }
 
-            dfs(index+1, value + this.numbers[index]);
-            dfs(index+1, value - this.numbers[index]);
+            for (int i = 0; i < this.computers.length; i++) {
+                int[] sign = this.computers[i];
+                findAllRoute(i, sign);
+
+            }
+
+            HashSet<String> hashSet = removeDuplcate();
+
+            return hashSet.size();
+        }
+
+        private HashSet<String> removeDuplcate() {
+            HashSet<String> hashSet = new HashSet<>();
+            for (int[] a : this.duplicate) {
+                StringBuilder sb = new StringBuilder();
+                for (int b : a) {
+                    sb.append(b);
+                }
+                hashSet.add(sb.toString());
+            }
+            return hashSet;
+        }
+
+        private void findAllRoute(int index, int[] sign){
+
+            for (int i = 0; i < sign.length; i++) {
+                int s = sign[i];
+                if(s == 1) {
+                    if(duplicate[index][i] != 1) {
+                        duplicate[index][i] = 1;
+                        findAllRoute(index, computers[i]);
+                    }
+                }
+            }
         }
     }
 }
