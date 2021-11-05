@@ -84,6 +84,16 @@ public class AssertResolve {
         );
     }
 
+    public static void resolve(String testType, String[] expected, String[] answer, Stopwatch timer) {
+
+        Assert.assertArrayEquals(expected, answer);
+        System.out.println(testType
+                + " || expected : " + Arrays.toString(expected)
+                + " || answer : " + Arrays.toString(answer)
+                + " || " + timer
+        );
+    }
+
     public static void resolve(String testType, int[][] expected, int[][] answer, Stopwatch timer) {
 
         Assert.assertArrayEquals(expected, answer);
