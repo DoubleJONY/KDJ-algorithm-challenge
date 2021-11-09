@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import static com.doublejony.common.AssertResolve.resolve;
@@ -66,17 +65,59 @@ public class Dfs3 {
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(begin, target, words), timer.stop());
     }
 
+    /**
+     * 테스트 1 〉	통과 (0.09ms, 73.2MB)
+     * 테스트 2 〉	통과 (0.16ms, 82.7MB)
+     * 테스트 3 〉	통과 (0.43ms, 70.8MB)
+     * 테스트 4 〉	통과 (0.10ms, 72.5MB)
+     * 테스트 5 〉	통과 (0.03ms, 85.3MB)
+     */
     class Solution {
+        String target;
+        int minDepth;
+
         public int solution(String begin, String target, String[] words) {
-            int answer = 0;
+            this.target = target;
+            this.minDepth = 2147483647;
 
             if(!List.of(words).contains(target)) {
                 return 0;
             }
 
+            List<String> list = new ArrayList<>(Arrays.asList(words));
 
+            findSubTree(0, begin, list);
 
-            return answer;
+            return this.minDepth;
+        }
+
+        private void findSubTree(int depth, String current, List<String> words) {
+            if(current.equals(this.target)) {
+                if(this.minDepth > depth) {
+                    this.minDepth = depth;
+                }
+                return;
+            }
+            if(words.isEmpty()) {
+                return;
+            }
+
+            for (String word : words) {
+                int c = 0;
+                for (int j = 0; j < current.length(); j++) {
+                    if (!current.substring(j, j + 1).equals(word.substring(j, j + 1))) {
+                        c++;
+                    }
+                    if (c > 1) {
+                        break;
+                    }
+                }
+                if(c == 1) {
+                    List<String> list = new ArrayList<>(words);
+                    list.remove(word);
+                    findSubTree(depth+1, word, list);
+                }
+            }
         }
     }
 }
