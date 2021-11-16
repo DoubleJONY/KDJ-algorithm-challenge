@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.doublejony.common.AssertResolve.resolve;
@@ -64,8 +65,58 @@ public class BinarySearch1 {
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(n, times), timer.stop());
     }
 
+    /**
+     * 테스트 1 〉	통과 (0.37ms, 78MB)
+     * 테스트 2 〉	통과 (0.39ms, 72.5MB)
+     * 테스트 3 〉	통과 (1.81ms, 79.5MB)
+     * 테스트 4 〉	통과 (57.07ms, 86.3MB)
+     * 테스트 5 〉	통과 (81.28ms, 87.5MB)
+     * 테스트 6 〉	통과 (71.18ms, 101MB)
+     * 테스트 7 〉	통과 (81.97ms, 86.5MB)
+     * 테스트 8 〉	통과 (83.92ms, 88MB)
+     * 테스트 9 〉	통과 (0.33ms, 73.8MB)
+     */
     class Solution {
-        int MAX_INT = 2147483647;
+        public long solution(int n, int[] times) {
+            long answer = Long.MAX_VALUE;
+            Arrays.sort(times);
+
+            long start = 0;
+            long end = Long.MAX_VALUE;
+
+            long sum;
+
+            while(start <= end){
+                long mid = (start + end) / 2;
+                sum = 0;
+                for (int time : times) {
+                    sum += mid / time;
+                    if (sum >= n) {
+                        break;
+                    }
+                }
+
+                if(n > sum){
+                    start = mid + 1;
+                } else {
+                    end = mid - 1;
+                    answer = Math.min(answer, mid);
+                }
+            }
+
+            return answer;
+        }
+    }
+
+    @Test
+    @UseDataProvider("testCase")
+    public void solution2(int n, int[] times, long expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution2().solution(n, times), timer.stop());
+    }
+
+    class Solution2 {
         public long solution(int n, int[] times) {
             long answer = 0;
 
@@ -91,7 +142,7 @@ public class BinarySearch1 {
                     }
                     answer += min;
                 } else {
-                    int min2 = MAX_INT;
+                    int min2 = Integer.MAX_VALUE;
                     int minIndex = 0;
                     for (int i = 0; i < l.size(); i++) {
                         if (min - l.get(i) + times[i] < min2) {
@@ -100,15 +151,14 @@ public class BinarySearch1 {
                         }
                     }
                     answer += times[minIndex] + (l.get(minIndex) - min);
-                    l.set(minIndex, MAX_INT);
+                    l.set(minIndex, Integer.MAX_VALUE);
                 }
-
 
                 passenger--;
             }
 
             for (int i : l) {
-                if (i != MAX_INT) {
+                if (i != Integer.MAX_VALUE) {
                     answer += i;
                 }
             }
