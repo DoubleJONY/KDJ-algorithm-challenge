@@ -66,6 +66,9 @@ public class Graph3 {
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution().solution(arrows), timer.stop());
     }
 
+    /**
+     * https://velog.io/@easycelsius/%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%A8%B8%EC%8A%A4%EB%B0%A9%EC%9D%98-%EA%B0%9C%EC%88%98
+     */
     class Solution {
         class Pair {
             public int x;
