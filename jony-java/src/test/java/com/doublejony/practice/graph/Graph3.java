@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -39,6 +39,10 @@ public class Graph3 {
         // @formatter:off
         return new Object[][]{
                 {
+                        new int[]{6, 2, 4, 0, 5, 0, 6, 4, 2, 4, 2, 0},
+                        3
+                },
+                {
                         new int[]{6, 5, 2, 7, 1, 4, 2, 4, 6},
                         3
                 },
@@ -48,10 +52,6 @@ public class Graph3 {
                 },
                 {
                         new int[]{6, 6, 6, 4, 4, 4, 2, 2, 2, 0, 0, 0, 1, 6, 5, 5, 3, 6, 0},
-                        3
-                },
-                {
-                        new int[]{6, 2, 4, 0, 5, 0, 6, 4, 2, 4, 2, 0},
                         3
                 }
         };
@@ -67,6 +67,102 @@ public class Graph3 {
     }
 
     class Solution {
+        class Pair {
+            public int x;
+            public int y;
+
+            public Pair(int x, int y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            public int hashCode() {
+                return Objects.hash(x,y);
+            }
+
+            public boolean equals(Object o) {
+                return this.x == ((Pair) o).x && this.y == ((Pair) o).y;
+            }
+        }
+
+        public int solution(int[] arrows) {
+
+            // 변수 선언
+            int cnt = 0;
+
+            // 방향 관련 배열 선언
+            Pair pointHC = new Pair(0, 0);
+            int[] dx = { 0, 1, 1, 1, 0, -1, -1, -1 };
+            int[] dy = { 1, 1, 0, -1, -1, -1, 0, 1 };
+
+            // 방문 여부 관련 선언
+            // key = 시작 node의 hashcode, value = 연결된 node들의 hashcode
+            HashMap<Pair, ArrayList<Pair>> visitied = new HashMap<>();
+
+            // 로직 처리
+            for (int arrow : arrows) {
+                for (int i = 0; i <= 1; i++) { // 교차점 처리를 위한 스케일업(반복 2번)
+
+                    // 이동 진행
+                    Pair newPointHC = new Pair(pointHC.x + dx[arrow], pointHC.y + dy[arrow]);
+
+                    // 처음 방문하는 경우 = map에 키값이 없는 경우
+                    if (!visitied.containsKey(newPointHC)) {
+                        // 리스트에 연결점 추가
+                        visitied.put(newPointHC, makeEdgeList(pointHC));
+
+                        if(visitied.get(pointHC) == null) { // 기존점도 없다면 업데이트
+                            visitied.put(pointHC, makeEdgeList(newPointHC));
+                        } else { // 기존점이 있다면 추가하기
+                            visitied.get(pointHC).add(newPointHC);
+                        }
+
+                        // 재방문했고 간선을 처음 통과하는 경우
+                    } else if (visitied.containsKey(newPointHC) && !(visitied.get(newPointHC).contains(pointHC))) {
+                        visitied.get(newPointHC).add(pointHC);
+                        visitied.get(pointHC).add(newPointHC);
+                        cnt++;
+                    }
+
+                    // 이동 완료
+                    pointHC = newPointHC;
+                }
+            }
+
+            return cnt;
+        }
+
+        // 밸류값에 넣기 위한 리스트 만들기
+        public ArrayList<Pair> makeEdgeList(Pair pointHC) {
+            ArrayList<Pair> edge = new ArrayList<>();
+            edge.add(pointHC);
+            return edge;
+        }
+
+    }
+
+    /**
+     * 테스트 1 〉	실패 (런타임 에러)
+     * 테스트 2 〉	통과 (4.10ms, 76.3MB)
+     * 테스트 3 〉	실패 (런타임 에러)
+     * 테스트 4 〉	실패 (21.30ms, 82.7MB)
+     * 테스트 5 〉	실패 (520.67ms, 881MB)
+     * 테스트 6 〉	실패 (메모리 초과)
+     * 테스트 7 〉	실패 (런타임 에러)
+     * 테스트 8 〉	실패 (메모리 초과)
+     * 테스트 9 〉	실패 (메모리 초과)
+     * @param arrows
+     * @param expected
+     */
+    @Test
+    @UseDataProvider("testCase")
+    public void solution2(int[] arrows, long expected) {
+
+        Stopwatch timer = Stopwatch.createStarted();
+        resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new Solution2().solution(arrows), timer.stop());
+    }
+
+    class Solution2 {
         int answer = 0;
 
         int maxWidth = 0;
@@ -150,6 +246,9 @@ public class Graph3 {
                     for (int i = 0, drawHistorySize = drawHistory.size(); i < drawHistorySize; i++) {
                         if (drawHistory.get(i).getX() == currentHeight && drawHistory.get(i).getY() == currentWidth) {
                             if (drawHistory.size() > i+1 && drawHistory.get(i+1).getX() == nextHeight && drawHistory.get(i+1).getY() == nextWidth){
+                                answer--;
+                                break;
+                            } else if (drawHistory.get(i-1).getX() == nextHeight && drawHistory.get(i-1).getY() == nextWidth){
                                 answer--;
                                 break;
                             }
