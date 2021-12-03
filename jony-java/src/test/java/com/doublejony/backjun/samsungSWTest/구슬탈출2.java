@@ -59,21 +59,13 @@ public class 구슬탈출2 {
             initPoints(map);
             moveOrb("", 0, this.red, this.blue);
 
-            return input[0];
+            return Integer.toString(minDepth);
         }
 
-        private void moveOrb(String direction, int depth, Point red, Point blue) {
-
-            if(red.height == this.goal.height && red.width == this.goal.width) {
-                if(depth < minDepth) {
-                    this.minDepth = depth;
-                }
-                return;
-            }
-
-            if(blue.height == this.goal.height && blue.width == this.goal.width) {
-                return;
-            }
+        private void moveOrb(String direction, int depth, Point r, Point b) {
+        
+            Point red = new Point(r.height, r.witdh);
+            Point blue = new Point(b.height, b.witdh);
 
             if(direction != null) {
                 depth++;
@@ -116,6 +108,70 @@ public class 구슬탈출2 {
                         }
                         break;
                 }
+                
+                switch (direction) {
+                    case "down":
+                        while(true) {
+                            if(map[blue.height + 1].charAt(blue.width) != '#'){
+                                blue.setPoint(blue.height + 1, blue.width);
+                            } else {
+                                break;
+                            }
+                        }
+                        break;
+                    case "up":
+                        while(true) {
+                            if(map[blue.height - 1].charAt(blue.width) != '#'){
+                                blue.setPoint(blue.height - 1, blue.width);
+                            } else {
+                                break;
+                            }
+                        }
+                        break;
+                    case "left":
+                        while(true) {
+                            if(map[blue.height].charAt(blue.width - 1) != '#'){
+                                blue.setPoint(blue.height, blue.width - 1);
+                            } else {
+                                break;
+                            }
+                        }
+                        break;
+                    case "right":
+                        while(true) {
+                            if(map[blue.height].charAt(blue.width + 1) != '#'){
+                                blue.setPoint(blue.height, blue.width + 1);
+                            } else {
+                                break;
+                            }
+                        }
+                        break;
+                }
+                
+            }
+            
+            if(red.height == this.goal.height && red.width == this.goal.width) {
+                if(depth < minDepth) {
+                    this.minDepth = depth;
+                }
+                return;
+            }
+
+            if(blue.height == this.goal.height && blue.width == this.goal.width) {
+                return;
+            }
+            
+            if(map[red.height + 1].charAt(red.width) != '#'){
+                moveOrb("down", depth, red, blue);
+            }
+            if(map[red.height - 1].charAt(red.width) != '#'){
+                moveOrb("up", depth, red, blue);
+            }
+            if(map[red.height].charAt(red.width - 1) != '#'){
+                moveOrb("left", depth, red, blue);
+            }
+            if(map[red.height].charAt(red.width + 1) != '#'){
+                moveOrb("right", depth, red, blue);
             }
 
         }
