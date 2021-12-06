@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,16 +129,20 @@ public class Main {
             return;
         }
 
-        if (map[red.height + 1].charAt(red.width) != '#' && !direction.equals("up")) {
+        if ((map[red.height + 1].charAt(red.width) != '#' || map[blue.height + 1].charAt(blue.width) != '#')
+                && !direction.equals("up")) {
             moveOrb("down", depth, red, blue);
         }
-        if (map[red.height - 1].charAt(red.width) != '#' && !direction.equals("down")) {
+        if ((map[red.height - 1].charAt(red.width) != '#' || map[blue.height - 1].charAt(blue.width) != '#')
+                && !direction.equals("down")) {
             moveOrb("up", depth, red, blue);
         }
-        if (map[red.height].charAt(red.width - 1) != '#' && !direction.equals("right")) {
+        if ((map[red.height].charAt(red.width - 1) != '#' || map[blue.height].charAt(blue.width - 1) != '#')
+                && !direction.equals("right")) {
             moveOrb("left", depth, red, blue);
         }
-        if (map[red.height].charAt(red.width + 1) != '#' && !direction.equals("left")) {
+        if ((map[red.height].charAt(red.width + 1) != '#' || map[blue.height].charAt(blue.width + 1) != '#')
+                && !direction.equals("left")) {
             moveOrb("right", depth, red, blue);
         }
 
@@ -190,14 +195,9 @@ public class Main {
             this.height = height;
             this.width = width;
         }
-
-        public boolean equals(Point a) {
-            return this.height == a.height && this.width == a.width;
-        }
     }
 
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         List<String> input = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String temp;
@@ -205,7 +205,7 @@ public class Main {
             input.add(temp);
         }
 
-        String answer = new Main().solution(input.toArray(new String[0]));
+        String answer = new Main().solution(input.toArray(new String[input.size()]));
 
         System.out.println(answer);
     }

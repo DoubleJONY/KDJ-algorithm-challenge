@@ -1,22 +1,25 @@
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Scanner;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        int count = 5;
-        String[] input = new String[count];
-        Scanner scanner = new Scanner(System.in);
-        for (int i = 0; i < count; i++) {
-            input[i] = scanner.next();
+        List<String> input = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String temp;
+        while (!(temp = br.readLine()).isEmpty()) {
+            input.add(temp);
         }
 
-        String answer = solution(input);
+        String answer = new Main().solution(input.toArray(new String[input.size()]));
 
         System.out.println(answer);
     }
 
-    public static String solution(String[] input) {
+    public String solution(String[] input) {
         return input[0];
     }
 }

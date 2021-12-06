@@ -102,6 +102,99 @@ public class 구슬탈출2 {
                                 "##########"
                         },
                         "-1"
+                },
+                {
+                        new String[]{
+                                "3 6",
+                                "######",
+                                "#.ORB#",
+                                "######"
+                        },
+                        "-1"
+                },
+                {
+                        new String[]{
+                                "8 8",
+                                "########",
+                                "#.####.#",
+                                "#...#B##",
+                                "#.##.R.#",
+                                "######.#",
+                                "##.##O.#",
+                                "###.##.#",
+                                "########"
+                        },
+                        "7"
+                },
+                {
+                        new String[]{
+                                "4 6",
+                                "######",
+                                "#R####",
+                                "#B..O#",
+                                "######"
+                        },
+                        "-1"
+                },
+                {
+                        new String[]{
+                                "4 6",
+                                "######",
+                                "#R#O##",
+                                "#B...#",
+                                "######"
+                        },
+                        "4"
+                },
+                {
+                        new String[]{
+                                "11 13",
+                                "#############",
+                                "#RB##########",
+                                "#.#.........#",
+                                "#.#.#######.#",
+                                "#.#.#.....#.#",
+                                "#.#.#..O#.#.#",
+                                "#.#.#####.#.#",
+                                "#.#.......#.#",
+                                "#.#########.#",
+                                "#...........#",
+                                "#############"
+                        },
+                        "10"
+                },
+                {
+                        new String[]{
+                                "11 13",
+                                "#############",
+                                "#R###########",
+                                "#B#.........#",
+                                "#.#.#######.#",
+                                "#.#.#.....#.#",
+                                "#.#.#..O#.#.#",
+                                "#.#.#####.#.#",
+                                "#.#.......#.#",
+                                "#.#########.#",
+                                "#...........#",
+                                "#############"
+                        },
+                        "-1"
+                },
+                {
+                        new String[]{
+                                "10 9",
+                                "#########",
+                                "#R...B#.#",
+                                "#.....#.#",
+                                "#.......#",
+                                "##.#....#",
+                                "#....#..#",
+                                "#.#....O#",
+                                "##.....##",
+                                "#...##..#",
+                                "#########"
+                        },
+                        "4"
                 }
         };
         // @formatter:on
@@ -240,16 +333,20 @@ public class 구슬탈출2 {
                 return;
             }
 
-            if (map[red.height + 1].charAt(red.width) != '#' && !direction.equals("up")) {
+            if ((map[red.height + 1].charAt(red.width) != '#' || map[blue.height + 1].charAt(blue.width) != '#')
+                    && !direction.equals("up")) {
                 moveOrb("down", depth, red, blue);
             }
-            if (map[red.height - 1].charAt(red.width) != '#' && !direction.equals("down")) {
+            if ((map[red.height - 1].charAt(red.width) != '#' || map[blue.height - 1].charAt(blue.width) != '#')
+                    && !direction.equals("down")) {
                 moveOrb("up", depth, red, blue);
             }
-            if (map[red.height].charAt(red.width - 1) != '#' && !direction.equals("right")) {
+            if ((map[red.height].charAt(red.width - 1) != '#' || map[blue.height].charAt(blue.width - 1) != '#')
+                    && !direction.equals("right")) {
                 moveOrb("left", depth, red, blue);
             }
-            if (map[red.height].charAt(red.width + 1) != '#' && !direction.equals("left")) {
+            if ((map[red.height].charAt(red.width + 1) != '#' || map[blue.height].charAt(blue.width + 1) != '#')
+                    && !direction.equals("left")) {
                 moveOrb("right", depth, red, blue);
             }
 
