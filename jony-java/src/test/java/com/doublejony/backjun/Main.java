@@ -16,12 +16,12 @@ public class Main {
             input.add(temp);
         }
 
-        String answer = solution(input.toArray(new String[input.size()]));
+        String answer = new Main().solution(input.toArray(new String[input.size()]));
 
         System.out.println(answer);
     }
 
-    public static String solution(String[] input) {
+    public String solution(String[] input) {
         return input[0];
     }
 }

@@ -129,7 +129,7 @@ public class 구슬탈출2 {
             map = new String[Integer.parseInt(size[0])];
 
             for (int i = 0; i < Integer.parseInt(size[0]); i++) {
-                map[i] = input[i+1];
+                map[i] = input[i + 1];
             }
 
             initPoints(map);
@@ -143,10 +143,10 @@ public class 구슬탈출2 {
             Point red = new Point(r.height, r.width);
             Point blue = new Point(b.height, b.width);
 
-            if(!direction.equals("")) {
+            if (!direction.equals("")) {
                 depth++;
 
-                if(depth > 10) {
+                if (depth > 10) {
                     return;
                 }
 
@@ -155,7 +155,7 @@ public class 구슬탈출2 {
 
                 switch (direction) {
                     case "down":
-                        if(red.height > blue.height) {
+                        if (red.height > blue.height) {
                             orbA = red;
                             orbB = blue;
                         } else {
@@ -163,18 +163,18 @@ public class 구슬탈출2 {
                             orbB = red;
                         }
                         while (true) {
-                            if(move(orbA, orbB,orbA.height + 1, orbA.width)) {
+                            if (move(orbA, orbB, orbA.height + 1, orbA.width)) {
                                 break;
                             }
                         }
                         while (true) {
-                            if(move(orbB, orbA,orbB.height + 1, orbB.width)) {
+                            if (move(orbB, orbA, orbB.height + 1, orbB.width)) {
                                 break;
                             }
                         }
                         break;
                     case "up":
-                        if(red.height < blue.height) {
+                        if (red.height < blue.height) {
                             orbA = red;
                             orbB = blue;
                         } else {
@@ -182,18 +182,18 @@ public class 구슬탈출2 {
                             orbB = red;
                         }
                         while (true) {
-                            if(move(orbA, orbB,orbA.height - 1, orbA.width)) {
+                            if (move(orbA, orbB, orbA.height - 1, orbA.width)) {
                                 break;
                             }
                         }
                         while (true) {
-                            if(move(orbB, orbA,orbB.height - 1, orbB.width)) {
+                            if (move(orbB, orbA, orbB.height - 1, orbB.width)) {
                                 break;
                             }
                         }
                         break;
                     case "left":
-                        if(red.width < blue.width) {
+                        if (red.width < blue.width) {
                             orbA = red;
                             orbB = blue;
                         } else {
@@ -201,18 +201,18 @@ public class 구슬탈출2 {
                             orbB = red;
                         }
                         while (true) {
-                            if(move(orbA, orbB,orbA.height, orbA.width - 1)) {
+                            if (move(orbA, orbB, orbA.height, orbA.width - 1)) {
                                 break;
                             }
                         }
                         while (true) {
-                            if(move(orbB, orbA,orbB.height, orbB.width - 1)) {
+                            if (move(orbB, orbA, orbB.height, orbB.width - 1)) {
                                 break;
                             }
                         }
                         break;
                     case "right":
-                        if(red.width > blue.width) {
+                        if (red.width > blue.width) {
                             orbA = red;
                             orbB = blue;
                         } else {
@@ -220,12 +220,12 @@ public class 구슬탈출2 {
                             orbB = red;
                         }
                         while (true) {
-                            if(move(orbA, orbB,orbA.height, orbA.width + 1)) {
+                            if (move(orbA, orbB, orbA.height, orbA.width + 1)) {
                                 break;
                             }
                         }
                         while (true) {
-                            if(move(orbB, orbA,orbB.height, orbB.width + 1)) {
+                            if (move(orbB, orbA, orbB.height, orbB.width + 1)) {
                                 break;
                             }
                         }
@@ -233,30 +233,30 @@ public class 구슬탈출2 {
                 }
             }
 
-            if(isGoal(red)) {
-                if(!isGoal(blue) && depth < minDepth) {
+            if (isGoal(red)) {
+                if (!isGoal(blue) && depth < minDepth) {
                     this.minDepth = depth;
                 }
                 return;
             }
 
-            if(map[red.height + 1].charAt(red.width) != '#' && !direction.equals("up")){
+            if (map[red.height + 1].charAt(red.width) != '#' && !direction.equals("up")) {
                 moveOrb("down", depth, red, blue);
             }
-            if(map[red.height - 1].charAt(red.width) != '#' && !direction.equals("down")){
+            if (map[red.height - 1].charAt(red.width) != '#' && !direction.equals("down")) {
                 moveOrb("up", depth, red, blue);
             }
-            if(map[red.height].charAt(red.width - 1) != '#' && !direction.equals("right")){
+            if (map[red.height].charAt(red.width - 1) != '#' && !direction.equals("right")) {
                 moveOrb("left", depth, red, blue);
             }
-            if(map[red.height].charAt(red.width + 1) != '#' && !direction.equals("left")){
+            if (map[red.height].charAt(red.width + 1) != '#' && !direction.equals("left")) {
                 moveOrb("right", depth, red, blue);
             }
 
         }
 
         private boolean move(Point orb, Point oppOrb, int tHeight, int tWidth) {
-            if(isStuck(tHeight, tWidth, oppOrb)) {
+            if (isStuck(tHeight, tWidth, oppOrb)) {
                 return true;
             }
             if (map[tHeight].charAt(tWidth) != '#') {
@@ -277,34 +277,30 @@ public class 구슬탈출2 {
 
         private void initPoints(String[] map) {
             for (int i = 0; i < map.length; i++) {
-                if(map[i].contains("R")) {
+                if (map[i].contains("R")) {
                     this.red = new Point(i, map[i].indexOf("R"));
                 }
-                if(map[i].contains("B")) {
+                if (map[i].contains("B")) {
                     this.blue = new Point(i, map[i].indexOf("B"));
                 }
-                if(map[i].contains("O")) {
+                if (map[i].contains("O")) {
                     this.goal = new Point(i, map[i].indexOf("O"));
                 }
             }
         }
 
         class Point {
-            int height = 0;
-            int width = 0;
+            int height;
+            int width;
 
             public Point(int height, int width) {
                 this.height = height;
                 this.width = width;
             }
 
-            public void setPoint(int height, int width){
+            public void setPoint(int height, int width) {
                 this.height = height;
                 this.width = width;
-            }
-
-            public boolean equals(Point a) {
-                return this.height == a.height && this.width == a.width;
             }
         }
     }
