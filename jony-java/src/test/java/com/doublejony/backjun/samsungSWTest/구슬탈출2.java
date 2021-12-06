@@ -26,6 +26,82 @@ public class 구슬탈출2 {
                                 "#####"
                         },
                         "1"
+                },
+                {
+                        new String[]{
+                                "7 7",
+                                "#######",
+                                "#...RB#",
+                                "#.#####",
+                                "#.....#",
+                                "#####.#",
+                                "#O....#",
+                                "#######"
+                        },
+                        "5"
+                },
+                {
+                        new String[]{
+                                "7 7",
+                                "#######",
+                                "#..R#B#",
+                                "#.#####",
+                                "#.....#",
+                                "#####.#",
+                                "#O....#",
+                                "#######"
+                        },
+                        "5"
+                },
+                {
+                        new String[]{
+                                "10 10",
+                                "##########",
+                                "#R#...##B#",
+                                "#...#.##.#",
+                                "#####.##.#",
+                                "#......#.#",
+                                "#.######.#",
+                                "#.#....#.#",
+                                "#.#.#.#..#",
+                                "#...#.O#.#",
+                                "##########"
+                        },
+                        "-1"
+                },
+                {
+                        new String[]{
+                                "3 7",
+                                "#######",
+                                "#R.O.B#",
+                                "#######"
+                        },
+                        "1"
+                },
+                {
+                        new String[]{
+                                "10 10",
+                                "##########",
+                                "#R#...##B#",
+                                "#...#.##.#",
+                                "#####.##.#",
+                                "#......#.#",
+                                "#.######.#",
+                                "#.#....#.#",
+                                "#.#.##...#",
+                                "#O..#....#",
+                                "##########"
+                        },
+                        "7"
+                },
+                {
+                        new String[]{
+                                "3 10",
+                                "##########",
+                                "#.O....RB#",
+                                "##########"
+                        },
+                        "-1"
                 }
         };
         // @formatter:on
@@ -59,121 +135,144 @@ public class 구슬탈출2 {
             initPoints(map);
             moveOrb("", 0, this.red, this.blue);
 
-            return Integer.toString(minDepth);
+            return Integer.toString(minDepth == 11 ? -1 : minDepth);
         }
 
         private void moveOrb(String direction, int depth, Point r, Point b) {
-        
-            Point red = new Point(r.height, r.witdh);
-            Point blue = new Point(b.height, b.witdh);
 
-            if(direction != null) {
+            Point red = new Point(r.height, r.width);
+            Point blue = new Point(b.height, b.width);
+
+            if(!direction.equals("")) {
                 depth++;
 
+                if(depth > 10) {
+                    return;
+                }
+
+                Point orbA;
+                Point orbB;
+
                 switch (direction) {
                     case "down":
-                        while(true) {
-                            if(map[red.height + 1].charAt(red.width) != '#'){
-                                red.setPoint(red.height + 1, red.width);
-                            } else {
+                        if(red.height > blue.height) {
+                            orbA = red;
+                            orbB = blue;
+                        } else {
+                            orbA = blue;
+                            orbB = red;
+                        }
+                        while (true) {
+                            if(move(orbA, orbB,orbA.height + 1, orbA.width)) {
+                                break;
+                            }
+                        }
+                        while (true) {
+                            if(move(orbB, orbA,orbB.height + 1, orbB.width)) {
                                 break;
                             }
                         }
                         break;
                     case "up":
-                        while(true) {
-                            if(map[red.height - 1].charAt(red.width) != '#'){
-                                red.setPoint(red.height - 1, red.width);
-                            } else {
+                        if(red.height < blue.height) {
+                            orbA = red;
+                            orbB = blue;
+                        } else {
+                            orbA = blue;
+                            orbB = red;
+                        }
+                        while (true) {
+                            if(move(orbA, orbB,orbA.height - 1, orbA.width)) {
+                                break;
+                            }
+                        }
+                        while (true) {
+                            if(move(orbB, orbA,orbB.height - 1, orbB.width)) {
                                 break;
                             }
                         }
                         break;
                     case "left":
-                        while(true) {
-                            if(map[red.height].charAt(red.width - 1) != '#'){
-                                red.setPoint(red.height, red.width - 1);
-                            } else {
+                        if(red.width < blue.width) {
+                            orbA = red;
+                            orbB = blue;
+                        } else {
+                            orbA = blue;
+                            orbB = red;
+                        }
+                        while (true) {
+                            if(move(orbA, orbB,orbA.height, orbA.width - 1)) {
+                                break;
+                            }
+                        }
+                        while (true) {
+                            if(move(orbB, orbA,orbB.height, orbB.width - 1)) {
                                 break;
                             }
                         }
                         break;
                     case "right":
-                        while(true) {
-                            if(map[red.height].charAt(red.width + 1) != '#'){
-                                red.setPoint(red.height, red.width + 1);
-                            } else {
+                        if(red.width > blue.width) {
+                            orbA = red;
+                            orbB = blue;
+                        } else {
+                            orbA = blue;
+                            orbB = red;
+                        }
+                        while (true) {
+                            if(move(orbA, orbB,orbA.height, orbA.width + 1)) {
+                                break;
+                            }
+                        }
+                        while (true) {
+                            if(move(orbB, orbA,orbB.height, orbB.width + 1)) {
                                 break;
                             }
                         }
                         break;
                 }
-                
-                switch (direction) {
-                    case "down":
-                        while(true) {
-                            if(map[blue.height + 1].charAt(blue.width) != '#'){
-                                blue.setPoint(blue.height + 1, blue.width);
-                            } else {
-                                break;
-                            }
-                        }
-                        break;
-                    case "up":
-                        while(true) {
-                            if(map[blue.height - 1].charAt(blue.width) != '#'){
-                                blue.setPoint(blue.height - 1, blue.width);
-                            } else {
-                                break;
-                            }
-                        }
-                        break;
-                    case "left":
-                        while(true) {
-                            if(map[blue.height].charAt(blue.width - 1) != '#'){
-                                blue.setPoint(blue.height, blue.width - 1);
-                            } else {
-                                break;
-                            }
-                        }
-                        break;
-                    case "right":
-                        while(true) {
-                            if(map[blue.height].charAt(blue.width + 1) != '#'){
-                                blue.setPoint(blue.height, blue.width + 1);
-                            } else {
-                                break;
-                            }
-                        }
-                        break;
-                }
-                
             }
-            
-            if(red.height == this.goal.height && red.width == this.goal.width) {
-                if(depth < minDepth) {
+
+            if(isGoal(red)) {
+                if(!isGoal(blue) && depth < minDepth) {
                     this.minDepth = depth;
                 }
                 return;
             }
 
-            if(blue.height == this.goal.height && blue.width == this.goal.width) {
-                return;
-            }
-            
-            if(map[red.height + 1].charAt(red.width) != '#'){
+            if(map[red.height + 1].charAt(red.width) != '#' && !direction.equals("up")){
                 moveOrb("down", depth, red, blue);
             }
-            if(map[red.height - 1].charAt(red.width) != '#'){
+            if(map[red.height - 1].charAt(red.width) != '#' && !direction.equals("down")){
                 moveOrb("up", depth, red, blue);
             }
-            if(map[red.height].charAt(red.width - 1) != '#'){
+            if(map[red.height].charAt(red.width - 1) != '#' && !direction.equals("right")){
                 moveOrb("left", depth, red, blue);
             }
-            if(map[red.height].charAt(red.width + 1) != '#'){
+            if(map[red.height].charAt(red.width + 1) != '#' && !direction.equals("left")){
                 moveOrb("right", depth, red, blue);
             }
 
+        }
+
+        private boolean move(Point orb, Point oppOrb, int tHeight, int tWidth) {
+            if(isStuck(tHeight, tWidth, oppOrb)) {
+                return true;
+            }
+            if (map[tHeight].charAt(tWidth) != '#') {
+                orb.setPoint(tHeight, tWidth);
+                return isGoal(orb);
+            } else {
+                return true;
+            }
+        }
+
+        private boolean isGoal(Point orb) {
+            return orb.height == this.goal.height && orb.width == this.goal.width;
+        }
+
+        private boolean isStuck(int tHeight, int tWidth, Point oppOrb) {
+            return tHeight == oppOrb.height && tWidth == oppOrb.width && !isGoal(oppOrb);
         }
 
         private void initPoints(String[] map) {

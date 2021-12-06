@@ -1,171 +1,169 @@
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Scanner;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
-    Point red;
-    Point blue;
-    Point goal;
-    String[] map;
-    int minDepth = 11;
+    static Point red;
+    static Point blue;
+    static Point goal;
+    static String[] map;
+    static int minDepth = 11;
 
-    public static void main(String[] args) throws IOException {
-        int count = 5;
-        String[] input = new String[count];
-        Scanner scanner = new Scanner(System.in);
-        for (int i = 0; i < count; i++) {
-            input[i] = scanner.next();
-        }
+    private static void moveOrb(String direction, int depth, Point r, Point b) {
 
-        String answer = solution(input);
+        Point red = new Point(r.height, r.width);
+        Point blue = new Point(b.height, b.width);
 
-        System.out.println(answer);
-    }   
-
-    public String solution(String[] input) {
-
-        String[] size = input[0].split(“ “);
-        map = new String[Integer.parseInt(size[0])];
-
-        for (int i = 0; i < Integer.parseInt(size[0]); i++) {
-            map[i] = input[i+1];
-        }
-
-        initPoints(map);
-        moveOrb(“”, 0, this.red, this.blue);
-
-        return Integer.toString(minDepth);
-    }
-
-    private void moveOrb(String direction, int depth, Point r, Point b) {
-    
-        Point red = new Point(r.height, r.witdh);
-        Point blue = new Point(b.height, b.witdh);
-
-        if(direction != null) {
+        if(!direction.equals("")) {
             depth++;
 
+            if(depth > 10) {
+                return;
+            }
+
+            Point orbA;
+            Point orbB;
+
             switch (direction) {
-                case “down”:
-                    while(true) {
-                        if(map[red.height + 1].charAt(red.width) != ‘#’){
-                            red.setPoint(red.height + 1, red.width);
-                        } else {
+                case "down":
+                    if(red.height > blue.height) {
+                        orbA = red;
+                        orbB = blue;
+                    } else {
+                        orbA = blue;
+                        orbB = red;
+                    }
+                    while (true) {
+                        if(move(orbA, orbB,orbA.height + 1, orbA.width)) {
+                            break;
+                        }
+                    }
+                    while (true) {
+                        if(move(orbB, orbA,orbB.height + 1, orbB.width)) {
                             break;
                         }
                     }
                     break;
-                case “up”:
-                    while(true) {
-                        if(map[red.height - 1].charAt(red.width) != ‘#’){
-                            red.setPoint(red.height - 1, red.width);
-                        } else {
+                case "up":
+                    if(red.height < blue.height) {
+                        orbA = red;
+                        orbB = blue;
+                    } else {
+                        orbA = blue;
+                        orbB = red;
+                    }
+                    while (true) {
+                        if(move(orbA, orbB,orbA.height - 1, orbA.width)) {
+                            break;
+                        }
+                    }
+                    while (true) {
+                        if(move(orbB, orbA,orbB.height - 1, orbB.width)) {
                             break;
                         }
                     }
                     break;
-                case “left”:
-                    while(true) {
-                        if(map[red.height].charAt(red.width - 1) != ‘#’){
-                            red.setPoint(red.height, red.width - 1);
-                        } else {
+                case "left":
+                    if(red.width < blue.width) {
+                        orbA = red;
+                        orbB = blue;
+                    } else {
+                        orbA = blue;
+                        orbB = red;
+                    }
+                    while (true) {
+                        if(move(orbA, orbB,orbA.height, orbA.width - 1)) {
+                            break;
+                        }
+                    }
+                    while (true) {
+                        if(move(orbB, orbA,orbB.height, orbB.width - 1)) {
                             break;
                         }
                     }
                     break;
-                case “right”:
-                    while(true) {
-                        if(map[red.height].charAt(red.width + 1) != ‘#’){
-                            red.setPoint(red.height, red.width + 1);
-                        } else {
+                case "right":
+                    if(red.width > blue.width) {
+                        orbA = red;
+                        orbB = blue;
+                    } else {
+                        orbA = blue;
+                        orbB = red;
+                    }
+                    while (true) {
+                        if(move(orbA, orbB,orbA.height, orbA.width + 1)) {
+                            break;
+                        }
+                    }
+                    while (true) {
+                        if(move(orbB, orbA,orbB.height, orbB.width + 1)) {
                             break;
                         }
                     }
                     break;
             }
-            
-            switch (direction) {
-                case “down”:
-                    while(true) {
-                        if(map[blue.height + 1].charAt(blue.width) != ‘#’){
-                            blue.setPoint(blue.height + 1, blue.width);
-                        } else {
-                            break;
-                        }
-                    }
-                    break;
-                case “up”:
-                    while(true) {
-                        if(map[blue.height - 1].charAt(blue.width) != ‘#’){
-                            blue.setPoint(blue.height - 1, blue.width);
-                        } else {
-                            break;
-                        }
-                    }
-                    break;
-                case “left”:
-                    while(true) {
-                        if(map[blue.height].charAt(blue.width - 1) != ‘#’){
-                            blue.setPoint(blue.height, blue.width - 1);
-                        } else {
-                            break;
-                        }
-                    }
-                    break;
-                case “right”:
-                    while(true) {
-                        if(map[blue.height].charAt(blue.width + 1) != ‘#’){
-                            blue.setPoint(blue.height, blue.width + 1);
-                        } else {
-                            break;
-                        }
-                    }
-                    break;
-            }
-            
         }
-        
-        if(red.height == this.goal.height && red.width == this.goal.width) {
-            if(depth < minDepth) {
-                this.minDepth = depth;
+
+        if(isGoal(red)) {
+            if(!isGoal(blue) && depth < minDepth) {
+                minDepth = depth;
             }
             return;
         }
 
-        if(blue.height == this.goal.height && blue.width == this.goal.width) {
-            return;
+        if(map[red.height + 1].charAt(red.width) != '#' && !direction.equals("up")){
+            moveOrb("down", depth, red, blue);
         }
-        
-        if(map[red.height + 1].charAt(red.width) != ‘#’){
-            moveOrb(“down”, depth, red, blue);
+        if(map[red.height - 1].charAt(red.width) != '#' && !direction.equals("down")){
+            moveOrb("up", depth, red, blue);
         }
-        if(map[red.height - 1].charAt(red.width) != ‘#’){
-            moveOrb(“up”, depth, red, blue);
+        if(map[red.height].charAt(red.width - 1) != '#' && !direction.equals("right")){
+            moveOrb("left", depth, red, blue);
         }
-        if(map[red.height].charAt(red.width - 1) != ‘#’){
-            moveOrb(“left”, depth, red, blue);
-        }
-        if(map[red.height].charAt(red.width + 1) != ‘#’){
-            moveOrb(“right”, depth, red, blue);
+        if(map[red.height].charAt(red.width + 1) != '#' && !direction.equals("left")){
+            moveOrb("right", depth, red, blue);
         }
 
     }
 
-    private void initPoints(String[] map) {
+    private static boolean move(Point orb, Point oppOrb, int tHeight, int tWidth) {
+        if(isStuck(tHeight, tWidth, oppOrb)) {
+            return true;
+        }
+        if (map[tHeight].charAt(tWidth) != '#') {
+            orb.setPoint(tHeight, tWidth);
+            return isGoal(orb);
+        } else {
+            return true;
+        }
+    }
+
+    private static boolean isGoal(Point orb) {
+        return orb.height == goal.height && orb.width == goal.width;
+    }
+
+    private static boolean isStuck(int tHeight, int tWidth, Point oppOrb) {
+        return tHeight == oppOrb.height && tWidth == oppOrb.width && !isGoal(oppOrb);
+    }
+
+    private static void initPoints(String[] map) {
         for (int i = 0; i < map.length; i++) {
-            if(map[i].contains(“R”)) {
-                this.red = new Point(i, map[i].indexOf(“R”));
+            if(map[i].contains("R")) {
+                red = new Point(i, map[i].indexOf("R"));
             }
-            if(map[i].contains(“B”)) {
-                this.blue = new Point(i, map[i].indexOf(“B”));
+            if(map[i].contains("B")) {
+                blue = new Point(i, map[i].indexOf("B"));
             }
-            if(map[i].contains(“O”)) {
-                this.goal = new Point(i, map[i].indexOf(“O”));
+            if(map[i].contains("O")) {
+                goal = new Point(i, map[i].indexOf("O"));
             }
         }
     }
 
-    class Point {
+    static class Point {
         int height = 0;
         int width = 0;
 
@@ -183,5 +181,31 @@ public class Main {
             return this.height == a.height && this.width == a.width;
         }
     }
-    
+
+    public static void main(String[] args) throws IOException {
+        List<String> input = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String temp;
+        while (!(temp = br.readLine()).isEmpty()) {
+            input.add(temp);
+        }
+
+        String answer = solution(input.toArray(new String[input.size()]));
+
+        System.out.println(answer);
+    }
+
+    public static String solution(String[] input) {
+        String[] size = input[0].split(" ");
+        map = new String[Integer.parseInt(size[0])];
+
+        for (int i = 0; i < Integer.parseInt(size[0]); i++) {
+            map[i] = input[i+1];
+        }
+
+        initPoints(map);
+        moveOrb("", 0, red, blue);
+
+        return Integer.toString(minDepth == 11 ? -1 : minDepth);
+    }
 }
