@@ -1,5 +1,5 @@
 # https://www.acmicpc.net/problem/12100
-# TBU
+# TBA
 
 
 class Game:
@@ -20,8 +20,8 @@ class Game:
                     is_merged = True
                     num *= 2
                     stack.pop()
-
-                stack.append(num)
+                if num:
+                    stack.append(num)
             board.append([0] * (self.n - len(stack)) + stack)
         self.board = board
         return is_merged
