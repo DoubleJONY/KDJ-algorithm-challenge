@@ -31,7 +31,7 @@ namespace TestApp1
             {
                 command =  Console.ReadLine().Split(' ');
 
-                map[int.Parse(command[0]), int.Parse(command[1])] = 1;
+                map[int.Parse(command[0]) - 1, int.Parse(command[1]) - 1] = 1;
             }
             
             L = int.Parse(Console.ReadLine());
@@ -56,8 +56,9 @@ namespace TestApp1
             dq.Enqueue(Tuple.Create(sx, sy));
             while (true)
             {
-                x = dq.ToArray()[0].Item1;
-                y = dq.ToArray()[0].Item2;
+               
+                x = dq.ToArray()[dq.Count-1].Item1;
+                y = dq.ToArray()[dq.Count-1].Item2;
                 map[y,x] = 2;
                 cnt++;
                 int nx = x + dx[dir];
@@ -73,10 +74,12 @@ namespace TestApp1
                     // 사과 있으면 그대로, 없으면 dq 끝에서 pop 해주기
                     if (map[ny,nx] != 1)
                     {
+                
                         int xend, yend;
-                        xend = dq.Peek().Item1;
-                        yend = dq.Peek().Item2;
+                        xend = dq.ToArray()[0].Item1;
+                        yend =dq.ToArray()[0].Item2;
                         map[yend,xend] = 0;
+                        // dq.ToList().RemoveAt(dq.Count-1);
                         dq.Dequeue();
                     }
                     //시간 확인 후 방향 변경
