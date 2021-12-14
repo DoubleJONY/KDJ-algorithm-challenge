@@ -124,7 +124,7 @@ public class BJ3190 {
 
             int apples = Integer.parseInt(input[1]);
             for (int i = 2; i < apples+2; i++) {
-                board[Integer.parseInt(input[i].split(" ")[0])][Integer.parseInt(input[i].split(" ")[1])] = APPLE;
+                board[Integer.parseInt(input[i].split(" ")[0])-1][Integer.parseInt(input[i].split(" ")[1])-1] = APPLE;
             }
 
             int records = Integer.parseInt(input[2+apples]);
@@ -171,14 +171,14 @@ public class BJ3190 {
                     return time;
                 }
 
+                if(board[x][y] == TAIL) { // END
+                    return time;
+                }
+
                 if(board[x][y] != APPLE) {
                     //remove tail
                     Point a = pointQueue.poll();
                     board[a.height][a.width] = BLANK;
-                }
-
-                if(board[x][y] == TAIL) { // END
-                    return time;
                 }
 
                 //add head

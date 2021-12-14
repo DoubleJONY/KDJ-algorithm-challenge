@@ -21,17 +21,20 @@ public class Main {
 
     public String solution(String[] input) {
 
-        int classSize = Integer.parseInt(input[0]);
-        int major = Integer.parseInt(input[2].split(" ")[0]);
-        double minor = Integer.parseInt(input[2].split(" ")[1]);
+        String[] admin = input[2].split(" ");
 
-        int answer = 0;
+        long major = Long.parseLong(admin[0]);
+        long minor = Long.parseLong(admin[1]);
 
-        for (int i = 0; i < classSize; i++) {
-            double a = Integer.parseInt(input[1].split(" ")[i]) - major;
+        long answer = 0;
+
+        String[] amount = input[1].split(" ");
+
+        for (String s : amount) {
+            long a = Long.parseLong(s) - major;
             answer += a > 0 ? a / minor + ((a % minor == 0) ? 0 : 1) + 1 : 1;
         }
 
-        return Integer.toString(answer);
+        return Long.toString(answer);
     }
 }
