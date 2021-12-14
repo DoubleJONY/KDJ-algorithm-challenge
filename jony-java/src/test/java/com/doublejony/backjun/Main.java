@@ -31,7 +31,7 @@ public class Main {
 
         for (int i = 0; i < classSize; i++) {
             double a = Integer.parseInt(input[1].split(" ")[i]) - major;
-            answer += a > 0 ? Math.ceil(a / minor) + 1 : 1;
+            answer += a > 0 ? a / minor + ((a % minor == 0) ? 0 : 1) + 1 : 1;
         }
 
         return Integer.toString(answer);
