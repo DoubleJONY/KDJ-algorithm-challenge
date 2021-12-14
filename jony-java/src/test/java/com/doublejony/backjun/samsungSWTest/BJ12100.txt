@@ -11,7 +11,7 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String temp;
 
-        while (!(temp = br.readLine()).isEmpty()) {
+        while ((temp = br.readLine()) != null && !temp.isEmpty()) {
             input.add(temp);
         }
         String answer = new Main().solution(input.toArray(new String[input.size()]));
