@@ -1,0 +1,138 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        List<String> input = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String temp;
+
+        while ((temp = br.readLine()) != null && !temp.isEmpty()) {
+            input.add(temp);
+        }
+        String answer = new Main().solution(input.toArray(new String[input.size()]));
+
+        System.out.println(answer);
+    }
+
+    final int LEFT = 0;
+    final int UP = 1;
+    final int RIGHT = 2;
+    final int DOWN = 3;
+
+    final int APPLE = 2;
+    final int TAIL = 1;
+    final int BLANK = 0;
+
+    public String solution(String[] input) {
+
+        int boardSize = Integer.parseInt(input[0]);
+
+        int[][] board = new int[boardSize][boardSize];
+        board[0][0] = TAIL;
+
+        int apples = Integer.parseInt(input[1]);
+        for (int i = 2; i < apples+2; i++) {
+            board[Integer.parseInt(input[i].split(" ")[0])-1][Integer.parseInt(input[i].split(" ")[1])-1] = APPLE;
+        }
+
+        int records = Integer.parseInt(input[2+apples]);
+        Queue<Vector> vectorQueue = new LinkedList<>();
+        for (int i = 3+apples; i < records+3+apples; i++) {
+            vectorQueue.add(new Vector(Integer.parseInt(input[i].split(" ")[0]), input[i].split(" ")[1]));
+        }
+
+        int answer = solve(board, vectorQueue);
+
+        return Integer.toString(answer);
+    }
+
+    private int solve(int[][] board, Queue<Vector> vectorQueue) {
+        int time = 0;
+        //            int snakeSize = 1;
+        int direction = RIGHT;
+        int x = 0;
+        int y = 0;
+
+        Queue<Point> pointQueue = new LinkedList<>();
+        pointQueue.add(new Point(0,0));
+
+        while(true) {
+
+            time++;
+
+            switch (direction) {
+                case RIGHT:
+                    y++;
+                    break;
+                case LEFT:
+                    y--;
+                    break;
+                case DOWN:
+                    x++;
+                    break;
+                case UP:
+                    x--;
+                    break;
+            }
+
+            if(isOutRange(x, y, board.length)) {
+                return time;
+            }
+
+            if(board[x][y] == TAIL) { // END
+                return time;
+            }
+
+            if(board[x][y] != APPLE) {
+                //remove tail
+                Point a = pointQueue.poll();
+                board[a.height][a.width] = BLANK;
+            }
+
+            //add head
+            pointQueue.add(new Point(x, y));
+            board[x][y] = TAIL;
+
+            if (vectorQueue.peek() != null && vectorQueue.peek().time == time) {
+                if (vectorQueue.peek().rotate.equals("L")) {
+                    direction = (direction + 3) % 4;
+                } else if (vectorQueue.peek().rotate.equals("D")) {
+                    direction = (direction + 1) % 4;
+                }
+                vectorQueue.poll();
+            }
+        }
+
+    }
+
+    private boolean isOutRange(int x, int y, int boardSize) {
+        return x < 0 || y < 0 || x >= boardSize || y >= boardSize;
+    }
+
+    class Point {
+        int height;
+        int width;
+
+        public Point(int height, int width) {
+            this.height = height;
+            this.width = width;
+        }
+    }
+
+    class Vector {
+        int time;
+        String rotate;
+
+        public Vector(int time, String rotate) {
+            this.time = time;
+            this.rotate = rotate;
+        }
+    }
+}
