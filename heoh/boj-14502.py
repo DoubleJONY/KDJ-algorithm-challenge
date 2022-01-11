@@ -60,13 +60,13 @@ for i0 in range(N*M):
         continue
     mat[r0][c0] = WALL
 
-    for i1 in range(N*M):
+    for i1 in range(i0+1, N*M):
         r1, c1 = i1 // M, i1 % M
         if mat[r1][c1] != EMPTY:
             continue
         mat[r1][c1] = WALL
     
-        for i2 in range(N*M):
+        for i2 in range(i1+1, N*M):
             r2, c2 = i2 // M, i2 % M
             if mat[r2][c2] != EMPTY:
                 continue
