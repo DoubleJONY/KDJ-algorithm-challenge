@@ -1,0 +1,218 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        List<String> input = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String temp;
+        while ((temp = br.readLine()) != null && !temp.isEmpty()) {
+            input.add(temp);
+        }
+
+        String[] answer = new Main().solution(input.toArray(new String[input.size()]));
+
+        for (String s : answer) {
+            System.out.println(s);
+        }
+    }
+
+    final int LEFT = 2;
+    final int UP = 3;
+    final int RIGHT = 1;
+    final int DOWN = 4;
+
+    Board board;
+
+    public String[] solution(String[] input) {
+
+        String[] buffer1 = input[0].split(" ");
+        int boardX = Integer.parseInt(buffer1[0]);
+        int boardY = Integer.parseInt(buffer1[1]);
+
+        Dice dice = new Dice(Integer.parseInt(buffer1[2]), Integer.parseInt(buffer1[3]));
+
+        this.board = new Board(boardX, boardY, input);
+
+        String[] commandBuffer = input[boardX + 1].split(" ");
+        Queue<Integer> commandQueue = new LinkedList<>();
+        for (String s : commandBuffer) {
+            commandQueue.add(Integer.parseInt(s));
+        }
+
+        List<String> answerList = new ArrayList<>();
+
+        while(!commandQueue.isEmpty()) {
+            int command = commandQueue.poll();
+
+            boolean painted = false;
+
+            switch (command) {
+                case RIGHT:
+                    painted = dice.rollRight();
+                    break;
+                case LEFT:
+                    painted = dice.rollLeft();
+                    break;
+                case DOWN:
+                    painted = dice.rollDown();
+                    break;
+                case UP:
+                    painted = dice.rollUp();
+                    break;
+            }
+
+            if (painted) {
+                paintNumber(dice);
+                answerList.add(Integer.toString(dice.getTop()));
+            }
+        }
+
+        return answerList.toArray(new String[0]);
+    }
+
+    private void paintNumber(Dice dice) {
+        int temp = this.board.map[dice.height][dice.width];
+        if (temp == 0) {
+            this.board.map[dice.height][dice.width] = dice.getBottom();
+        } else {
+            dice.setBottom(temp);
+            this.board.map[dice.height][dice.width] = 0;
+        }
+    }
+
+    private class Board {
+        int boardHeight;
+        int boardWidth;
+        int[][] map;
+
+        public Board(int boardHeight, int boardWidth, String[] input) {
+            this.boardHeight = boardHeight;
+            this.boardWidth = boardWidth;
+
+            this.map = new int[boardHeight][boardWidth];
+
+            for (int i = 1; i <= boardHeight; i++) {
+                String[] row = input[i].split(" ");
+                for (int j = 0; j < boardWidth; j++) {
+                    map[i - 1][j] = Integer.parseInt(row[j]);
+                }
+            }
+        }
+
+        public void setValue(int height, int width, int value) {
+            this.map[height][width] = value;
+        }
+    }
+
+    private class Dice {
+        int height;
+        int width;
+
+        int top;
+        int left;
+        int right;
+        int up;
+        int down;
+        int bottom;
+
+        public Dice(int height, int width) {
+            this.height = height;
+            this.width = width;
+
+            this.top = 0;
+            this.left = 0;
+            this.right = 0;
+            this.up = 0;
+            this.down = 0;
+            this.bottom = 0;
+        }
+
+        public int getTop() {
+            return this.top;
+        }
+
+        public int getBottom() {
+            return this.bottom;
+        }
+
+        public boolean rollUp() {
+            if (isRollable(height - 1, width)) {
+                int temp = this.up;
+                this.up = this.top;
+                this.top = this.down;
+                this.down = this.bottom;
+                this.bottom = temp;
+
+                this.height--;
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean rollDown() {
+            if (isRollable(height + 1, width)) {
+                int temp = this.bottom;
+                this.bottom = this.down;
+                this.down = this.top;
+                this.top = this.up;
+                this.up = temp;
+
+                this.height++;
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean rollLeft() {
+            if (isRollable(height, width - 1)) {
+                int temp = this.bottom;
+                this.bottom = this.left;
+                this.left = this.top;
+                this.top = this.right;
+                this.right = temp;
+
+                this.width--;
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean rollRight() {
+            if (isRollable(height, width + 1)) {
+                int temp = this.bottom;
+                this.bottom = this.right;
+                this.right = this.top;
+                this.top = this.left;
+                this.left = temp;
+
+                this.width++;
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private boolean isRollable(int height, int width) {
+            return height < board.boardHeight && width < board.boardWidth && height >= 0 && width >= 0;
+        }
+
+        public void setBottom(int bottom) {
+            this.bottom = bottom;
+        }
+    }
+}
+

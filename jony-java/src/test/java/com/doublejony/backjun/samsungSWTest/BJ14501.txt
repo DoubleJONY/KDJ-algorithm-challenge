@@ -1,0 +1,64 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        List<String> input = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String temp;
+        while ((temp = br.readLine()) != null && !temp.isEmpty()) {
+            input.add(temp);
+        }
+
+        String answer = new Main().solution(input.toArray(new String[input.size()]));
+
+        System.out.println(answer);
+    }
+
+    int doomsday;
+    List<Integer> dayList;
+    List<Integer> payList;
+    HashMap<Integer, Integer> cache;
+
+    public String solution(String[] input) {
+
+        doomsday = Integer.parseInt(input[0]);
+        dayList = new ArrayList<>();
+        payList = new ArrayList<>();
+        cache = new HashMap<>();
+
+        for (int i = 1; i <= doomsday; i++) {
+            String[] a = input[i].split(" ");
+            dayList.add(Integer.parseInt(a[0]));
+            payList.add(Integer.parseInt(a[1]));
+        }
+
+        return Integer.toString(getMergedValue(0));
+    }
+
+    private int getMergedValue(int day) {
+
+        int maxValue;
+        int workedValue = 0;
+        int skippedValue = 0;
+
+        if (cache.containsKey(day)) {
+            return cache.get(day);
+        }
+        if (day < doomsday && dayList.get(day) + day <= doomsday) {
+            workedValue = payList.get(day) + getMergedValue(dayList.get(day) + day);
+        }
+        if (day < doomsday) {
+            skippedValue = getMergedValue(day + 1);
+        }
+
+        maxValue = Math.max(workedValue, skippedValue);
+        cache.put(day, maxValue);
+        return maxValue;
+    }
+}
