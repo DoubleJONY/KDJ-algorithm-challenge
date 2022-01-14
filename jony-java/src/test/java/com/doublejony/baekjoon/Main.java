@@ -1,4 +1,4 @@
-package com.doublejony.backjun;
+package com.doublejony.baekjoon;
 
 import java.io.BufferedReader;
 import java.io.IOException;

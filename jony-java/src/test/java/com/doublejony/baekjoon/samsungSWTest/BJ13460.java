@@ -1,4 +1,4 @@
-package com.doublejony.backjun.samsungSWTest;
+package com.doublejony.baekjoon.samsungSWTest;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;

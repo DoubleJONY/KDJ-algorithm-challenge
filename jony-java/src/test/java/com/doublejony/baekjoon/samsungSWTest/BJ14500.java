@@ -1,4 +1,4 @@
-package com.doublejony.backjun.samsungSWTest;
+package com.doublejony.baekjoon.samsungSWTest;
 
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -6,9 +6,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
