@@ -1,5 +1,5 @@
+import heapq
 from collections import defaultdict
-from queue import PriorityQueue
 from typing import List
 
 
@@ -11,14 +11,14 @@ class Solution:
 
         visited_time_of_node = {}
 
-        visit_queue = PriorityQueue()
-        visit_queue.put((0, k))
+        visit_queue = []
+        heapq.heappush(visit_queue, (0, k))
         while visit_queue:
-            t, u = visit_queue.get()
+            t, u = heapq.heappop(visit_queue)
             visited_time_of_node[u] = t
             for v, w in edges_of_vertex[u]:
                 if v not in visited_time_of_node:
-                    visit_queue.put((t + w, v))
+                    heapq.heappush(visit_queue, (t + w, v))
 
         visited_nodes = visited_time_of_node.keys()
         if len(visited_nodes) == n:
