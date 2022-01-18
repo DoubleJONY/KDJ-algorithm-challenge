@@ -1,4 +1,5 @@
-from collections import defaultdict, deque
+from collections import defaultdict
+from queue import PriorityQueue
 from typing import List
 
 
@@ -10,13 +11,14 @@ class Solution:
 
         visited_time_of_node = {}
 
-        visit_queue = deque()
-        visit_queue.append((k, 0))
+        visit_queue = PriorityQueue()
+        visit_queue.put((0, k))
         while visit_queue:
-            u, t = visit_queue.popleft()
+            t, u = visit_queue.get()
             visited_time_of_node[u] = t
             for v, w in edges_of_vertex[u]:
-                visit_queue.append((v, t + w))
+                if v not in visited_time_of_node:
+                    visit_queue.put((t + w, v))
 
         visited_nodes = visited_time_of_node.keys()
         if len(visited_nodes) == n:
