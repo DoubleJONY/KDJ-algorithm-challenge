@@ -17,14 +17,15 @@ class Fancy {
     private BigInteger revA = multi;
 
     public void append(int val) {
-        // 모듈러 역원을 다시 세팅
+        //https://ko.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/modular-inverses
+        // multi 후 새 값이 들어오면, 역원이 바뀐다.
         if (revA == null) revA = multi.modInverse(MODULO);
-        // (val + MOD_VALUE - adder) * revA  MOD
+        // (val + MOD_VALUE - adder) * revA % MODULO
         arr.add(BigInteger.valueOf(val).add(MODULO).subtract(adder).multiply(revA).mod(MODULO));
     }
 
     public void addAll(int inc) {
-        // add // MODULO
+        // (adder+inc) % MODULO
         adder = adder.add(BigInteger.valueOf(inc)).mod(MODULO);
     }
 
@@ -39,7 +40,7 @@ class Fancy {
 
     public int getIndex(int idx) {
         if (idx >= arr.size()) return -1;
-        // ( arr[i] * a + b ) mod
+        // ( arr[i] * a + b ) % MODULO
         return arr.get(idx).multiply(multi).add(adder).mod(MODULO).intValue();
     }
 }
