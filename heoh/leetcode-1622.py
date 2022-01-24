@@ -7,35 +7,41 @@ class Fancy:
     def __init__(self):
         self.length = 0
         self.values = []
-        self.op_lists = []
+        self.op = (1, 0)
+        self.prev_states = []
 
     def append(self, val: int) -> None:
         self.values.append(val)
-        self.op_lists.append((1, 0))
+        self.prev_states.append(self.op)
         self.length += 1
 
     def addAll(self, inc: int) -> None:
-        if self.length <= 0:
-            return
-        top = self.length - 1
-        op_mul, op_inc = self.op_lists[top]
-        self.op_lists[top] = (op_mul, op_inc + inc)
+        op_mul, op_inc = self.op
+        self.op = (op_mul, (op_inc + inc) % MOD)
 
     def multAll(self, m: int) -> None:
-        if self.length <= 0:
-            return
-        top = self.length - 1
-        op_mul, op_inc = self.op_lists[top]
-        self.op_lists[top] = (op_mul * m, op_inc * m)
+        op_mul, op_inc = self.op
+        self.op = ((op_mul * m) % MOD, (op_inc * m) % MOD)
 
     def getIndex(self, idx: int) -> int:
         if idx >= self.length:
             return -1
 
         val = self.values[idx]
-        for i in range(idx, self.length):
-            op_mul, op_inc = self.op_lists[i]
-            val *= op_mul
-            val += op_inc
-            val %= MOD
-        return val
+        op_mul, op_inc = self.op
+        prev_mul, prev_inc = self.prev_states[idx]
+        prev_mul_inv = fast_pow(prev_mul, MOD - 2, MOD)
+        mul = ((op_mul % MOD) * (prev_mul_inv % MOD)) % MOD
+        val = (((val - prev_inc) * mul) % MOD + op_inc) % MOD
+        return int(val)
+
+
+# https://ohgym.tistory.com/13
+def fast_pow(base, exp, mod):
+    result = 1
+    while exp:
+        if exp & 1:
+            result = (result * base) % mod
+        exp >>= 1
+        base = (base * base) % mod
+    return result
