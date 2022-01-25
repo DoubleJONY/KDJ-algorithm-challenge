@@ -3,6 +3,7 @@ package com.doublejony.common;
 import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 public class AssertResolve {
@@ -75,6 +76,16 @@ public class AssertResolve {
     }
 
     public static void resolve(String testType, int[] expected, int[] answer, Stopwatch timer) {
+
+        Assert.assertArrayEquals(expected, answer);
+        System.out.println(testType
+                + " || expected : " + Arrays.toString(expected)
+                + " || answer : " + Arrays.toString(answer)
+                + " || " + timer
+        );
+    }
+
+    public static void resolve(String testType, Integer[] expected, Integer[] answer, Stopwatch timer) {
 
         Assert.assertArrayEquals(expected, answer);
         System.out.println(testType
