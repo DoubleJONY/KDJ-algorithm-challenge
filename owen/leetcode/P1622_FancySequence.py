@@ -17,7 +17,14 @@ class Fancy:
         self.a = self.a * m % p
         self.b = self.b * m % p
 
-    def getIndex(self, idx):
-        if idx >= len(self.x):
+    # def getIndex(self, idx): #1072 ms
+    #     if idx >= len(self.x):
+    #         return -1
+    #     return (self.a * self.x[idx] + self.b) % p
+
+    def getIndex(self, idx): # 948 ms
+        try:
+            return (self.a * self.x[idx] + self.b) % p
+        except:
             return -1
-        return (self.a * self.x[idx] + self.b) % p
+    
