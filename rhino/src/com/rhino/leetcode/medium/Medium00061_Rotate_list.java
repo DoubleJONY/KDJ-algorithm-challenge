@@ -46,6 +46,10 @@ class Solution {
         // remember count k node. and split once
         // if k > node; use k % node_count
 
+        if(head == null){
+            return head;
+        }
+
         int total = 1;
         ListNode tail = head;
         ListNode newTail = head;
