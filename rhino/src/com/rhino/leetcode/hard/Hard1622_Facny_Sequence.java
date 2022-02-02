@@ -1,4 +1,4 @@
-package com.rhino.leetcode;
+package com.rhino.leetcode.hard;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
