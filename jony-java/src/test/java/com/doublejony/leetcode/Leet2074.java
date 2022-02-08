@@ -1,5 +1,6 @@
 package com.doublejony.leetcode;
 
+import com.doublejony.leetcode.entities.ListNode;
 import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -16,33 +17,6 @@ import static com.doublejony.common.AssertResolveCustom.resolve;
 
 @RunWith(DataProviderRunner.class)
 public class Leet2074 {
-
-    public static class ListNode {
-        int val;
-        ListNode next;
-
-        ListNode() {
-        }
-
-        ListNode(int val) {
-            this.val = val;
-        }
-
-        ListNode(int val, ListNode next) {
-            this.val = val;
-            this.next = next;
-        }
-
-        //only for JUnit
-        public int getVal() {
-            return val;
-        }
-
-        //only for JUnit
-        public ListNode getNext() {
-            return next;
-        }
-    }
 
     @DataProvider
     public static Object[][] testCase() {
