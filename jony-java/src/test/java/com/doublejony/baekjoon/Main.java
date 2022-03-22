@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class Main {
 
@@ -23,117 +21,77 @@ public class Main {
         System.out.println(answer);
     }
 
-    int m;
-    int n;
+    int[] H = new int[]{0, 1, 0, -1, 0};
+    int[] V = new int[]{-1, 0, 1, 0, -1};
+
+    int h;
+    int w;
+    int x;
+    int y;
+    int direction;
+
+    int turnCount = 0;
+
     int[][] map;
 
-    int maxValue;
-
-    class Virus {
-        int x, y;
-
-        Virus(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
 
     public String solution(String[] input) {
 
-        String[] a = input[0].split(" ");
+        h = Integer.parseInt(input[0].split(" ")[0]);
+        w = Integer.parseInt(input[0].split(" ")[1]);
+        x = Integer.parseInt(input[1].split(" ")[0]);
+        y = Integer.parseInt(input[1].split(" ")[1]);
+        direction = Integer.parseInt(input[1].split(" ")[2]);
 
-        m = Integer.parseInt(a[0]);
-        n = Integer.parseInt(a[1]);
-
-        map = new int[m][n];
-
-        maxValue = 0;
-
-        for (int i = 0; i < m; i++) {
-            String[] line = input[i + 1].split(" ");
-            for (int j = 0; j < n; j++) {
-                map[i][j] = Integer.parseInt(line[j]);
+        map = new int[h][w];
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                map[i][j] = Integer.parseInt(input[i+2].split(" ")[j]);
             }
         }
 
-        buildWall(0);
-
-        return Integer.toString(maxValue);
+        return String.valueOf(startVacuum());
     }
 
-    private void buildWall(int depth) {
-        if (depth >= 3) {
-            spreadVirus();
-            return;
-        }
+    private int startVacuum() {
 
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (map[i][j] == 0) {
-                    map[i][j] = 1;
-                    buildWall(depth + 1);
-                    map[i][j] = 0;
+        int answer = 0;
+
+        while (true) {
+            if (map[x][y] == 0) {
+                map[x][y] = 2; //map.put();
+                answer++;
+            }
+
+            if (turnCount >= 4) {
+                if (map[x - H[direction]][y - V[direction]] == 1) {
+                    break;
+                } else {
+                    x -= H[direction];
+                    y -= V[direction];
+                    turnCount = 0;
                 }
+
+            } else if (map[x + H[direction]][y + V[direction]] == 0) {
+                x += H[direction];
+                y += V[direction];
+                turnLeft();
+                turnCount = 0;
+                continue;
+            } else {
+                turnLeft();
+                turnCount++;
             }
         }
+
+        return answer;
     }
 
-    private void spreadVirus() {
-        int[][] virusMap = new int[m][n];
-        Queue<Virus> queue = new LinkedList<Virus>();
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                virusMap[i][j] = map[i][j];
-            }
+    private void turnLeft() {
+        direction++;
+        if (direction > 3) {
+            direction = 0;
         }
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++)
-                if (virusMap[i][j] == 2) {
-                    queue.add(new Virus(i, j));
-                }
-        }
-
-        while (!queue.isEmpty()) {
-            Virus virus = queue.remove();
-
-            if (virus.x + 1 < m && virusMap[virus.x + 1][virus.y] == 0) {
-                virusMap[virus.x + 1][virus.y] = 2;
-                queue.add(new Virus(virus.x + 1, virus.y));
-            }
-
-            if (virus.x - 1 >= 0 && virusMap[virus.x - 1][virus.y] == 0) {
-                virusMap[virus.x - 1][virus.y] = 2;
-                queue.add(new Virus(virus.x - 1, virus.y));
-            }
-
-            if (virus.y + 1 < n && virusMap[virus.x][virus.y + 1] == 0) {
-                virusMap[virus.x][virus.y + 1] = 2;
-                queue.add(new Virus(virus.x, virus.y + 1));
-            }
-
-            if (virus.y - 1 >= 0 && virusMap[virus.x][virus.y - 1] == 0) {
-                virusMap[virus.x][virus.y - 1] = 2;
-                queue.add(new Virus(virus.x, virus.y - 1));
-            }
-
-        }
-        countSafeArea(virusMap);
-    }
-
-    private void countSafeArea(int[][] virusMap) {
-        int count = 0;
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (virusMap[i][j] == 0) {
-                    count++;
-                }
-            }
-        }
-
-        maxValue = Math.max(count, maxValue);
     }
 }
 
