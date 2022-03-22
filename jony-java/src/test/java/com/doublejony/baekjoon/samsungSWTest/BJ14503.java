@@ -87,8 +87,8 @@ public class BJ14503 {
 
     public class Main {
 
-        int[] H = new int[]{0, 1, 0, -1};
-        int[] W = new int[]{-1, 0, 1, 0};
+        int[] DeltaRow = new int[]{-1, 0, 1, 0};
+        int[] DeltaColumn = new int[]{0, 1, 0, -1};
 
         int h;
         int w;
@@ -130,21 +130,22 @@ public class BJ14503 {
                 }
 
                 if (turnCount >= 4) {
-                    if (map[r - H[direction]][c - W[direction]] == 1) {
+                    if (map[r - DeltaRow[direction]][c - DeltaColumn[direction]] == 1) {
                         break;
                     } else {
-                        r -= H[direction];
-                        c -= W[direction];
+                        r -= DeltaRow[direction];
+                        c -= DeltaColumn[direction];
                         turnCount = 0;
                     }
-                } else if (map[r + H[direction]][c + W[direction]] == 0) {
-                    r += H[direction];
-                    c += W[direction];
-                    turnLeft();
-                    turnCount = 0;
                 } else {
                     turnLeft();
                     turnCount++;
+
+                    if (map[r + DeltaRow[direction]][c + DeltaColumn[direction]] == 0) {
+                        r += DeltaRow[direction];
+                        c += DeltaColumn[direction];
+                        turnCount = 0;
+                    }
                 }
             }
 

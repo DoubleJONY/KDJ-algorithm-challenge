@@ -21,13 +21,13 @@ public class Main {
         System.out.println(answer);
     }
 
-    int[] H = new int[]{0, 1, 0, -1, 0};
-    int[] V = new int[]{-1, 0, 1, 0, -1};
+    int[] DeltaRow = new int[]{-1, 0, 1, 0};
+    int[] DeltaColumn = new int[]{0, 1, 0, -1};
 
     int h;
     int w;
-    int x;
-    int y;
+    int r;
+    int c;
     int direction;
 
     int turnCount = 0;
@@ -39,8 +39,8 @@ public class Main {
 
         h = Integer.parseInt(input[0].split(" ")[0]);
         w = Integer.parseInt(input[0].split(" ")[1]);
-        x = Integer.parseInt(input[1].split(" ")[0]);
-        y = Integer.parseInt(input[1].split(" ")[1]);
+        r = Integer.parseInt(input[1].split(" ")[0]);
+        c = Integer.parseInt(input[1].split(" ")[1]);
         direction = Integer.parseInt(input[1].split(" ")[2]);
 
         map = new int[h][w];
@@ -58,29 +58,28 @@ public class Main {
         int answer = 0;
 
         while (true) {
-            if (map[x][y] == 0) {
-                map[x][y] = 2; //map.put();
+            if (map[r][c] == 0) {
+                map[r][c] = 2;
                 answer++;
             }
 
             if (turnCount >= 4) {
-                if (map[x - H[direction]][y - V[direction]] == 1) {
+                if (map[r - DeltaRow[direction]][c - DeltaColumn[direction]] == 1) {
                     break;
                 } else {
-                    x -= H[direction];
-                    y -= V[direction];
+                    r -= DeltaRow[direction];
+                    c -= DeltaColumn[direction];
                     turnCount = 0;
                 }
-
-            } else if (map[x + H[direction]][y + V[direction]] == 0) {
-                x += H[direction];
-                y += V[direction];
-                turnLeft();
-                turnCount = 0;
-                continue;
             } else {
                 turnLeft();
                 turnCount++;
+
+                if (map[r + DeltaRow[direction]][c + DeltaColumn[direction]] == 0) {
+                    r += DeltaRow[direction];
+                    c += DeltaColumn[direction];
+                    turnCount = 0;
+                }
             }
         }
 
@@ -88,9 +87,9 @@ public class Main {
     }
 
     private void turnLeft() {
-        direction++;
-        if (direction > 3) {
-            direction = 0;
+        direction--;
+        if (direction < 0) {
+            direction = 3;
         }
     }
 }
