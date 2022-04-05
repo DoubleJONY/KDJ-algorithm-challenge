@@ -25,7 +25,7 @@ rp_lp_interval = 4
 
 def rotate_gear(gear_no, direct, rot_direct): # direct -1:왼편, 1:오른편
     global rp_List, teeth_len, Gear_list, rp_lp_interval
-    # print(rp_List)
+
     
     other_g = gear_no + direct
     if (other_g) < len(Gear_list) and (other_g) > 0:
@@ -34,6 +34,7 @@ def rotate_gear(gear_no, direct, rot_direct): # direct -1:왼편, 1:오른편
             # 타기어의 왼쪽을 봐야함
             other_lp= rp_List[other_g] - rp_lp_interval
             pre_gear_rp = rp_List[gear_no]
+            print(other_g,other_lp,  gear_no, pre_gear_rp)
             if Gear_list[other_g][other_lp] != Gear_list[gear_no][pre_gear_rp]:
                 rotate_gear(other_g, 1, rot_direct*-1)
 
@@ -46,40 +47,19 @@ def rotate_gear(gear_no, direct, rot_direct): # direct -1:왼편, 1:오른편
                 
 
 
-    rp_List[gear_no] = (rp_List[gear_no] + (rot_direct)) % (teeth_len+1)
+    rp_List[gear_no] = (rp_List[gear_no] + (rot_direct)) % (teeth_len)
+
 
 if rot != 0:
-    #지금 기어의 상태로 양옆의 기어 상태 변경
+    
     for g_no, rot_direct in rot_gear:
         g_no = g_no -1
-        rot_direct = rot_direct * -1
 
         check_gear = [ g_no + i for i in [-1,1] if (g_no + i) >0 and (g_no + i)  < len(Gear_list) ]
 
         for other_g in check_gear:
-            
-            if other_g > g_no:
-                # 타기어의 왼쪽을 봐야함
-                other_lp= rp_List[other_g] - rp_lp_interval
-                pre_gear_rp = rp_List[g_no]
-                if Gear_list[other_g][other_lp] != Gear_list[g_no][rp_List[g_no]]:
-                    rotate_gear(other_g, 1, rot_direct * -1)
-                    
-
-            else:
-                # 타기어의 오른쪽을 봐야함, 현 기어의 왼쪽
-                other_rp = rp_List[other_g]
-                pre_gear_lp = rp_List[g_no] - rp_lp_interval
-                
-                if Gear_list[other_g][other_rp] != Gear_list[g_no][pre_gear_lp]:
-                    rotate_gear(other_g, -1, rot_direct * -1)
-                    
-                    
-
-            
-        
-        rp_List[g_no] += rot_direct
-
+            rotate_gear(g_no, other_g, rot_direct * -1)
+ 
 
 # total_score
 answer = 0
