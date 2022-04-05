@@ -9,7 +9,7 @@
 # 시계 1, 반시계 -1
 
 Gear_list = [list(map(str, input())) for _ in range(4)]
-print(Gear_list)
+
 rot = int(input())
 
 rot_gear=[list(map(int, input().split())) for _ in range(rot)]
@@ -20,39 +20,71 @@ teeth_len = 8
 
 rp_lp_interval = 4
 
-#지금 기어의 상태로 양옆의 기어 상태 변경
-for g_no, rot_direct in rot_gear:
-    g_no = g_no -1
-    rot_direct = rot_direct * -1
 
-    check_gear = [ g_no + i for i in [-1,1] if (g_no + i) >0 and (g_no + i)  < len(Gear_list) ]
 
-    for other_g in check_gear:
+
+def rotate_gear(gear_no, direct, rot_direct): # direct -1:왼편, 1:오른편
+    global rp_List, teeth_len, Gear_list, rp_lp_interval
+    # print(rp_List)
+    
+    other_g = gear_no + direct
+    if (other_g) < len(Gear_list) and (other_g) > 0:
         
-        if other_g > g_no:
+        if direct == 1:
             # 타기어의 왼쪽을 봐야함
             other_lp= rp_List[other_g] - rp_lp_interval
-            pre_gear_rp = rp_List[g_no]
-            if Gear_list[other_g][other_lp] != Gear_list[g_no][rp_List[g_no]]:
-                rp_List[other_g] = (rp_List[other_g] + (rot_direct * -1)) % (teeth_len+1)
+            pre_gear_rp = rp_List[gear_no]
+            if Gear_list[other_g][other_lp] != Gear_list[gear_no][pre_gear_rp]:
+                rotate_gear(other_g, 1, rot_direct*-1)
 
         else:
             # 타기어의 오른쪽을 봐야함, 현 기어의 왼쪽
             other_rp = rp_List[other_g]
-            pre_gear_lp = rp_List[g_no] - rp_lp_interval
-            print(other_g,other_rp,g_no, pre_gear_lp  )
-            if Gear_list[other_g][other_rp] != Gear_list[g_no][pre_gear_lp]:
-                rp_List[other_g] = (rp_List[other_g] + (rot_direct * -1)) % (teeth_len+1)
+            pre_gear_lp = rp_List[gear_no] - rp_lp_interval
+            if Gear_list[other_g][other_rp] != Gear_list[gear_no][pre_gear_lp]:
+                rotate_gear(other_g, -1, rot_direct*-1)
+                
 
+
+    rp_List[gear_no] = (rp_List[gear_no] + (rot_direct)) % (teeth_len+1)
+
+if rot != 0:
+    #지금 기어의 상태로 양옆의 기어 상태 변경
+    for g_no, rot_direct in rot_gear:
+        g_no = g_no -1
+        rot_direct = rot_direct * -1
+
+        check_gear = [ g_no + i for i in [-1,1] if (g_no + i) >0 and (g_no + i)  < len(Gear_list) ]
+
+        for other_g in check_gear:
+            
+            if other_g > g_no:
+                # 타기어의 왼쪽을 봐야함
+                other_lp= rp_List[other_g] - rp_lp_interval
+                pre_gear_rp = rp_List[g_no]
+                if Gear_list[other_g][other_lp] != Gear_list[g_no][rp_List[g_no]]:
+                    rotate_gear(other_g, 1, rot_direct * -1)
+                    
+
+            else:
+                # 타기어의 오른쪽을 봐야함, 현 기어의 왼쪽
+                other_rp = rp_List[other_g]
+                pre_gear_lp = rp_List[g_no] - rp_lp_interval
+                
+                if Gear_list[other_g][other_rp] != Gear_list[g_no][pre_gear_lp]:
+                    rotate_gear(other_g, -1, rot_direct * -1)
+                    
+                    
+
+            
         
-    
-    rp_List[g_no] += rot_direct
+        rp_List[g_no] += rot_direct
 
 
 # total_score
 answer = 0
 for i in range(len(Gear_list)):
-    answer += int(Gear_list[i][rp_List[i] - int(rp_lp_interval / 2)]) * (i+1) * 2
+    answer += int(Gear_list[i][rp_List[i] - int(rp_lp_interval / 2)]) * (2**i)
 
 
 print(answer)
