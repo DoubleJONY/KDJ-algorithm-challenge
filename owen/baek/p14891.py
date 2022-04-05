@@ -57,8 +57,8 @@ if rot != 0:
 
         check_gear = [ i for i in [-1,1] if (g_no + i) >0 and (g_no + i)  < len(Gear_list) ]
 
-        for other_g in check_gear:
-            rotate_gear(g_no, other_g, rot_direct * -1)
+        for direct in check_gear:
+            rotate_gear(g_no, direct, rot_direct * -1)
  
 
 # total_score
