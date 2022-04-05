@@ -18,11 +18,11 @@ rot_gear=[[3,-1],[1,1]]
 
 
 
-Gear_list = [list(map(str, input())) for _ in range(4)]
+# Gear_list = [list(map(str, input())) for _ in range(4)]
 
-rot = int(input())
+# rot = int(input())
 
-rot_gear=[list(map(int, input().split())) for _ in range(rot)]
+# rot_gear=[list(map(int, input().split())) for _ in range(rot)]
 
 rp_List = [2 for _ in range(len(Gear_list))]
 
@@ -42,7 +42,7 @@ def rotate_gear(gear_no, direct, rot_d): # direct -1:왼편, 1:오른편
     if (other_g) < len(Gear_list) and (other_g) >= 0:
         
         if direct == 1:
-            # 타기어의 왼쪽을 봐야함
+            
             other_lp = rp_List[other_g] - rp_lp_interval 
             other_lp = other_lp if other_lp > -teeth_len else  other_lp + teeth_len
             
@@ -52,7 +52,7 @@ def rotate_gear(gear_no, direct, rot_d): # direct -1:왼편, 1:오른편
                 rotate_gear(other_g, 1, rot_d*-1)
 
         else:
-            # 타기어의 오른쪽을 봐야함, 현 기어의 왼쪽
+            
             other_rp = rp_List[other_g]
             pre_gear_lp = rp_List[gear_no] - rp_lp_interval 
             pre_gear_lp = pre_gear_lp if pre_gear_lp > -teeth_len else  pre_gear_lp + teeth_len
@@ -62,7 +62,7 @@ def rotate_gear(gear_no, direct, rot_d): # direct -1:왼편, 1:오른편
                 
 
 
-        rp_List[gear_no] = (rp_List[gear_no] + (rot_d)) % (teeth_len)
+    rp_List[gear_no] = (rp_List[gear_no] + (rot_d)) % (teeth_len)
 
 
 if rot != 0:
