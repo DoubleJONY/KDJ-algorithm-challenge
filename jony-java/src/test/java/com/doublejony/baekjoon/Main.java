@@ -23,120 +23,217 @@ public class Main {
         System.out.println(answer);
     }
 
+    int N;
+    int M;
 
-    List<List<Integer>> gears = new ArrayList<>();
-    Queue<Command> mainQueue = new LinkedList<>();
-
-    private class Command {
-        int commandGears;
-        int commandWises;
-
-        public Command(int commandGears, int commandWises) {
-            this.commandGears = commandGears;
-            this.commandWises = commandWises;
-        }
-
-        public int getCommandGears() {
-            return commandGears;
-        }
-
-        public int getCommandWises() {
-            return commandWises;
-        }
-    }
+    int answer;
 
     public String solution(String[] input) {
+        N = Integer.parseInt(input[0].split(" ")[0]);
+        M = Integer.parseInt(input[0].split(" ")[1]);
 
-        for (int i = 0; i < 4; i++) {
-            gears.add(new ArrayList<>());
-        }
+        Queue<Camera> cameras = new LinkedList<>();
 
-        for (int i = 0; i < 4; i++) {
-            String[] a = input[i].split("");
-            for (int j = 0; j < 8; j++) {
-                gears.get(i).add(j, Integer.parseInt(a[j]));
+        answer = 9999999;
+
+        int[][] map = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            String[] row = input[i + 1].split(" ");
+            for (int j = 0; j < M; j++) {
+                if (Integer.parseInt(row[j]) > 0 && Integer.parseInt(row[j]) < 6) {
+                    cameras.add(new Camera(Integer.parseInt(row[j]), i, j));
+                }
+                map[i][j] = Integer.parseInt(row[j]);
             }
         }
 
-        int commandCount = Integer.parseInt(input[4]);
+        dfs(map, cameras);
 
-        for (int i = 0; i < commandCount; i++) {
-            mainQueue.add(new Command(
-                    Integer.parseInt(input[5 + i].split(" ")[0]) - 1 ,
-                    Integer.parseInt(input[5 + i].split(" ")[1]))
-            );
-        }
-
-        run();
-
-        int result = 0;
-        for (int i = 0; i < 4; i++) {
-            result += gears.get(i).get(0) == 1 ? Math.pow(2, i) : 0;
-        }
-
-        return String.valueOf(result);
+        return answer == 9999999 ? "0" : String.valueOf(answer);
     }
 
-    private void run() {
+    class Camera {
+        int type;
+        int n;
+        int m;
 
-        while (!mainQueue.isEmpty()) {
-            Queue<Command> subQueue = new LinkedList<>();
-            subQueue.add(mainQueue.poll());
+        public Camera(int type, int n, int m) {
+            this.type = type;
+            this.n = n;
+            this.m = m;
+        }
+    }
 
-            Command cCommand = subQueue.peek();
-
-            //lower case
-            queueUnderGears(subQueue, cCommand);
-
-            //upper case
-            queueUpperGears(subQueue, cCommand);
-
-            while (!subQueue.isEmpty()) {
-                Command c = subQueue.poll();
-                gears.set(c.commandGears, rotate(gears.get(c.commandGears), c.commandWises));
+    private void dfs(int[][] map, Queue<Camera> cameras) {
+        if (cameras.isEmpty()) {
+            int sum = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (map[i][j] == 0) {
+                        sum++;
+                    }
+                }
             }
+
+            answer = Math.min(answer, sum);
+            return;
+        }
+
+        int[][] newMap = copyMap(map);
+
+        Camera camera = cameras.poll();
+
+        switch (camera.type) {
+            case 5:
+                fillUp(newMap, camera.n, camera.m);
+                fillDown(newMap, camera.n, camera.m);
+                fillLeft(newMap, camera.n, camera.m);
+                fillRight(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+                return;
+            case 4:
+                // case 1
+                fillLeft(newMap, camera.n, camera.m);
+                fillUp(newMap, camera.n, camera.m);
+                fillRight(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 2
+                newMap = copyMap(map);
+                fillUp(newMap, camera.n, camera.m);
+                fillRight(newMap, camera.n, camera.m);
+                fillDown(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 3
+                newMap = copyMap(map);
+                fillRight(newMap, camera.n, camera.m);
+                fillDown(newMap, camera.n, camera.m);
+                fillLeft(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 4
+                newMap = copyMap(map);
+                fillDown(newMap, camera.n, camera.m);
+                fillLeft(newMap, camera.n, camera.m);
+                fillUp(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                return;
+            case 3:
+                // case 1
+                fillUp(newMap, camera.n, camera.m);
+                fillRight(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 2
+                newMap = copyMap(map);
+                fillRight(newMap, camera.n, camera.m);
+                fillDown(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 3
+                newMap = copyMap(map);
+                fillDown(newMap, camera.n, camera.m);
+                fillLeft(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 4
+                newMap = copyMap(map);
+                fillLeft(newMap, camera.n, camera.m);
+                fillUp(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                return;
+            case 2:
+                // case 1
+                fillLeft(newMap, camera.n, camera.m);
+                fillRight(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 2
+                newMap = copyMap(map);
+                fillUp(newMap, camera.n, camera.m);
+                fillDown(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                return;
+            case 1:
+                // case 1
+                fillRight(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 2
+                newMap = copyMap(map);
+                fillDown(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 3
+                newMap = copyMap(map);
+                fillLeft(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
+
+                // case 4
+                newMap = copyMap(map);
+                fillUp(newMap, camera.n, camera.m);
+                dfs(newMap, cloneQueue(cameras));
         }
     }
 
-    private void queueUpperGears(Queue<Command> subQueue, Command cCommand) {
-        int cGear = cCommand.getCommandGears();
-        int cWise = cCommand.getCommandWises();
+    private Queue<Camera> cloneQueue(Queue<Camera> cameras) {
+        return new LinkedList<>(cameras);
+    }
 
-        while (cGear + 1 < 4) {
-            if (gears.get(cGear).get(2) != gears.get(cGear + 1).get(6)) {
-                subQueue.add(new Command(cGear + 1, cWise * -1));
-                cGear += 1;
-                cWise = cWise * -1;
-            } else {
+    private int[][] copyMap(int[][] map) {
+        int[][] newMap = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            System.arraycopy(map[i], 0, newMap[i], 0, M);
+        }
+        return newMap;
+    }
+
+    private void fillUp(int[][] map, int n, int m) {
+
+        for (int i = n - 1; i >= 0; i--) {
+            if (map[i][m] == 6) {
                 break;
+            } else if (map[i][m] == 0) {
+                map[i][m] = 7;
             }
         }
     }
 
-    private void queueUnderGears(Queue<Command> subQueue, Command cCommand) {
-        int cGear = cCommand.getCommandGears();
-        int cWise = cCommand.getCommandWises();
+    private void fillDown(int[][] map, int n, int m) {
 
-        while (cGear - 1 >= 0) {
-            if (gears.get(cGear).get(6) != gears.get(cGear - 1).get(2)) {
-                subQueue.add(new Command(cGear - 1, cWise * -1));
-                cGear -= 1;
-                cWise = cWise * -1;
-            } else {
+        for (int i = n + 1; i < N; i++) {
+            if (map[i][m] == 6) {
                 break;
+            } else if (map[i][m] == 0) {
+                map[i][m] = 7;
             }
         }
     }
 
-    private List<Integer> rotate(List<Integer> integers, int commandWises) {
-        List<Integer> result = new ArrayList<>();
+    private void fillLeft(int[][] map, int n, int m) {
 
-        for (int i = 0; i < 8; i++) {
-            result.add(integers.get((i + (commandWises * -1) + 8) % 8));
+        for (int i = m - 1; i >= 0; i--) {
+            if (map[n][i] == 6) {
+                break;
+            } else if (map[n][i] == 0) {
+                map[n][i] = 7;
+            }
         }
-
-        return result;
     }
 
+    private void fillRight(int[][] map, int n, int m) {
+
+        for (int i = m + 1; i < M; i++) {
+            if (map[n][i] == 6) {
+                break;
+            } else if (map[n][i] == 0) {
+                map[n][i] = 7;
+            }
+        }
+    }
 }
 
