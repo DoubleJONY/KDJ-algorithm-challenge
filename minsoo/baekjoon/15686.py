@@ -19,12 +19,6 @@ for r, row in enumerate(chiken_map):
         else:
             chickens.append((r, c))
 
-dists_to_chickens = [[] for _ in houses]
-for i, (r, c) in enumerate(houses):
-    for r_chicken, c_chicken in chickens:
-        dists_to_chickens[i].append((r_chicken, c_chicken))
-
-
 min_chicken_dist = float("inf")
 for selected in combinations(chickens, r=n):
     chicken_dists = []
