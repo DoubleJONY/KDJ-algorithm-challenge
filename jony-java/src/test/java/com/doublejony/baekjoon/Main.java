@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class Main {
 
@@ -23,81 +21,78 @@ public class Main {
         System.out.println(answer);
     }
 
-    int[] dx = {1, 0, -1, 0, 1, 0, -1, 0};
-    int[] dy = {0, -1, 0, 1, 0, -1, 0, 1};
+    int N;
+    int M;
+
+    List<Point> residents;
+    List<Point> chickens;
+
+    boolean[] chickenToggle;
+    int answer;
 
     public String solution(String[] input) {
-        int n = Integer.parseInt(input[0]);
-        Queue<Dragon> queue = new LinkedList<>();
-        for (int i = 1; i < input.length; i++) {
-            String[] data = input[i].split(" ");
-            queue.add(new Dragon(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]), Integer.parseInt(data[3])));
-        }
 
-        int map[][] = new int[101][101]; // 100 * 100 이라면서 왜 0 <= x,y <= 100 ?
+        N = Integer.parseInt(input[0].split(" ")[0]);
+        M = Integer.parseInt(input[0].split(" ")[1]);
 
-        while (!queue.isEmpty()) {
-            Dragon dragon = queue.poll();
-            draw(map, dragon);
-        }
+        residents = new ArrayList<>();
+        chickens = new ArrayList<>();
 
-        return String.valueOf(countSquare(map));
-    }
+        answer = Integer.MAX_VALUE;
 
-    private int countSquare(int[][] map) {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                int a = Integer.parseInt(input[i + 1].split(" ")[j]);
 
-        int answer = 0;
-
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 100; j++) {
-                if (map[i][j] == 1 && map[i][j+1] == 1 && map[i+1][j] == 1 && map[i+1][j+1] == 1) {
-                    answer++;
+                if (a == 1) {
+                    residents.add(new Point(i, j));
+                } else if (a == 2) {
+                    chickens.add(new Point(i, j));
                 }
             }
         }
 
-        return answer;
+        chickenToggle = new boolean[chickens.size()];
+
+        dfs(0, 0);
+
+        return String.valueOf(answer);
     }
 
-    private void draw(int[][] map, Dragon dragon) {
-        int nx = dragon.x;
-        int ny = dragon.y;
+    public void dfs(int start, int depth) {
+        if (depth == M) {
+            int res = 0;
 
-        List<Integer> list = new ArrayList<>();
+            for (Point resident : residents) {
+                int temp = Integer.MAX_VALUE;
 
-        list.add(dragon.d);
-
-        for (int i = 1; i <= dragon.gen; i++) {
-            for (int j = list.size() - 1; j >= 0; j--) {
-                list.add((list.get(j) + 1) % 4);
-            }
-        }
-
-        map[ny][nx] = 1;
-        for (int a : list) {
-            nx += dx[a];
-            ny += dy[a];
-            if (nx >= 0 && nx <= 100 && ny >= 0 && ny <= 100) {
-                if (map[ny][nx] == 0) {
-                    map[ny][nx] = 1;
+                for (int j = 0; j < chickens.size(); j++) {
+                    if (chickenToggle[j]) {
+                        temp = Math.min(temp, Math.abs(resident.x - chickens.get(j).x) + Math.abs(resident.y - chickens.get(j).y));
+                    }
                 }
+                res += temp;
             }
+            answer = Math.min(answer, res);
+            return;
         }
 
+        for (int i = start; i < chickens.size(); i++) {
+            chickenToggle[i] = true;
+            dfs(i + 1, depth + 1);
+            chickenToggle[i] = false;
+        }
     }
 
-    class Dragon {
+    class Point {
         int x;
         int y;
-        int d;
-        int gen;
 
-        public Dragon(int x, int y, int d, int gen) {
+        Point(int x, int y) {
             this.x = x;
             this.y = y;
-            this.d = d;
-            this.gen = gen;
         }
     }
+
 }
 

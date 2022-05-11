@@ -15,8 +15,8 @@ import java.util.Queue;
 import static com.doublejony.common.AssertResolve.resolve;
 
 /**
- * 감시
- * https://www.acmicpc.net/problem/15683
+ * 드래곤 커브
+ * https://www.acmicpc.net/problem/15685
  */
 @RunWith(DataProviderRunner.class)
 public class BJ15685 {
