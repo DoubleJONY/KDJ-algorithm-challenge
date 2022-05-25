@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
+
         List<String> input = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String temp;
@@ -21,78 +24,128 @@ public class Main {
         System.out.println(answer);
     }
 
+    int[][] map;
+    int[][] visited;
+
     int N;
-    int M;
+    int L;
+    int R;
 
-    List<Point> residents;
-    List<Point> chickens;
+    boolean open = false;
 
-    boolean[] chickenToggle;
-    int answer;
+    Queue<Point> queue = new LinkedList<>();
 
     public String solution(String[] input) {
 
+        int answer = 0;
+
         N = Integer.parseInt(input[0].split(" ")[0]);
-        M = Integer.parseInt(input[0].split(" ")[1]);
+        L = Integer.parseInt(input[0].split(" ")[1]);
+        R = Integer.parseInt(input[0].split(" ")[2]);
 
-        residents = new ArrayList<>();
-        chickens = new ArrayList<>();
-
-        answer = Integer.MAX_VALUE;
+        map = new int[N][N];
+        visited = new int[N][N];
 
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                int a = Integer.parseInt(input[i + 1].split(" ")[j]);
-
-                if (a == 1) {
-                    residents.add(new Point(i, j));
-                } else if (a == 2) {
-                    chickens.add(new Point(i, j));
-                }
+                map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
+                visited[i][j] = 0;
             }
         }
 
-        chickenToggle = new boolean[chickens.size()];
+        while (true) {
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    bfs(new Point(i, j), true);
+                }
+            }
 
-        dfs(0, 0);
+            if (!open) {
+                break;
+            }
+
+            answer++;
+            resetVisited();
+            open = false;
+        }
 
         return String.valueOf(answer);
     }
 
-    public void dfs(int start, int depth) {
-        if (depth == M) {
-            int res = 0;
+    private void resetVisited() {
 
-            for (Point resident : residents) {
-                int temp = Integer.MAX_VALUE;
-
-                for (int j = 0; j < chickens.size(); j++) {
-                    if (chickenToggle[j]) {
-                        temp = Math.min(temp, Math.abs(resident.x - chickens.get(j).x) + Math.abs(resident.y - chickens.get(j).y));
-                    }
-                }
-                res += temp;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                visited[i][j] = 0;
             }
-            answer = Math.min(answer, res);
-            return;
-        }
-
-        for (int i = start; i < chickens.size(); i++) {
-            chickenToggle[i] = true;
-            dfs(i + 1, depth + 1);
-            chickenToggle[i] = false;
         }
     }
 
-    class Point {
+    private void bfs(Point point, boolean init) {
+
+        visited[point.x][point.y] = 1;
+
+        int left = point.y - 1 < 0 ? -1 : map[point.x][point.y - 1];
+        int right = point.y + 1 >= N ? -1 : map[point.x][point.y + 1];
+        int up = point.x - 1 < 0 ? -1 : map[point.x - 1][point.y];
+        int down = point.x + 1 >= N ? -1 : map[point.x + 1][point.y];
+
+        if (left != -1 && Math.abs(left - map[point.x][point.y]) <= R && Math.abs(left - map[point.x][point.y]) >= L
+                && visited[point.x][point.y - 1] == 0) {
+            open = true;
+            queue.add(new Point(point.x, point.y - 1));
+            bfs(new Point(point.x, point.y - 1), false);
+        }
+
+        if (right != -1 && Math.abs(right - map[point.x][point.y]) <= R && Math.abs(right - map[point.x][point.y]) >= L
+                && visited[point.x][point.y + 1] == 0) {
+            open = true;
+            queue.add(new Point(point.x, point.y + 1));
+            bfs(new Point(point.x, point.y + 1), false);
+        }
+
+        if (up != -1 && Math.abs(up - map[point.x][point.y]) <= R && Math.abs(up - map[point.x][point.y]) >= L
+                && visited[point.x - 1][point.y] == 0) {
+            open = true;
+            queue.add(new Point(point.x - 1, point.y));
+            bfs(new Point(point.x - 1, point.y), false);
+        }
+
+        if (down != -1 && Math.abs(down - map[point.x][point.y]) <= R && Math.abs(down - map[point.x][point.y]) >= L
+                && visited[point.x + 1][point.y] == 0) {
+            open = true;
+            queue.add(new Point(point.x + 1, point.y));
+            bfs(new Point(point.x + 1, point.y), false);
+        }
+
+        if (init && open) {
+            queue.add(new Point(point.x, point.y));
+            int size = queue.size();
+            int sum = 0;
+            Queue<Point> tempQueue = new LinkedList<>();
+            while (!queue.isEmpty()) {
+                Point p = queue.poll();
+                tempQueue.add(p);
+                sum += map[p.x][p.y];
+            }
+            while (!tempQueue.isEmpty()) {
+                Point p = tempQueue.poll();
+                map[p.x][p.y] = sum / size;
+            }
+        }
+    }
+
+    private class Point {
+
         int x;
         int y;
 
-        Point(int x, int y) {
+        public Point(int x, int y) {
+
             this.x = x;
             this.y = y;
         }
     }
-
 }
+
 
