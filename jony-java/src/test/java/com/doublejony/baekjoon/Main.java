@@ -28,7 +28,7 @@ public class Main {
         int M = Integer.parseInt(input[0].split(" ")[1]);
         int K = Integer.parseInt(input[0].split(" ")[2]);
 
-        int[][][] tree = new int[N][N][100];
+        int[][][] tree = new int[N][N][10000];
         int[][] nutrient = new int[N][N];
 
         for (int i = 0; i < N; i++) {
@@ -111,7 +111,7 @@ public class Main {
                                 tree[i][j][k]++;
                             } else {
                                 // tree die
-                                deathTreeAges[i][j] = tree[i][j][k];
+                                deathTreeAges[i][j] += tree[i][j][k] / 2;
                                 tree[i][j][k] = -1;
                             }
                         }
@@ -131,8 +131,6 @@ public class Main {
                     for (int k = 0; k < treeCount[i][j]; k++) {
                         if (tree[i][j][k] == -1) {
                             // add nutrient from deathTreeAges
-                            nutrient[i][j] += deathTreeAges[i][j] / 2;
-                            deathTreeAges[i][j] = 0;
                             for (int l = k; l < treeCount[i][j]; l++) {
                                 tree[i][j][l] = tree[i][j][l + 1];
                             }
@@ -140,6 +138,8 @@ public class Main {
                             k--;
                         }
                     }
+                    nutrient[i][j] += deathTreeAges[i][j];
+                    deathTreeAges[i][j] = 0;
                 }
             }
         }
@@ -220,6 +220,7 @@ public class Main {
             return trees;
         }
     }
+
 }
 
 

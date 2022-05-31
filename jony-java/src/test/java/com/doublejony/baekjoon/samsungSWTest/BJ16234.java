@@ -7,9 +7,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import static com.doublejony.common.AssertResolve.resolve;
@@ -67,6 +65,27 @@ public class BJ16234 {
                                 "50 20 100 10"
                         },
                         "3"
+                },
+                {
+                        new String[]{
+                                "4 1 9",
+                                "96 93 74 30",
+                                "60 90 65 96",
+                                "5 27 17 98",
+                                "10 41 46 20"
+                        },
+                        "1"
+                },
+                {
+                        new String[]{
+                                "5 1 5",
+                                "88 27 34 84 9",
+                                "40 91 11 30 81",
+                                "2 88 65 26 75",
+                                "75 66 16 14 28",
+                                "89 10 5 30 75"
+                        },
+                        "1"
                 }
         };
         // @formatter:on
@@ -115,7 +134,7 @@ public class BJ16234 {
             while (true) {
                 for (int i = 0; i < N; i++) {
                     for (int j = 0; j < N; j++) {
-                        bfs(new Point(i, j), true);
+                        dfs(new Point(i, j), true);
                     }
                 }
 
@@ -139,7 +158,7 @@ public class BJ16234 {
             }
         }
 
-        private void bfs(Point point, boolean init) {
+        private void dfs(Point point, boolean init) {
             visited[point.x][point.y] = 1;
 
             int left = point.y - 1 < 0 ? -1 : map[point.x][point.y - 1];
@@ -150,25 +169,25 @@ public class BJ16234 {
             if (left != -1 && Math.abs(left - map[point.x][point.y]) <= R && Math.abs(left - map[point.x][point.y]) >= L && visited[point.x][point.y - 1] == 0) {
                 open = true;
                 queue.add(new Point(point.x, point.y - 1));
-                bfs(new Point(point.x, point.y - 1), false);
+                dfs(new Point(point.x, point.y - 1), false);
             }
 
             if (right != -1 && Math.abs(right - map[point.x][point.y]) <= R && Math.abs(right - map[point.x][point.y]) >= L && visited[point.x][point.y + 1] == 0) {
                 open = true;
                 queue.add(new Point(point.x, point.y + 1));
-                bfs(new Point(point.x, point.y + 1), false);
+                dfs(new Point(point.x, point.y + 1), false);
             }
 
             if (up != -1 && Math.abs(up - map[point.x][point.y]) <= R && Math.abs(up - map[point.x][point.y]) >= L && visited[point.x - 1][point.y] == 0) {
                 open = true;
                 queue.add(new Point(point.x - 1, point.y));
-                bfs(new Point(point.x - 1, point.y), false);
+                dfs(new Point(point.x - 1, point.y), false);
             }
 
             if (down != -1 && Math.abs(down - map[point.x][point.y]) <= R && Math.abs(down - map[point.x][point.y]) >= L && visited[point.x + 1][point.y] == 0) {
                 open = true;
                 queue.add(new Point(point.x + 1, point.y));
-                bfs(new Point(point.x + 1, point.y), false);
+                dfs(new Point(point.x + 1, point.y), false);
             }
 
             if (init && open) {
