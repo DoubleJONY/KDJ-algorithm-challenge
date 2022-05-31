@@ -9,6 +9,7 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+
         List<String> input = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String temp;
@@ -21,78 +22,205 @@ public class Main {
         System.out.println(answer);
     }
 
-    int N;
-    int M;
-
-    List<Point> residents;
-    List<Point> chickens;
-
-    boolean[] chickenToggle;
-    int answer;
-
     public String solution(String[] input) {
 
-        N = Integer.parseInt(input[0].split(" ")[0]);
-        M = Integer.parseInt(input[0].split(" ")[1]);
+        int N = Integer.parseInt(input[0].split(" ")[0]);
+        int M = Integer.parseInt(input[0].split(" ")[1]);
+        int K = Integer.parseInt(input[0].split(" ")[2]);
 
-        residents = new ArrayList<>();
-        chickens = new ArrayList<>();
-
-        answer = Integer.MAX_VALUE;
+        int[][][] tree = new int[N][N][10000];
+        int[][] nutrient = new int[N][N];
 
         for (int i = 0; i < N; i++) {
+            String[] row = input[i + 1].split(" ");
             for (int j = 0; j < N; j++) {
-                int a = Integer.parseInt(input[i + 1].split(" ")[j]);
-
-                if (a == 1) {
-                    residents.add(new Point(i, j));
-                } else if (a == 2) {
-                    chickens.add(new Point(i, j));
-                }
+                nutrient[i][j] = Integer.parseInt(row[j]);
             }
         }
 
-        chickenToggle = new boolean[chickens.size()];
+        for (int i = 0; i < M; i++) {
+            tree[Integer.parseInt(input[i+N+1].split(" ")[0]) - 1][Integer.parseInt(input[i+N+1].split(" ")[1]) - 1][0] = Integer.parseInt(input[i+N+1].split(" ")[2]);
+        }
 
-        dfs(0, 0);
+        TreeCraft treeCraft = new TreeCraft(tree, nutrient, N);
 
-        return String.valueOf(answer);
+        for (int i = 0; i < K; i++) {
+            treeCraft.nextYear();
+        }
+
+        return String.valueOf(treeCraft.getTrees());
     }
 
-    public void dfs(int start, int depth) {
-        if (depth == M) {
-            int res = 0;
+    class TreeCraft {
 
-            for (Point resident : residents) {
-                int temp = Integer.MAX_VALUE;
+        int N;
 
-                for (int j = 0; j < chickens.size(); j++) {
-                    if (chickenToggle[j]) {
-                        temp = Math.min(temp, Math.abs(resident.x - chickens.get(j).x) + Math.abs(resident.y - chickens.get(j).y));
+        int[][][] tree;
+        int[][] nutrient;
+        int[][] S2D2Nutrient;
+
+        int[][] treeCount;
+        int[][] deathTreeAges;
+
+        public TreeCraft(int[][][] tree, int[][] nutrient, int N) {
+            this.tree = tree;
+            this.S2D2Nutrient = nutrient;
+            this.N = N;
+
+            this.nutrient = new int[N][N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    this.nutrient[i][j] = 5;
+                }
+            }
+
+            treeCount = new int[N][N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    treeCount[i][j] = tree[i][j][0] > 0 ? 1 : 0;
+                }
+            }
+
+            deathTreeAges = new int[N][N];
+        }
+
+        /**
+         * 사계절 진행
+         */
+        public void nextYear() {
+            spring();
+            summer();
+            fall();
+            winter();
+        }
+
+        /**
+         * 봄
+         * 나무가 자라거나 죽는다.
+         */
+        private void spring() {
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    for (int k = treeCount[i][j] - 1; k >= 0; k--) {
+                        if (tree[i][j][k] > 0) {
+                            // tree eat nutrient
+                            if (nutrient[i][j] >= tree[i][j][k]) {
+                                // grow tree
+                                nutrient[i][j] -= tree[i][j][k];
+                                tree[i][j][k]++;
+                            } else {
+                                // tree die
+                                deathTreeAges[i][j] += tree[i][j][k] / 2;
+                                tree[i][j][k] = -1;
+                            }
+                        }
                     }
                 }
-                res += temp;
             }
-            answer = Math.min(answer, res);
-            return;
         }
 
-        for (int i = start; i < chickens.size(); i++) {
-            chickenToggle[i] = true;
-            dfs(i + 1, depth + 1);
-            chickenToggle[i] = false;
+        /**
+         * 여름
+         * 죽은 나무가 자양분이 된다.
+         */
+        private void summer() {
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    for (int k = 0; k < treeCount[i][j]; k++) {
+                        if (tree[i][j][k] == -1) {
+                            // add nutrient from deathTreeAges
+                            for (int l = k; l < treeCount[i][j]; l++) {
+                                tree[i][j][l] = tree[i][j][l + 1];
+                            }
+                            treeCount[i][j]--;
+                            k--;
+                        }
+                    }
+                    nutrient[i][j] += deathTreeAges[i][j];
+                    deathTreeAges[i][j] = 0;
+                }
+            }
         }
-    }
 
-    class Point {
-        int x;
-        int y;
+        /**
+         * 가을
+         * 나무가 번식한다.
+         */
+        private void fall() {
 
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    for (int k = 0; k < treeCount[i][j]; k++) {
+                        if (tree[i][j][k] % 5 == 0) {
+                            // spread tree on 8 directions
+                            if (i - 1 >= 0 && j - 1 >= 0) {
+                                tree[i - 1][j - 1][treeCount[i - 1][j - 1]] = 1;
+                                treeCount[i - 1][j - 1]++;
+                            }
+                            if (i - 1 >= 0) {
+                                tree[i - 1][j][treeCount[i - 1][j]] = 1;
+                                treeCount[i - 1][j]++;
+                            }
+                            if (i - 1 >= 0 && j + 1 < N) {
+                                tree[i - 1][j + 1][treeCount[i - 1][j + 1]] = 1;
+                                treeCount[i - 1][j + 1]++;
+                            }
+                            if (j - 1 >= 0) {
+                                tree[i][j - 1][treeCount[i][j - 1]] = 1;
+                                treeCount[i][j - 1]++;
+                            }
+                            if (j + 1 < N) {
+                                tree[i][j + 1][treeCount[i][j + 1]] = 1;
+                                treeCount[i][j + 1]++;
+                            }
+                            if (i + 1 < N && j - 1 >= 0) {
+                                tree[i + 1][j - 1][treeCount[i + 1][j - 1]] = 1;
+                                treeCount[i + 1][j - 1]++;
+                            }
+                            if (i + 1 < N) {
+                                tree[i + 1][j][treeCount[i + 1][j]] = 1;
+                                treeCount[i + 1][j]++;
+                            }
+                            if (i + 1 < N && j + 1 < N) {
+                                tree[i + 1][j + 1][treeCount[i + 1][j + 1]] = 1;
+                                treeCount[i + 1][j + 1]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * 겨울
+         * S2D2가 양분을 뿌린다.
+         */
+        private void winter() {
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    // add nutrient from S2D2
+                    nutrient[i][j] += S2D2Nutrient[i][j];
+                }
+            }
+        }
+
+        /**
+         * 생존한 나무 수 반환
+         */
+        public int getTrees() {
+            int trees = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    trees += treeCount[i][j];
+                }
+            }
+            return trees;
         }
     }
 
 }
+
 
