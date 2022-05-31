@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class Main {
 
@@ -24,126 +22,202 @@ public class Main {
         System.out.println(answer);
     }
 
-    int[][] map;
-    int[][] visited;
-
-    int N;
-    int L;
-    int R;
-
-    boolean open = false;
-
-    Queue<Point> queue = new LinkedList<>();
-
     public String solution(String[] input) {
 
-        int answer = 0;
+        int N = Integer.parseInt(input[0].split(" ")[0]);
+        int M = Integer.parseInt(input[0].split(" ")[1]);
+        int K = Integer.parseInt(input[0].split(" ")[2]);
 
-        N = Integer.parseInt(input[0].split(" ")[0]);
-        L = Integer.parseInt(input[0].split(" ")[1]);
-        R = Integer.parseInt(input[0].split(" ")[2]);
-
-        map = new int[N][N];
-        visited = new int[N][N];
+        int[][][] tree = new int[N][N][100];
+        int[][] nutrient = new int[N][N];
 
         for (int i = 0; i < N; i++) {
+            String[] row = input[i + 1].split(" ");
             for (int j = 0; j < N; j++) {
-                map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
-                visited[i][j] = 0;
+                nutrient[i][j] = Integer.parseInt(row[j]);
             }
         }
 
-        while (true) {
+        for (int i = 0; i < M; i++) {
+            tree[Integer.parseInt(input[i+N+1].split(" ")[0]) - 1][Integer.parseInt(input[i+N+1].split(" ")[1]) - 1][0] = Integer.parseInt(input[i+N+1].split(" ")[2]);
+        }
+
+        TreeCraft treeCraft = new TreeCraft(tree, nutrient, N);
+
+        for (int i = 0; i < K; i++) {
+            treeCraft.nextYear();
+        }
+
+        return String.valueOf(treeCraft.getTrees());
+    }
+
+    class TreeCraft {
+
+        int N;
+
+        int[][][] tree;
+        int[][] nutrient;
+        int[][] S2D2Nutrient;
+
+        int[][] treeCount;
+        int[][] deathTreeAges;
+
+        public TreeCraft(int[][][] tree, int[][] nutrient, int N) {
+            this.tree = tree;
+            this.S2D2Nutrient = nutrient;
+            this.N = N;
+
+            this.nutrient = new int[N][N];
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    bfs(new Point(i, j), true);
+                    this.nutrient[i][j] = 5;
                 }
             }
 
-            if (!open) {
-                break;
+            treeCount = new int[N][N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    treeCount[i][j] = tree[i][j][0] > 0 ? 1 : 0;
+                }
             }
 
-            answer++;
-            resetVisited();
-            open = false;
+            deathTreeAges = new int[N][N];
         }
 
-        return String.valueOf(answer);
-    }
+        /**
+         * 사계절 진행
+         */
+        public void nextYear() {
+            spring();
+            summer();
+            fall();
+            winter();
+        }
 
-    private void resetVisited() {
+        /**
+         * 봄
+         * 나무가 자라거나 죽는다.
+         */
+        private void spring() {
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                visited[i][j] = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    for (int k = treeCount[i][j] - 1; k >= 0; k--) {
+                        if (tree[i][j][k] > 0) {
+                            // tree eat nutrient
+                            if (nutrient[i][j] >= tree[i][j][k]) {
+                                // grow tree
+                                nutrient[i][j] -= tree[i][j][k];
+                                tree[i][j][k]++;
+                            } else {
+                                // tree die
+                                deathTreeAges[i][j] = tree[i][j][k];
+                                tree[i][j][k] = -1;
+                            }
+                        }
+                    }
+                }
             }
         }
-    }
 
-    private void bfs(Point point, boolean init) {
+        /**
+         * 여름
+         * 죽은 나무가 자양분이 된다.
+         */
+        private void summer() {
 
-        visited[point.x][point.y] = 1;
-
-        int left = point.y - 1 < 0 ? -1 : map[point.x][point.y - 1];
-        int right = point.y + 1 >= N ? -1 : map[point.x][point.y + 1];
-        int up = point.x - 1 < 0 ? -1 : map[point.x - 1][point.y];
-        int down = point.x + 1 >= N ? -1 : map[point.x + 1][point.y];
-
-        if (left != -1 && Math.abs(left - map[point.x][point.y]) <= R && Math.abs(left - map[point.x][point.y]) >= L
-                && visited[point.x][point.y - 1] == 0) {
-            open = true;
-            queue.add(new Point(point.x, point.y - 1));
-            bfs(new Point(point.x, point.y - 1), false);
-        }
-
-        if (right != -1 && Math.abs(right - map[point.x][point.y]) <= R && Math.abs(right - map[point.x][point.y]) >= L
-                && visited[point.x][point.y + 1] == 0) {
-            open = true;
-            queue.add(new Point(point.x, point.y + 1));
-            bfs(new Point(point.x, point.y + 1), false);
-        }
-
-        if (up != -1 && Math.abs(up - map[point.x][point.y]) <= R && Math.abs(up - map[point.x][point.y]) >= L
-                && visited[point.x - 1][point.y] == 0) {
-            open = true;
-            queue.add(new Point(point.x - 1, point.y));
-            bfs(new Point(point.x - 1, point.y), false);
-        }
-
-        if (down != -1 && Math.abs(down - map[point.x][point.y]) <= R && Math.abs(down - map[point.x][point.y]) >= L
-                && visited[point.x + 1][point.y] == 0) {
-            open = true;
-            queue.add(new Point(point.x + 1, point.y));
-            bfs(new Point(point.x + 1, point.y), false);
-        }
-
-        if (init && open) {
-            queue.add(new Point(point.x, point.y));
-            int size = queue.size();
-            int sum = 0;
-            Queue<Point> tempQueue = new LinkedList<>();
-            while (!queue.isEmpty()) {
-                Point p = queue.poll();
-                tempQueue.add(p);
-                sum += map[p.x][p.y];
-            }
-            while (!tempQueue.isEmpty()) {
-                Point p = tempQueue.poll();
-                map[p.x][p.y] = sum / size;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    for (int k = 0; k < treeCount[i][j]; k++) {
+                        if (tree[i][j][k] == -1) {
+                            // add nutrient from deathTreeAges
+                            nutrient[i][j] += deathTreeAges[i][j] / 2;
+                            deathTreeAges[i][j] = 0;
+                            for (int l = k; l < treeCount[i][j]; l++) {
+                                tree[i][j][l] = tree[i][j][l + 1];
+                            }
+                            treeCount[i][j]--;
+                            k--;
+                        }
+                    }
+                }
             }
         }
-    }
 
-    private class Point {
+        /**
+         * 가을
+         * 나무가 번식한다.
+         */
+        private void fall() {
 
-        int x;
-        int y;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    for (int k = 0; k < treeCount[i][j]; k++) {
+                        if (tree[i][j][k] % 5 == 0) {
+                            // spread tree on 8 directions
+                            if (i - 1 >= 0 && j - 1 >= 0) {
+                                tree[i - 1][j - 1][treeCount[i - 1][j - 1]] = 1;
+                                treeCount[i - 1][j - 1]++;
+                            }
+                            if (i - 1 >= 0) {
+                                tree[i - 1][j][treeCount[i - 1][j]] = 1;
+                                treeCount[i - 1][j]++;
+                            }
+                            if (i - 1 >= 0 && j + 1 < N) {
+                                tree[i - 1][j + 1][treeCount[i - 1][j + 1]] = 1;
+                                treeCount[i - 1][j + 1]++;
+                            }
+                            if (j - 1 >= 0) {
+                                tree[i][j - 1][treeCount[i][j - 1]] = 1;
+                                treeCount[i][j - 1]++;
+                            }
+                            if (j + 1 < N) {
+                                tree[i][j + 1][treeCount[i][j + 1]] = 1;
+                                treeCount[i][j + 1]++;
+                            }
+                            if (i + 1 < N && j - 1 >= 0) {
+                                tree[i + 1][j - 1][treeCount[i + 1][j - 1]] = 1;
+                                treeCount[i + 1][j - 1]++;
+                            }
+                            if (i + 1 < N) {
+                                tree[i + 1][j][treeCount[i + 1][j]] = 1;
+                                treeCount[i + 1][j]++;
+                            }
+                            if (i + 1 < N && j + 1 < N) {
+                                tree[i + 1][j + 1][treeCount[i + 1][j + 1]] = 1;
+                                treeCount[i + 1][j + 1]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        public Point(int x, int y) {
+        /**
+         * 겨울
+         * S2D2가 양분을 뿌린다.
+         */
+        private void winter() {
 
-            this.x = x;
-            this.y = y;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    // add nutrient from S2D2
+                    nutrient[i][j] += S2D2Nutrient[i][j];
+                }
+            }
+        }
+
+        /**
+         * 생존한 나무 수 반환
+         */
+        public int getTrees() {
+            int trees = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    trees += treeCount[i][j];
+                }
+            }
+            return trees;
         }
     }
 }
