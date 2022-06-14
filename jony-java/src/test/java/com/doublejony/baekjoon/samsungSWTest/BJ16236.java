@@ -26,25 +26,6 @@ public class BJ16236 {
         return new Object[][] {
                 {
                         new String[] {
-                                "3",
-                                "0 0 1",
-                                "0 0 0",
-                                "0 9 0"
-                        },
-                        "3"
-                },
-                {
-                        new String[] {
-                                "4",
-                                "4 3 2 1",
-                                "0 0 0 0",
-                                "0 0 9 0",
-                                "1 2 3 4"
-                        },
-                        "14"
-                },
-                {
-                        new String[] {
                                 "6",
                                 "5 4 3 2 3 4",
                                 "4 3 2 3 4 5",
@@ -69,6 +50,16 @@ public class BJ16236 {
                 },
                 {
                         new String[] {
+                                "4",
+                                "4 3 2 1",
+                                "0 0 0 0",
+                                "0 0 9 0",
+                                "1 2 3 4"
+                        },
+                        "14"
+                },
+                {
+                        new String[] {
                                 "6",
                                 "1 1 1 1 1 1",
                                 "2 2 6 2 2 3",
@@ -87,6 +78,15 @@ public class BJ16236 {
                                 "0 9 0"
                         },
                         "0"
+                },
+                {
+                        new String[] {
+                                "3",
+                                "0 0 1",
+                                "0 0 0",
+                                "0 9 0"
+                        },
+                        "3"
                 }
         };
         // @formatter:on
@@ -106,8 +106,8 @@ public class BJ16236 {
         int[][] grid;
         int     N;
 
-        int[] dx = { 0, -1, 1, 0 };
-        int[] dy = { -1, 0, 0, 1 };
+        int[] dx = { -1, 0, 0, 1 };
+        int[] dy = { 0, -1, 1, 0 };
 
         Queue<StatusStep> queue;
 
@@ -131,7 +131,7 @@ public class BJ16236 {
             }
 
             queue = new LinkedList<>();
-            queue.add(new StatusStep(0, grid, babyShark));
+            queue.add(new StatusStep(0, grid, new int[N][N], babyShark));
 
             while (!queue.isEmpty()) {
                 if (queue.size() == 1) {
@@ -148,37 +148,30 @@ public class BJ16236 {
 
         private void bfs(StatusStep currentStep) throws CloneNotSupportedException {
 
-            int[][] cGrid;
-            //deep copy currentStep.grid to cGrid
-            cGrid = new int[N][N];
-            for (int i = 0; i < N; i++) {
-                System.arraycopy(currentStep.grid[i], 0, cGrid[i], 0, N);
-            }
-
-            BabyShark cBabyShark = currentStep.babyShark;
-
             for (int i = 0; i < 4; i++) {
-                if (cBabyShark.isMovable(cGrid, cBabyShark.x + dx[i], cBabyShark.y + dy[i])) {
-                    if (cBabyShark.isEdible(cGrid, cBabyShark.x + dx[i], cBabyShark.y + dy[i])) {
+                int[][] grid = new int[N][N];
+                for (int a = 0; a < N; a++) {
+                    System.arraycopy(currentStep.grid[a], 0, grid[a], 0, N);
+                }
+                int[][] cGrid = new int[N][N];
+                for (int a = 0; a < N; a++) {
+                    System.arraycopy(currentStep.cacheGrid[a], 0, cGrid[a], 0, N);
+                }
+                BabyShark cBabyShark = (BabyShark) currentStep.babyShark.clone();
+
+                if (cBabyShark.isMovable(grid, cGrid,cBabyShark.x + dx[i], cBabyShark.y + dy[i])) {
+                    if (cBabyShark.isEdible(grid, cBabyShark.x + dx[i], cBabyShark.y + dy[i])) {
                         cBabyShark.position(cBabyShark.x + dx[i], cBabyShark.y + dy[i]);
                         cBabyShark.eat();
-                        cGrid[cBabyShark.x][cBabyShark.y] = 0;
-
-                        for (int j = 0; j < N; j++) {
-                            for (int k = 0; k < N; k++) {
-                                if (cGrid[j][k] == -1) {
-                                    cGrid[j][k] = 0;
-                                }
-                            }
-                        }
+                        grid[cBabyShark.x][cBabyShark.y] = 0;
 
                         queue.clear();
-                        queue.add(new StatusStep(currentStep.step++, cGrid, (BabyShark) cBabyShark.clone()));
+                        queue.add(new StatusStep(currentStep.step+1, grid, new int[N][N], (BabyShark) cBabyShark.clone()));
                         return;
                     } else {
                         cBabyShark.position(cBabyShark.x + dx[i], cBabyShark.y + dy[i]);
                         cGrid[cBabyShark.x][cBabyShark.y] = -1;
-                        queue.add(new StatusStep(currentStep.step++, cGrid, (BabyShark) cBabyShark.clone()));
+                        queue.add(new StatusStep(currentStep.step+1, grid, cGrid, cBabyShark));
                     }
                 }
             }
@@ -189,12 +182,14 @@ public class BJ16236 {
             int step;
 
             int[][]   grid;
+            int[][]   cacheGrid;
             BabyShark babyShark;
 
-            public StatusStep(int step, int[][] grid, BabyShark babyShark) {
+            public StatusStep(int step, int[][] grid, int[][] cacheGrid, BabyShark babyShark) {
 
                 this.step = step;
                 this.grid = grid;
+                this.cacheGrid = cacheGrid;
                 this.babyShark = babyShark;
             }
 
@@ -238,14 +233,14 @@ public class BJ16236 {
                 this.y = y;
             }
 
-            public boolean isEdible(int[][] cGrid, int x, int y) {
+            public boolean isEdible(int[][] grid, int x, int y) {
 
-                return cGrid[x][y] < size && cGrid[x][y] > 0;
+                return grid[x][y] < size && grid[x][y] > 0;
             }
 
-            public boolean isMovable(int[][] cGrid, int x, int y) {
+            public boolean isMovable(int[][] grid, int[][] cGrid, int x, int y) {
 
-                return x >= 0 && x < N && y >= 0 && y < N && cGrid[x][y] <= size && cGrid[x][y] != -1;
+                return x >= 0 && x < N && y >= 0 && y < N && grid[x][y] <= size && cGrid[x][y] != -1;
             }
 
             public void eat() {
@@ -262,8 +257,8 @@ public class BJ16236 {
             }
 
             private void grow() {
-
                 size++;
+                hunger = 0;
             }
 
             @Override
