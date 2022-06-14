@@ -161,6 +161,11 @@ public class BJ16236 {
 
                 if (cBabyShark.isMovable(grid, cGrid,cBabyShark.x + dx[i], cBabyShark.y + dy[i])) {
                     if (cBabyShark.isEdible(grid, cBabyShark.x + dx[i], cBabyShark.y + dy[i])) {
+                        /**
+                         * TODO
+                         * 우선 순위 오류
+                         * 동점 처리를 위해 현재 스텝의 남은 큐를 저장하고 스코어 체크 후에 잡아먹기 처리를 해야함
+                         */
                         cBabyShark.position(cBabyShark.x + dx[i], cBabyShark.y + dy[i]);
                         cBabyShark.eat();
                         grid[cBabyShark.x][cBabyShark.y] = 0;
@@ -169,8 +174,8 @@ public class BJ16236 {
                         queue.add(new StatusStep(currentStep.step+1, grid, new int[N][N], (BabyShark) cBabyShark.clone()));
                         return;
                     } else {
-                        cBabyShark.position(cBabyShark.x + dx[i], cBabyShark.y + dy[i]);
                         cGrid[cBabyShark.x][cBabyShark.y] = -1;
+                        cBabyShark.position(cBabyShark.x + dx[i], cBabyShark.y + dy[i]);
                         queue.add(new StatusStep(currentStep.step+1, grid, cGrid, cBabyShark));
                     }
                 }
