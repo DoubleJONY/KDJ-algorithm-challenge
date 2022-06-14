@@ -26,7 +26,7 @@ def propagate_all_dusts(dust_locs):
         child_amount = before_amount // 5
         n_children = 0
         for nr, nc in ((r-1, c), (r, c-1), (r+1, c), (r, c+1)):
-            if 0 <= nr < R and 0 <= nc < C and A[nr][nc] != 0:
+            if 0 <= nr < R and 0 <= nc < C and A[nr][nc] != -1:
                 A[nr][nc] += child_amount
                 n_children += 1
         A[r][c] = before_amount - child_amount * n_children + diff
@@ -40,7 +40,7 @@ def run_air_purifier(air_purifier, dust_locs):
         A[r][0] = A[r-1][0]
     for c in range(0, C-1, 1):
         A[0][c] = A[0][c+1]
-    for r in range(0, ar-1, 1):
+    for r in range(0, ar, 1):
         A[r][C-1] = A[r+1][C-1]
     for c in range(C-1, 0, -1):
         A[ar][c] = A[ar][c-1]
@@ -51,7 +51,7 @@ def run_air_purifier(air_purifier, dust_locs):
         A[r][0] = A[r+1][0]
     for c in range(0, C-1, 1):
         A[R-1][c] = A[R-1][c+1]
-    for r in range(R-1, ar+1, -1):
+    for r in range(R-1, ar, -1):
         A[r][C-1] = A[r-1][C-1]
     for c in range(C-1, 0, -1):
         A[ar][c] = A[ar][c-1]
