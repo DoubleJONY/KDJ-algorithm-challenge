@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Main {
 
@@ -22,202 +24,134 @@ public class Main {
         System.out.println(answer);
     }
 
+    int R;
+    int C;
+    int[][] map;
+
+    int[] dx = {0, 0, 1, -1};
+    int[] dy = {1, -1, 0, 0};
+
     public String solution(String[] input) {
 
-        int N = Integer.parseInt(input[0].split(" ")[0]);
-        int M = Integer.parseInt(input[0].split(" ")[1]);
-        int K = Integer.parseInt(input[0].split(" ")[2]);
+        int answer = 0;
 
-        int[][][] tree = new int[N][N][10000];
-        int[][] nutrient = new int[N][N];
+        R = Integer.parseInt(input[0].split(" ")[0]);
+        C = Integer.parseInt(input[0].split(" ")[1]);
+        int T = Integer.parseInt(input[0].split(" ")[2]);
 
-        for (int i = 0; i < N; i++) {
-            String[] row = input[i + 1].split(" ");
-            for (int j = 0; j < N; j++) {
-                nutrient[i][j] = Integer.parseInt(row[j]);
+        List<AirPurifier> airPurifiers = new ArrayList<>();
+
+        map = new int[R][C];
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
+                if (map[i][j] == -1) {
+                    airPurifiers.add(new AirPurifier(i, j));
+                }
             }
         }
 
-        for (int i = 0; i < M; i++) {
-            tree[Integer.parseInt(input[i+N+1].split(" ")[0]) - 1][Integer.parseInt(input[i+N+1].split(" ")[1]) - 1][0] = Integer.parseInt(input[i+N+1].split(" ")[2]);
+        for (int i = 0; i < T; i++) {
+            spreadDust();
+            circulateUp(airPurifiers.get(0));
+            circulateDown(airPurifiers.get(1));
         }
 
-        TreeCraft treeCraft = new TreeCraft(tree, nutrient, N);
-
-        for (int i = 0; i < K; i++) {
-            treeCraft.nextYear();
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                if (map[i][j] > 0) {
+                    answer += map[i][j];
+                }
+            }
         }
 
-        return String.valueOf(treeCraft.getTrees());
+        return String.valueOf(answer);
     }
 
-    class TreeCraft {
+    private void spreadDust() {
 
-        int N;
+        int[][] tempMap = new int[R][C];
 
-        int[][][] tree;
-        int[][] nutrient;
-        int[][] S2D2Nutrient;
-
-        int[][] treeCount;
-        int[][] deathTreeAges;
-
-        public TreeCraft(int[][][] tree, int[][] nutrient, int N) {
-            this.tree = tree;
-            this.S2D2Nutrient = nutrient;
-            this.N = N;
-
-            this.nutrient = new int[N][N];
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    this.nutrient[i][j] = 5;
-                }
+        //deep copy
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                tempMap[i][j] = map[i][j];
             }
-
-            treeCount = new int[N][N];
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    treeCount[i][j] = tree[i][j][0] > 0 ? 1 : 0;
-                }
-            }
-
-            deathTreeAges = new int[N][N];
         }
 
-        /**
-         * 사계절 진행
-         */
-        public void nextYear() {
-            spring();
-            summer();
-            fall();
-            winter();
-        }
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                if (map[i][j] > 0) {
+                    int spreaded = 0;
 
-        /**
-         * 봄
-         * 나무가 자라거나 죽는다.
-         */
-        private void spring() {
-
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    for (int k = treeCount[i][j] - 1; k >= 0; k--) {
-                        if (tree[i][j][k] > 0) {
-                            // tree eat nutrient
-                            if (nutrient[i][j] >= tree[i][j][k]) {
-                                // grow tree
-                                nutrient[i][j] -= tree[i][j][k];
-                                tree[i][j][k]++;
-                            } else {
-                                // tree die
-                                deathTreeAges[i][j] += tree[i][j][k] / 2;
-                                tree[i][j][k] = -1;
-                            }
+                    for (int k = 0; k < 4; k++) {
+                        int nx = i + dx[k];
+                        int ny = j + dy[k];
+                        if (nx < 0 || nx >= R || ny < 0 || ny >= C || map[nx][ny] == -1) {
+                            continue;
                         }
+                        spreaded++;
+                        tempMap[nx][ny] += map[i][j] / 5;
                     }
+
+                    tempMap[i][j] -= (map[i][j] / 5) * spreaded;
                 }
             }
         }
 
-        /**
-         * 여름
-         * 죽은 나무가 자양분이 된다.
-         */
-        private void summer() {
+        map = tempMap;
+    }
 
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    for (int k = 0; k < treeCount[i][j]; k++) {
-                        if (tree[i][j][k] == -1) {
-                            // add nutrient from deathTreeAges
-                            for (int l = k; l < treeCount[i][j]; l++) {
-                                tree[i][j][l] = tree[i][j][l + 1];
-                            }
-                            treeCount[i][j]--;
-                            k--;
-                        }
-                    }
-                    nutrient[i][j] += deathTreeAges[i][j];
-                    deathTreeAges[i][j] = 0;
-                }
-            }
+    private void circulateUp(AirPurifier airPurifier) {
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(0);
+        for (int i = airPurifier.y + 1; i < C; i++) {
+            queue.add(map[airPurifier.x][i]);
+            map[airPurifier.x][i] = queue.poll();
         }
-
-        /**
-         * 가을
-         * 나무가 번식한다.
-         */
-        private void fall() {
-
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    for (int k = 0; k < treeCount[i][j]; k++) {
-                        if (tree[i][j][k] % 5 == 0) {
-                            // spread tree on 8 directions
-                            if (i - 1 >= 0 && j - 1 >= 0) {
-                                tree[i - 1][j - 1][treeCount[i - 1][j - 1]] = 1;
-                                treeCount[i - 1][j - 1]++;
-                            }
-                            if (i - 1 >= 0) {
-                                tree[i - 1][j][treeCount[i - 1][j]] = 1;
-                                treeCount[i - 1][j]++;
-                            }
-                            if (i - 1 >= 0 && j + 1 < N) {
-                                tree[i - 1][j + 1][treeCount[i - 1][j + 1]] = 1;
-                                treeCount[i - 1][j + 1]++;
-                            }
-                            if (j - 1 >= 0) {
-                                tree[i][j - 1][treeCount[i][j - 1]] = 1;
-                                treeCount[i][j - 1]++;
-                            }
-                            if (j + 1 < N) {
-                                tree[i][j + 1][treeCount[i][j + 1]] = 1;
-                                treeCount[i][j + 1]++;
-                            }
-                            if (i + 1 < N && j - 1 >= 0) {
-                                tree[i + 1][j - 1][treeCount[i + 1][j - 1]] = 1;
-                                treeCount[i + 1][j - 1]++;
-                            }
-                            if (i + 1 < N) {
-                                tree[i + 1][j][treeCount[i + 1][j]] = 1;
-                                treeCount[i + 1][j]++;
-                            }
-                            if (i + 1 < N && j + 1 < N) {
-                                tree[i + 1][j + 1][treeCount[i + 1][j + 1]] = 1;
-                                treeCount[i + 1][j + 1]++;
-                            }
-                        }
-                    }
-                }
-            }
+        for (int i = airPurifier.x - 1; i >= 0; i--) {
+            queue.add(map[i][C - 1]);
+            map[i][C - 1] = queue.poll();
         }
-
-        /**
-         * 겨울
-         * S2D2가 양분을 뿌린다.
-         */
-        private void winter() {
-
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    // add nutrient from S2D2
-                    nutrient[i][j] += S2D2Nutrient[i][j];
-                }
-            }
+        for (int i = C - 2; i >= 0; i--) {
+            queue.add(map[0][i]);
+            map[0][i] = queue.poll();
         }
+        for (int i = 1; i < airPurifier.x; i++) {
+            queue.add(map[i][0]);
+            map[i][0] = queue.poll();
+        }
+    }
 
-        /**
-         * 생존한 나무 수 반환
-         */
-        public int getTrees() {
-            int trees = 0;
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    trees += treeCount[i][j];
-                }
-            }
-            return trees;
+    private void circulateDown(AirPurifier airPurifier) {
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(0);
+        for (int i = airPurifier.y + 1; i < C; i++) {
+            queue.add(map[airPurifier.x][i]);
+            map[airPurifier.x][i] = queue.poll();
+        }
+        for (int i = airPurifier.x + 1; i < R; i++) {
+            queue.add(map[i][C - 1]);
+            map[i][C - 1] = queue.poll();
+        }
+        for (int i = C - 2; i >= 0; i--) {
+            queue.add(map[R - 1][i]);
+            map[R - 1][i] = queue.poll();
+        }
+        for (int i = R - 2; i > airPurifier.x; i--) {
+            queue.add(map[i][0]);
+            map[i][0] = queue.poll();
+        }
+    }
+
+    private class AirPurifier {
+
+        private int x;
+        private int y;
+
+        public AirPurifier(int i, int j) {
+            this.x = i;
+            this.y = j;
         }
     }
 
