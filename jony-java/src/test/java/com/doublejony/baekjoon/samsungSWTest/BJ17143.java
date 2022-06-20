@@ -4,18 +4,13 @@ import com.google.common.base.Stopwatch;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -203,8 +198,8 @@ public class BJ17143 {
             int direction;
             int size;
 
-            int dx[] = {-1, 0, 1, 0};
-            int dy[] = {0, -1, 0, 1};
+            int[] dx = {-1, 0, 1, 0};
+            int[] dy = {0, -1, 0, 1};
 
             public void move(int R, int C) {
                 if(direction == 0 || direction == 2) {
@@ -214,19 +209,17 @@ public class BJ17143 {
                 }
 
                 for (int s = 0; s < speed; s++) {
-                    // 현재 r, c에 방향에 맞게 1칸씩 추가하며 위치 이동
+
                     int newR = r + dx[direction];
                     int newC = c + dy[direction];
 
-                    // 이동할 새로운 위치가 범위를 벗어나 벽에 부딪히면
                     if(newR < 0 || newR >= R || newC < 0 || newC >= C) {
-                        r -= dx[direction]; // 다시 값 돌려주고
+                        r -= dx[direction];
                         c -= dy[direction];
-                        direction = (direction + 2) % 4; // 방향 반대로
+                        direction = (direction + 2) % 4;
                         continue;
                     }
 
-                    // 위치 벗어나지 않을때는 새로운 위치로 이동
                     r = newR;
                     c = newC;
                 }
