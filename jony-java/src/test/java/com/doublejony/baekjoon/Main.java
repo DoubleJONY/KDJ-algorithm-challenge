@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map;
 
 public class Main {
 
@@ -24,134 +24,217 @@ public class Main {
         System.out.println(answer);
     }
 
-    int R;
-    int C;
-    int[][] map;
-
-    int[] dx = {0, 0, 1, -1};
-    int[] dy = {1, -1, 0, 0};
-
     public String solution(String[] input) {
+
+        int R = Integer.parseInt(input[0].split(" ")[0]);
+        int C = Integer.parseInt(input[0].split(" ")[1]);
+        int M = Integer.parseInt(input[0].split(" ")[2]);
+
+        FishingPool fishingPool = new FishingPool(R, C, M);
+
+        for (int i = 0; i < M; i++) {
+            Shark shark = new Shark();
+            shark.setIndex(i);
+            shark.setR(Integer.parseInt(input[i + 1].split(" ")[0]) - 1);
+            shark.setC(Integer.parseInt(input[i + 1].split(" ")[1]) - 1);
+            shark.setSpeed(Integer.parseInt(input[i + 1].split(" ")[2]));
+
+            int direction = Integer.parseInt(input[i + 1].split(" ")[3]);
+
+            if (direction == 1) {
+                direction = 0;
+            } else if (direction == 4) {
+                direction = 1;
+            }
+            shark.setDirection(direction);
+            shark.setSize(Integer.parseInt(input[i + 1].split(" ")[4]));
+
+            fishingPool.add(shark);
+        }
 
         int answer = 0;
 
-        R = Integer.parseInt(input[0].split(" ")[0]);
-        C = Integer.parseInt(input[0].split(" ")[1]);
-        int T = Integer.parseInt(input[0].split(" ")[2]);
-
-        List<AirPurifier> airPurifiers = new ArrayList<>();
-
-        map = new int[R][C];
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
-                if (map[i][j] == -1) {
-                    airPurifiers.add(new AirPurifier(i, j));
-                }
-            }
-        }
-
-        for (int i = 0; i < T; i++) {
-            spreadDust();
-            circulateUp(airPurifiers.get(0));
-            circulateDown(airPurifiers.get(1));
-        }
-
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                if (map[i][j] > 0) {
-                    answer += map[i][j];
-                }
-            }
+        for (int i = 0; i < C; i++) {
+            answer += fishingPool.fishing(i);
+            fishingPool.move();
         }
 
         return String.valueOf(answer);
     }
 
-    private void spreadDust() {
+    class FishingPool {
 
-        int[][] tempMap = new int[R][C];
+        int R;
+        int C;
+        int M;
 
-        //deep copy
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                tempMap[i][j] = map[i][j];
-            }
+        List<Shark> sharks;
+
+        public FishingPool(int R, int C, int M) {
+            this.R = R;
+            this.C = C;
+            this.M = M;
+            sharks = new ArrayList<>();
         }
 
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                if (map[i][j] > 0) {
-                    int spreaded = 0;
+        public void add(Shark shark) {
+            sharks.add(shark);
+        }
 
-                    for (int k = 0; k < 4; k++) {
-                        int nx = i + dx[k];
-                        int ny = j + dy[k];
-                        if (nx < 0 || nx >= R || ny < 0 || ny >= C || map[nx][ny] == -1) {
-                            continue;
-                        }
-                        spreaded++;
-                        tempMap[nx][ny] += map[i][j] / 5;
-                    }
+        public int fishing(int c) {
 
-                    tempMap[i][j] -= (map[i][j] / 5) * spreaded;
+            List<Shark> targetSharks = new ArrayList<>();
+
+            for (Shark shark : sharks) {
+                if (shark.getC() == c) {
+                    targetSharks.add(shark);
                 }
             }
+            if (targetSharks.size() == 0) {
+                return 0;
+            }
+            Shark targetShark = targetSharks.get(0);
+            for (Shark shark : targetSharks) {
+                if (targetShark.getR() > shark.getR()) {
+                    targetShark = shark;
+                }
+            }
+
+            int size = targetShark.getSize();
+            sharks.remove(targetShark);
+            return size;
         }
 
-        map = tempMap;
-    }
+        public void move() {
 
-    private void circulateUp(AirPurifier airPurifier) {
-        Queue<Integer> queue = new LinkedList<>();
-        queue.add(0);
-        for (int i = airPurifier.y + 1; i < C; i++) {
-            queue.add(map[airPurifier.x][i]);
-            map[airPurifier.x][i] = queue.poll();
-        }
-        for (int i = airPurifier.x - 1; i >= 0; i--) {
-            queue.add(map[i][C - 1]);
-            map[i][C - 1] = queue.poll();
-        }
-        for (int i = C - 2; i >= 0; i--) {
-            queue.add(map[0][i]);
-            map[0][i] = queue.poll();
-        }
-        for (int i = 1; i < airPurifier.x; i++) {
-            queue.add(map[i][0]);
-            map[i][0] = queue.poll();
-        }
-    }
-
-    private void circulateDown(AirPurifier airPurifier) {
-        Queue<Integer> queue = new LinkedList<>();
-        queue.add(0);
-        for (int i = airPurifier.y + 1; i < C; i++) {
-            queue.add(map[airPurifier.x][i]);
-            map[airPurifier.x][i] = queue.poll();
-        }
-        for (int i = airPurifier.x + 1; i < R; i++) {
-            queue.add(map[i][C - 1]);
-            map[i][C - 1] = queue.poll();
-        }
-        for (int i = C - 2; i >= 0; i--) {
-            queue.add(map[R - 1][i]);
-            map[R - 1][i] = queue.poll();
-        }
-        for (int i = R - 2; i > airPurifier.x; i--) {
-            queue.add(map[i][0]);
-            map[i][0] = queue.poll();
+            Map<String, Shark> duplicate = new HashMap<>();
+            List<Shark> deadSharks = new ArrayList<>();
+            for (Shark shark : sharks) {
+                shark.move(R, C);
+                String s = shark.getR() + "," + shark.getC();
+                if (duplicate.containsKey(s)){
+                    Shark duplicateShark = duplicate.get(s);
+                    if (duplicateShark.getSize() < shark.getSize()) {
+                        duplicate.put(s, shark);
+                        deadSharks.add(duplicateShark);
+                    } else {
+                        deadSharks.add(shark);
+                    }
+                } else {
+                    duplicate.put(s, shark);
+                }
+            }
+            for (Shark shark : deadSharks) {
+                sharks.remove(shark);
+            }
         }
     }
 
-    private class AirPurifier {
+    class Shark {
+        int index;
 
-        private int x;
-        private int y;
+        int r;
+        int c;
+        int speed;
+        /**
+         * direction is 0: up, 1: left, 2: down, 3: right
+         */
+        int direction;
+        int size;
 
-        public AirPurifier(int i, int j) {
-            this.x = i;
-            this.y = j;
+        int dx[] = {-1, 0, 1, 0};
+        int dy[] = {0, -1, 0, 1};
+
+        public void move(int R, int C) {
+            if(direction == 0 || direction == 2) {
+                speed %= (R - 1) * 2;
+            } else {
+                speed %= (C - 1) * 2;
+            }
+
+            for (int s = 0; s < speed; s++) {
+                // 현재 r, c에 방향에 맞게 1칸씩 추가하며 위치 이동
+                int newR = r + dx[direction];
+                int newC = c + dy[direction];
+
+                // 이동할 새로운 위치가 범위를 벗어나 벽에 부딪히면
+                if(newR < 0 || newR >= R || newC < 0 || newC >= C) {
+                    r -= dx[direction]; // 다시 값 돌려주고
+                    c -= dy[direction];
+                    direction = (direction + 2) % 4; // 방향 반대로
+                    continue;
+                }
+
+                // 위치 벗어나지 않을때는 새로운 위치로 이동
+                r = newR;
+                c = newC;
+            }
+        }
+
+        public Shark() {
+
+        }
+
+
+        // PLEASE ALLOW LOMBOK GETTER AND SETTER
+        public int getIndex() {
+
+            return index;
+        }
+
+        public void setIndex(int index) {
+
+            this.index = index;
+        }
+
+        public int getR() {
+
+            return r;
+        }
+
+        public void setR(int r) {
+
+            this.r = r;
+        }
+
+        public int getC() {
+
+            return c;
+        }
+
+        public void setC(int c) {
+
+            this.c = c;
+        }
+
+        public int getSpeed() {
+
+            return speed;
+        }
+
+        public void setSpeed(int speed) {
+
+            this.speed = speed;
+        }
+
+        public int getDirection() {
+
+            return direction;
+        }
+
+        public void setDirection(int direction) {
+
+            this.direction = direction;
+        }
+
+        public int getSize() {
+
+            return size;
+        }
+
+        public void setSize(int size) {
+
+            this.size = size;
         }
     }
 
