@@ -133,6 +133,13 @@ public class BJ17142 {
 
         Queue<VirusStatus> virusStatusQueue = new LinkedList<>();
 
+        int BLANK = -8;
+        int WALL = -1;
+        int VIRUS = -2;
+
+        int[] dx = {1, 0, -1, 0};
+        int[] dy = {0, 1, 0, -1};
+
         public String solution(String[] input) {
 
             int n = Integer.parseInt(input[0].split(" ")[0]);
@@ -140,59 +147,108 @@ public class BJ17142 {
 
             int[][] map = new int[n][n];
             List<int[]> virusList = new ArrayList<>();
-            
+
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
                     map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
-                    if(map[i][j] == 1){
-                        map[i][j] = -1;
+                    if (map[i][j] == 0) {
+                        map[i][j] = BLANK;
                     }
-                    if(map[i][j] == 2){
+                    if (map[i][j] == 1) {
+                        map[i][j] = WALL;
+                    }
+                    if (map[i][j] == 2) {
                         virusList.add(new int[]{i, j});
-                        map[i][j] = -2;
-                    } 
+                        map[i][j] = VIRUS;
+                    }
                 }
             }
 
-            for (int i = 0; i < m; i++) {
-                virusStatusQueue.add(new VirusStatus(n, i, map, 0));
-            }
+            initVirusQueue(n, m, map, virusList, null, 0);
 
-            while(!virusStatusQueue.isEmpty()) {
+            while (!virusStatusQueue.isEmpty()) {
                 VirusStatus virusStatus = virusStatusQueue.poll();
-                if(virusStatus.isFinish()) {
+                if (virusStatus.isFinish()) {
                     return String.valueOf(virusStatus.step);
                 }
 
-                if(virusStatus.step == 0) {
-                    initVirus(virusStatus);
-                } else {
-                    spreadVirus(virusStatus);
-                }
+                spreadVirus(virusStatus);
             }
+
+            return String.valueOf(-1);
         }
 
-        private void initVirus(VirusStatus virusStatus) {
-            
+        private void initVirusQueue(int n, int m, int[][] map, List<int[]> virusList, List<int[]> pickedVirusList, int mm) {
+            if (m == mm) {
+                int[][] newMap = new int[n][n];
+                for (int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        newMap[i][j] = map[i][j];
+                        if (newMap[i][j] == VIRUS) {
+                            newMap[i][j] = BLANK;
+                        }
+                    }
+                }
+
+                for (int[] v : pickedVirusList) {
+                    newMap[v[0]][v[1]] = 0;
+                }
+
+                virusStatusQueue.add(new VirusStatus(n, newMap, 0));
+            } else {
+                for (int i = 0; i < virusList.size(); i++) {
+                    int[] p = virusList.get(i);
+                    List<int[]> newList = new ArrayList<>();
+                    for (int j = 0; j < virusList.size(); j++) {
+                        if (i != j) {
+                            newList.add(virusList.get(j));
+                        }
+                    }
+
+                    if (pickedVirusList == null) {
+                        pickedVirusList = new ArrayList<>();
+                    }
+                    pickedVirusList.add(p);
+
+                    initVirusQueue(n, m, map, newList, pickedVirusList, mm+1);
+                }
+            }
         }
 
         private void spreadVirus(VirusStatus virusStatus) {
 
+            for (int i = 0; i < virusStatus.n; i++) {
+                for (int j = 0; j < virusStatus.n; j++) {
+                    if (virusStatus.map[i][j] == virusStatus.step) {
+                        for (int k = 0; k < 4; k++) {
+                            if (i + dx[k] >= 0
+                                    && i + dx[k] < virusStatus.n
+                                    && j + dy[k] >= 0
+                                    && j + dy[k] < virusStatus.n
+                                    && virusStatus.map[i + dx[k]][j + dy[k]] == BLANK) {
+                                virusStatus.map[i+dx[k]][j+dy[k]] = virusStatus.step + 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            virusStatus.step += 1;
+
+            virusStatusQueue.add(virusStatus);
         }
 
         private class VirusStatus {
 
             int n;
-            
-            List<int[]> virusList = new ArrayList<>();
+
             int[][] map;
 
             int step;
 
-            public VirusStatus(int n, List<int[]> virusList, int[][] map, int step) {
+            public VirusStatus(int n, int[][] map, int step) {
                 this.n = n;
 
-                this.virusList = virusList.clone();
                 this.map = new int[n][n];
                 for (int i = 0; i < n; i++) {
                     for (int j = 0; j < n; j++) {
@@ -207,7 +263,7 @@ public class BJ17142 {
 
                 for (int i = 0; i < n; i++) {
                     for (int j = 0; j < n; j++) {
-                        if(map[i][j] == 0) {
+                        if (map[i][j] == BLANK) {
                             return false;
                         }
                     }
@@ -218,4 +274,4 @@ public class BJ17142 {
 
         }
     }
-
+}
