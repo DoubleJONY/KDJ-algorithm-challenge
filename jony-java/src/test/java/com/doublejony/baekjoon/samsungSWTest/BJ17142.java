@@ -139,9 +139,18 @@ public class BJ17142 {
             int m = Integer.parseInt(input[0].split(" ")[1]);
 
             int[][] map = new int[n][n];
+            List<int[]> virusList = new ArrayList<>();
+            
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
                     map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
+                    if(map[i][j] == 1){
+                        map[i][j] = -1;
+                    }
+                    if(map[i][j] == 2){
+                        virusList.add(new int[]{i, j});
+                        map[i][j] = -2;
+                    } 
                 }
             }
 
@@ -174,15 +183,16 @@ public class BJ17142 {
         private class VirusStatus {
 
             int n;
-            int m;
+            
+            List<int[]> virusList = new ArrayList<>();
             int[][] map;
 
             int step;
 
-            public VirusStatus(int n, int m, int[][] map, int step) {
+            public VirusStatus(int n, List<int[]> virusList, int[][] map, int step) {
                 this.n = n;
-                this.m = m;
 
+                this.virusList = virusList.clone();
                 this.map = new int[n][n];
                 for (int i = 0; i < n; i++) {
                     for (int j = 0; j < n; j++) {
