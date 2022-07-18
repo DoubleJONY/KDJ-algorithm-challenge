@@ -3,10 +3,7 @@ package com.doublejony.baekjoon;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
 
@@ -24,217 +21,188 @@ public class Main {
         System.out.println(answer);
     }
 
+
+    int n;
+    int m;
+
+    int[][] map;
+
+    List<int[]> virusList;
+
+    Queue<VirusStatus> virusStatusQueue = new LinkedList<>();
+
+    int BLANK = -8;
+    int WALL = -1;
+    int VIRUS = -2;
+    int INACTIVE_VIRUS = -3;
+
+    int[] dx = {1, 0, -1, 0};
+    int[] dy = {0, 1, 0, -1};
+
     public String solution(String[] input) {
 
-        int R = Integer.parseInt(input[0].split(" ")[0]);
-        int C = Integer.parseInt(input[0].split(" ")[1]);
-        int M = Integer.parseInt(input[0].split(" ")[2]);
+        n = Integer.parseInt(input[0].split(" ")[0]);
+        m = Integer.parseInt(input[0].split(" ")[1]);
 
-        FishingPool fishingPool = new FishingPool(R, C, M);
+        map = new int[n][n];
+        virusList = new ArrayList<>();
 
-        for (int i = 0; i < M; i++) {
-            Shark shark = new Shark();
-            shark.setIndex(i);
-            shark.setR(Integer.parseInt(input[i + 1].split(" ")[0]) - 1);
-            shark.setC(Integer.parseInt(input[i + 1].split(" ")[1]) - 1);
-            shark.setSpeed(Integer.parseInt(input[i + 1].split(" ")[2]));
-
-            int direction = Integer.parseInt(input[i + 1].split(" ")[3]);
-
-            if (direction == 1) {
-                direction = 0;
-            } else if (direction == 4) {
-                direction = 1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
+                if (map[i][j] == 0) {
+                    map[i][j] = BLANK;
+                }
+                if (map[i][j] == 1) {
+                    map[i][j] = WALL;
+                }
+                if (map[i][j] == 2) {
+                    virusList.add(new int[]{i, j});
+                    map[i][j] = VIRUS;
+                }
             }
-            shark.setDirection(direction);
-            shark.setSize(Integer.parseInt(input[i + 1].split(" ")[4]));
-
-            fishingPool.add(shark);
         }
 
-        int answer = 0;
+        dfs(0, new ArrayList<>());
 
-        for (int i = 0; i < C; i++) {
-            answer += fishingPool.fishing(i);
-            fishingPool.move();
+//            initVirusQueue(n, m, map, virusList, null, 0);
+
+        while (!virusStatusQueue.isEmpty()) {
+            VirusStatus virusStatus = virusStatusQueue.poll();
+            if (virusStatus.isFinish()) {
+                return String.valueOf(virusStatus.step);
+            }
+
+            spreadVirus(virusStatus);
         }
 
-        return String.valueOf(answer);
+        return String.valueOf(-1);
     }
 
-    class FishingPool {
-
-        int R;
-        int C;
-        int M;
-
-        List<Shark> sharks;
-
-        public FishingPool(int R, int C, int M) {
-            this.R = R;
-            this.C = C;
-            this.M = M;
-            sharks = new ArrayList<>();
+    private void dfs(int index, List<int[]> pickedVirusList) {
+        if (virusList.size() == index) {
+            return;
         }
-
-        public void add(Shark shark) {
-            sharks.add(shark);
-        }
-
-        public int fishing(int c) {
-
-            List<Shark> targetSharks = new ArrayList<>();
-
-            for (Shark shark : sharks) {
-                if (shark.getC() == c) {
-                    targetSharks.add(shark);
-                }
-            }
-            if (targetSharks.size() == 0) {
-                return 0;
-            }
-            Shark targetShark = targetSharks.get(0);
-            for (Shark shark : targetSharks) {
-                if (targetShark.getR() > shark.getR()) {
-                    targetShark = shark;
-                }
-            }
-
-            int size = targetShark.getSize();
-            sharks.remove(targetShark);
-            return size;
-        }
-
-        public void move() {
-
-            Map<String, Shark> duplicate = new HashMap<>();
-            List<Shark> deadSharks = new ArrayList<>();
-            for (Shark shark : sharks) {
-                shark.move(R, C);
-                String s = shark.getR() + "," + shark.getC();
-                if (duplicate.containsKey(s)){
-                    Shark duplicateShark = duplicate.get(s);
-                    if (duplicateShark.getSize() < shark.getSize()) {
-                        duplicate.put(s, shark);
-                        deadSharks.add(duplicateShark);
-                    } else {
-                        deadSharks.add(shark);
+        if (pickedVirusList.size() == m) {
+            int[][] newMap = new int[n][n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    newMap[i][j] = map[i][j];
+                    if (newMap[i][j] == VIRUS) {
+                        newMap[i][j] = INACTIVE_VIRUS;
                     }
-                } else {
-                    duplicate.put(s, shark);
                 }
             }
-            for (Shark shark : deadSharks) {
-                sharks.remove(shark);
+
+            for (int[] v : pickedVirusList) {
+                newMap[v[0]][v[1]] = 0;
             }
+
+            virusStatusQueue.add(new VirusStatus(newMap, 0));
+            return;
+        }
+
+        dfs(index + 1, pickedVirusList);
+        pickedVirusList.add(virusList.get(index));
+        dfs(index + 1, pickedVirusList);
+        pickedVirusList.remove(pickedVirusList.size() - 1);
+    }
+
+//        private void initVirusQueue(int n, int m, int[][] map, List<int[]> virusList, List<int[]> pickedVirusList, int mm) {
+//            if (m == mm) {
+//                int[][] newMap = new int[n][n];
+//                for (int i = 0; i < n; i++) {
+//                    for (int j = 0; j < n; j++) {
+//                        newMap[i][j] = map[i][j];
+//                        if (newMap[i][j] == VIRUS) {
+//                            newMap[i][j] = INACTIVE_VIRUS;
+//                        }
+//                    }
+//                }
+//
+//                for (int[] v : pickedVirusList) {
+//                    newMap[v[0]][v[1]] = 0;
+//                }
+//
+//                virusStatusQueue.add(new VirusStatus(n, newMap, 0));
+//            } else {
+//                for (int i = 0; i < virusList.size(); i++) {
+//                    int[] p = virusList.get(i);
+//                    List<int[]> newList = new ArrayList<>();
+//                    for (int j = 0; j < virusList.size(); j++) {
+//                        if (i != j) {
+//                            newList.add(virusList.get(j));
+//                        }
+//                    }
+//
+//                    if (pickedVirusList == null) {
+//                        pickedVirusList = new ArrayList<>();
+//                    }
+//                    pickedVirusList.add(p);
+//
+//                    List<int[]> newPList = new ArrayList<>(pickedVirusList);
+//
+//                    initVirusQueue(n, m, map, newList, newPList, mm+1);
+//                }
+//            }
+//    }
+
+    private void spreadVirus(VirusStatus virusStatus) {
+
+        boolean isSpread = false;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (virusStatus.map[i][j] == virusStatus.step) {
+                    for (int k = 0; k < 4; k++) {
+                        if (i + dx[k] >= 0
+                                && i + dx[k] < n
+                                && j + dy[k] >= 0
+                                && j + dy[k] < n
+                                && (virusStatus.map[i + dx[k]][j + dy[k]] == BLANK
+                                || virusStatus.map[i + dx[k]][j + dy[k]] == INACTIVE_VIRUS)) {
+                            virusStatus.map[i + dx[k]][j + dy[k]] = virusStatus.step + 1;
+                            isSpread = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        virusStatus.step += 1;
+        if (isSpread) {
+            virusStatusQueue.add(virusStatus);
         }
     }
 
-    class Shark {
-        int index;
+    private class VirusStatus {
 
-        int r;
-        int c;
-        int speed;
-        /**
-         * direction is 0: up, 1: left, 2: down, 3: right
-         */
-        int direction;
-        int size;
+        int[][] map;
 
-        int dx[] = {-1, 0, 1, 0};
-        int dy[] = {0, -1, 0, 1};
+        int step;
 
-        public void move(int R, int C) {
-            if(direction == 0 || direction == 2) {
-                speed %= (R - 1) * 2;
-            } else {
-                speed %= (C - 1) * 2;
-            }
+        public VirusStatus(int[][] map, int step) {
 
-            for (int s = 0; s < speed; s++) {
-                // 현재 r, c에 방향에 맞게 1칸씩 추가하며 위치 이동
-                int newR = r + dx[direction];
-                int newC = c + dy[direction];
-
-                // 이동할 새로운 위치가 범위를 벗어나 벽에 부딪히면
-                if(newR < 0 || newR >= R || newC < 0 || newC >= C) {
-                    r -= dx[direction]; // 다시 값 돌려주고
-                    c -= dy[direction];
-                    direction = (direction + 2) % 4; // 방향 반대로
-                    continue;
+            this.map = new int[n][n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    this.map[i][j] = map[i][j];
                 }
-
-                // 위치 벗어나지 않을때는 새로운 위치로 이동
-                r = newR;
-                c = newC;
             }
+
+            this.step = step;
         }
 
-        public Shark() {
+        public boolean isFinish() {
 
-        }
-
-
-        // PLEASE ALLOW LOMBOK GETTER AND SETTER
-        public int getIndex() {
-
-            return index;
-        }
-
-        public void setIndex(int index) {
-
-            this.index = index;
-        }
-
-        public int getR() {
-
-            return r;
-        }
-
-        public void setR(int r) {
-
-            this.r = r;
-        }
-
-        public int getC() {
-
-            return c;
-        }
-
-        public void setC(int c) {
-
-            this.c = c;
-        }
-
-        public int getSpeed() {
-
-            return speed;
-        }
-
-        public void setSpeed(int speed) {
-
-            this.speed = speed;
-        }
-
-        public int getDirection() {
-
-            return direction;
-        }
-
-        public void setDirection(int direction) {
-
-            this.direction = direction;
-        }
-
-        public int getSize() {
-
-            return size;
-        }
-
-        public void setSize(int size) {
-
-            this.size = size;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (map[i][j] == BLANK) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 
