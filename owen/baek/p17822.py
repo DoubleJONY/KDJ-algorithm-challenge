@@ -48,14 +48,15 @@ def check_elemnet(L):
         mean_ = float(float(element_sum) / float(elemnet_count))
         for i in range(n):
             for j in range(m):
-                if L[i][j] == 0:
+                if L[i][j] < -100000:
                     continue
                 elif L[i][j] > mean_:
                     L[i][j] += -1
-                else:
+                elif L[i][j] < mean_:
                     L[i][j] += 1
     elif not remove_list and elemnet_count == 0:
         return 0
+
     else:
         for i, j in remove_list:
 
