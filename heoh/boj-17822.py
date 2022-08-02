@@ -1,6 +1,3 @@
-from statistics import mean
-
-
 def main():
     N, M, T = map(int, input().split())
     A = {i: Plate(list(map(int, input().split()))) for i in range(1, N+1)}
@@ -14,20 +11,18 @@ def main():
         targets = []
         for i in range(1, N+1):
             for j in range(M):
-                if not A[i].exists(j):
-                    continue
-
-                next_i = i+1 if i+1 <= N else 1
-                prev_i = i-1 if i-1 >= 1 else N
-                next_j = j+1 if j+1 < M else 0
-                prev_j = j-1 if j-1 > 0 else M-1
-                value = A[i].get(j)
-                if ((value == A[next_i].get(j)) or
-                    (value == A[prev_i].get(j)) or
-                    (value == A[i].get(next_j)) or
-                    (value == A[i].get(prev_j))
-                ):
-                    targets.append((i, j))
+                if A[i].exists(j):
+                    next_i = i+1
+                    prev_i = i-1
+                    next_j = j+1 if j+1 < M else 0
+                    prev_j = j-1 if j-1 >= 0 else M-1
+                    value = A[i].get(j)
+                    if ((next_i <= N and value == A[next_i].get(j)) or
+                        (prev_i >= 1 and value == A[prev_i].get(j)) or
+                        (value == A[i].get(next_j)) or
+                        (value == A[i].get(prev_j))
+                    ):
+                        targets.append((i, j))
 
         return targets
 
@@ -55,7 +50,13 @@ def main():
         rotate(x, d, k)
         remove_or_update()
 
-    answer = sum(sum(r) for r in A)
+    numbers = []
+    for i in range(1, N+1):
+        for j in range(M):
+            if A[i].exists(j):
+                numbers.append(A[i].get(j))
+
+    answer = sum(numbers)
     print(answer)
 
 
@@ -76,7 +77,7 @@ class Plate:
         return self.values[index]
 
     def exists(self, i):
-        return self.get(i) == None
+        return self.get(i) is not None
 
     def set(self, i, value):
         M = len(self.values)
