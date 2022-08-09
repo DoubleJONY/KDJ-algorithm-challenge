@@ -1,7 +1,6 @@
 # https://www.acmicpc.net/problem/17825
 
 
-
 def initialize_game():
     node_values = [
         0,              # [0]
@@ -25,8 +24,7 @@ def initialize_game():
             return connection
         if isinstance(connection, int):
             return [connection, None]
-        if connection is None:
-            return [None, None]
+        return [None, None]
 
     node_connections = [
         1,
@@ -75,7 +73,7 @@ def dfs(
         if blue_next is not None:
             next_idx = blue_next
 
-        distance_to_move = distances[idx]
+        distance_to_move = distances[idx] - 1 
         while distance_to_move:
             if next_idx is None:
                 break
@@ -89,10 +87,10 @@ def dfs(
         piece_locations[p_idx] = next_idx
         _sum = dfs(
             node_values,
-            node_connections, 
-            piece_locations, 
-            distances, 
-            idx + 1, 
+            node_connections,
+            piece_locations,
+            distances,
+            idx + 1,
             max_sum + (
                 node_values[next_idx] if next_idx is not None else 0
             ),
