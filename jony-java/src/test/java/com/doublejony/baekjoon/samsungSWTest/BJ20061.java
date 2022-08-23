@@ -7,13 +7,8 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
+import java.util.stream.IntStream;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -33,8 +28,10 @@ public class BJ20061 {
                                 "1",
                                 "1 1 1"
                         },
-                        "0",
-                        "2"
+                        new String[] {
+                                "0",
+                                "2"
+                        }
                 },
                 {
                         new String[] {
@@ -42,8 +39,10 @@ public class BJ20061 {
                                 "1 1 1",
                                 "2 3 0"
                         },
-                        "0",
-                        "6"
+                        new String[] {
+                                "0",
+                                "6"
+                        }
                 },
                 {
                         new String[] {
@@ -53,8 +52,10 @@ public class BJ20061 {
                                 "3 2 2",
                                 "3 2 3"
                         },
-                        "1",
-                        "10"
+                        new String[] {
+                                "1",
+                                "10"
+                        }
                 },
                 {
                         new String[] {
@@ -65,8 +66,10 @@ public class BJ20061 {
                                 "3 2 3",
                                 "3 1 3"
                         },
-                        "1",
-                        "16"
+                        new String[] {
+                                "1",
+                                "16"
+                        }
                 },
                 {
                         new String[] {
@@ -79,8 +82,10 @@ public class BJ20061 {
                                 "2 0 0",
                                 "3 2 0"
                         },
-                        "1",
-                        "18"
+                        new String[] {
+                                "1",
+                                "18"
+                        }
                 },
                 {
                         new String[] {
@@ -94,8 +99,10 @@ public class BJ20061 {
                                 "3 2 0",
                                 "3 1 2"
                         },
-                        "2",
-                        "15"
+                        new String[] {
+                                "2",
+                                "15"
+                        }
                 }
         };
         // @formatter:on
@@ -103,7 +110,7 @@ public class BJ20061 {
 
     @Test
     @UseDataProvider("testCase")
-    public void solution(String[] input, String expected) {
+    public void solution(String[] input, String[] expected) {
 
         Stopwatch timer = Stopwatch.createStarted();
         resolve(Thread.currentThread().getStackTrace()[1].getMethodName(), expected, new BJ20061.Main().solution(input),
@@ -117,7 +124,7 @@ public class BJ20061 {
         int[][] greenMap = new int[6][4];
         int[][] blueMap = new int[6][4];
 
-        public String solution(String[] input) {
+        public String[] solution(String[] input) {
 
             int n = Integer.parseInt(input[0]);
 
@@ -130,8 +137,6 @@ public class BJ20061 {
                         Integer.parseInt(input[i + 1].split(" ")[2]))
                 );
             }
-
-
 
             for (int i = 0; i < n; i++) {
 
@@ -150,7 +155,16 @@ public class BJ20061 {
 
             }
 
-            return String.valueOf(answer);
+            int sum = 0;
+            sum += countBlock(greenMap);
+            sum += countBlock(blueMap);
+
+            return new String[]{String.valueOf(answer), String.valueOf(sum)};
+        }
+
+        private int countBlock(int[][] map) {
+
+            return IntStream.range(2, 6).map(i -> Arrays.stream(map[i]).sum()).sum();
         }
 
         private void pushOverStacked(int[][] map) {
@@ -207,15 +221,54 @@ public class BJ20061 {
 
         private void drop(int[][] redMap, int[][] map) {
 
-            while (Arrays.stream(redMap[3]).sum() != 0) {
+            while (Arrays.stream(redMap[3]).sum() == 0) {
                 for (int i = 3; i > 0; i--) {
                     System.arraycopy(redMap[i - 1], 0, redMap[i], 0, 4);
                 }
             }
 
-//            while () {
-                //블록 있는 열을 체크해서 배열로 담고 AND 조건 아래 떨구기 확인
-//            }
+            map[0] = redMap[2];
+            map[1] = redMap[3];
+
+            Map<Integer, Integer> blockColumns = new HashMap<>();
+
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (map[i][j] == 1) {
+                        blockColumns.put(j, 1);
+                    }
+                }
+            }
+
+            int currentRow = 2;
+            while (currentRow <= 5) {
+
+                boolean isStuck = false;
+                for (int c : blockColumns.keySet()) {
+                    if (map[currentRow-1][c] == 1 && map[currentRow][c] == 1) {
+                        isStuck = true;
+                        break;
+                    }
+                }
+
+                if (isStuck) {
+                    break;
+                }
+
+                for (int i = currentRow; i >= currentRow - 1; i--) {
+                    for (int c : blockColumns.keySet()) {
+                        map[i][c] = map[i-1][c];
+                    }
+                }
+
+                if (currentRow == 2) {
+                    for (int i = 0; i < 4; i++) {
+                        map[0][i] = 0;
+                    }
+                }
+
+                currentRow++;
+            }
         }
 
         private class Block {
