@@ -4,10 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
 
 public class Main {
 
@@ -25,191 +24,147 @@ public class Main {
         System.out.println(answer);
     }
 
-    int REMOVED = 0;
+    int answer = 0;
+    int SHARK = 99;
+
+    Queue<SharkMap> queue;
+
+    int[][] directions = new int[][]{{-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1},
+            {-1, 1}};
 
     public String solution(String[] input) {
 
-        int N = Integer.parseInt(input[0].split(" ")[0]);
-        int M = Integer.parseInt(input[0].split(" ")[1]);
-        int T = Integer.parseInt(input[0].split(" ")[2]);
+        int[][] map = new int[4][4];
+        int[][] directionMap = new int[4][4];
 
-        List<LinkedList<Integer>> circles = new ArrayList<>();
-        for (int i = 0; i < N; i++) {
-            LinkedList<Integer> k = new LinkedList<>();
-            for (int j = 0; j < M; j++) {
-                k.add(Integer.parseInt(input[i + 1].split(" ")[j]));
-            }
-            circles.add(k);
-        }
-
-        List<Xdk> xdkList = new ArrayList<>();
-
-        for (int i = 0; i < T; i++) {
-            xdkList.add(new Xdk(
-                    Integer.parseInt(input[N + 1 + i].split(" ")[0]) - 1,
-                    Integer.parseInt(input[N + 1 + i].split(" ")[1]),
-                    Integer.parseInt(input[N + 1 + i].split(" ")[2]))
-            );
-        }
-
-        for (int i = 0; i < T; i++) {
-            spin(xdkList.get(i), circles);
-            if (!removeAllAdjoin(N, M, circles)) {
-                standardizeAll(N, M, circles);
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                map[i][j] = Integer.parseInt(input[i].split(" ")[j * 2]);
+                directionMap[i][j] = Integer.parseInt(input[i].split(" ")[(j * 2) + 1]) - 1;
             }
         }
 
-        return String.valueOf(sum(circles));
+        answer = map[0][0];
+        map[0][0] = SHARK;
+
+        queue = new LinkedList<SharkMap>();
+        queue.add(new SharkMap(answer, map, directionMap));
+
+        while (!queue.isEmpty()) {
+            bfs(queue.poll());
+        }
+
+        return String.valueOf(answer);
     }
 
-    private void spin(Xdk xdk, List<LinkedList<Integer>> circles) {
+    private void bfs(SharkMap sharkMap) {
 
-        int k;
+        moveFishes(sharkMap);
+        moveShark(sharkMap);
 
-        //reverse direction
-        if (xdk.d == 0) {
-            k = xdk.k;
-        } else {
-            k = circles.get(xdk.x).size() - xdk.k;
-        }
-
-        List<Integer> spinCircleList = new ArrayList<>();
-
-        int mul = 1;
-        while (((xdk.x + 1) * mul) - 1 < circles.size()) {
-            spinCircleList.add(((xdk.x + 1) * mul) - 1);
-            mul++;
-        }
-
-        //spin
-        for (int c : spinCircleList) {
-            for (int i = 0; i < k; i++) {
-                int t = circles.get(c).removeLast();
-                circles.get(c).addFirst(t);
-            }
-        }
+        answer = Math.max(answer, sharkMap.score);
     }
 
-    private boolean removeAllAdjoin(int N, int M, List<LinkedList<Integer>> circles) {
+    private void moveShark(SharkMap sharkMap) {
 
-        boolean isChanged = false;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (sharkMap.map[i][j] == SHARK) {
+                    int dx = directions[sharkMap.directionMap[i][j]][0];
+                    int dy = directions[sharkMap.directionMap[i][j]][1];
+                    while (true) {
+                        try {
+                            if (sharkMap.map[i + dx][j + dy] > 0 && sharkMap.map[i + dx][j + dy] <= 16) {
 
-        int[] di = { 0, 0, 1, -1 };
-        int[] dj = { 1, -1, 0, 0 };
+                                int[][] newMap = new int[4][4];
+                                for (int k = 0; k < 4; k++) {
+                                    System.arraycopy(sharkMap.map[k], 0, newMap[k], 0, 4);
+                                }
+                                int[][] newDirectionMap = new int[4][4];
+                                for (int k = 0; k < 4; k++) {
+                                    System.arraycopy(sharkMap.directionMap[k], 0, newDirectionMap[k], 0, 4);
+                                }
 
-        Map<String, Point> pointList = new HashMap<>();
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                boolean isCurrentChanged = false;
-                int current = circles.get(i).get(j);
-
-                if (current == REMOVED) {
-                    continue;
+                                SharkMap newSharkMap = new SharkMap(sharkMap.score, newMap, newDirectionMap);
+                                newSharkMap.score += newSharkMap.map[i + dx][j + dy];
+                                newSharkMap.map[i + dx][j + dy] = SHARK;
+                                newSharkMap.map[i][j] = -1;
+                                newSharkMap.directionMap[i][j] = -1;
+                                queue.add(newSharkMap);
+                            }
+                            if (dx != 0) {
+                                dx = dx + (dx / Math.abs(dx));
+                            }
+                            if (dy != 0) {
+                                dy = dy + (dy / Math.abs(dy));
+                            }
+                        } catch (IndexOutOfBoundsException e) {
+                            break;
+                        }
+                    }
                 }
+            }
+        }
+    }
 
+    private void moveFishes(SharkMap sharkMap) {
+
+        for (int i = 1; i <= 16; i++) {
+            boolean doNext = false;
+            for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 4; k++) {
-                    int neari = i + di[k];
-                    int nearj = j + dj[k];
+                    if (sharkMap.map[j][k] == i) {
+                        doNext = true;
+                        int origin = sharkMap.directionMap[j][k];
+                        while (true) {
+                            int dx = directions[sharkMap.directionMap[j][k]][0];
+                            int dy = directions[sharkMap.directionMap[j][k]][1];
+                            try {
+                                if (sharkMap.map[j + dx][k + dy] != SHARK) {
+                                    int temp = sharkMap.map[j + dx][k + dy];
+                                    sharkMap.map[j + dx][k + dy] = sharkMap.map[j][k];
+                                    sharkMap.map[j][k] = temp;
 
-                    //validate and calibrate nearNumber
-                    if (neari < 0 || neari >= N) {
-                        continue;
+                                    temp = sharkMap.directionMap[j + dx][k + dy];
+                                    sharkMap.directionMap[j + dx][k + dy] = sharkMap.directionMap[j][k];
+                                    sharkMap.directionMap[j][k] = temp;
+
+                                    break;
+                                }
+                            } catch (IndexOutOfBoundsException ignored) {
+
+                            }
+                            sharkMap.directionMap[j][k] += 1;
+                            if (sharkMap.directionMap[j][k] >= 8) {
+                                sharkMap.directionMap[j][k] = 0;
+                            }
+                            if (sharkMap.directionMap[j][k] == origin) {
+                                break;
+                            }
+                        }
                     }
-
-                    if (nearj < 0) {
-                        nearj = M - 1;
-                    } else if (nearj >= M) {
-                        nearj = 0;
-                    }
-
-                    //remove adjoin numbers
-                    if (circles.get(neari).get(nearj) == current) {
-                        pointList.put(neari + "," + nearj, new Point(neari, nearj));
-
-                        isChanged = true;
-                        isCurrentChanged = true;
+                    if (doNext) {
+                        break;
                     }
                 }
-
-                if (isCurrentChanged) {
-                    pointList.put(i + "," + j, new Point(i, j));
+                if (doNext) {
+                    break;
                 }
             }
         }
-
-        for (Point point : pointList.values()) {
-            circles.get(point.i).set(point.j, REMOVED);
-        }
-
-        return isChanged;
     }
 
-    private int sum(List<LinkedList<Integer>> circles) {
+    class SharkMap {
 
-        int sum = 0;
-        for (LinkedList<Integer> circle : circles) {
-            for (Integer number : circle) {
-                sum += number;
-            }
-        }
-        return sum;
-    }
+        int score;
+        int[][] map;
+        int[][] directionMap;
 
-    private void standardizeAll(int N, int M, List<LinkedList<Integer>> circles) {
+        public SharkMap(int moveCount, int[][] map, int[][] directionMap) {
 
-        double sum = 0;
-        int count = 0;
-
-        for (LinkedList<Integer> circle : circles) {
-            for (Integer number : circle) {
-                sum += number;
-                if (number != REMOVED) {
-                    count++;
-                }
-            }
-        }
-
-        double avg = sum / count;
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                int current = circles.get(i).get(j);
-
-                if (current > avg) {
-                    circles.get(i).set(j, current - 1);
-                } else if (current != REMOVED && current < avg) {
-                    circles.get(i).set(j, current + 1);
-                }
-            }
-        }
-
-    }
-
-    private class Xdk {
-
-        int x;
-        int d;
-        int k;
-
-        public Xdk(int x, int d, int k) {
-
-            this.x = x;
-            this.d = d;
-            this.k = k;
-        }
-    }
-
-
-    private class Point {
-
-        int i;
-        int j;
-
-        public Point(int i, int j) {
-
-            this.i = i;
-            this.j = j;
+            this.score = moveCount;
+            this.map = map;
+            this.directionMap = directionMap;
         }
     }
 }

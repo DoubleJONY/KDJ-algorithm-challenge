@@ -22,9 +22,9 @@ public class BJ19236 {
     @DataProvider
     public static Object[][] testCase() {
         // @formatter:off
-        return new Object[][] {
+        return new Object[][]{
                 {
-                        new String[] {
+                        new String[]{
                                 "7 6 2 3 15 6 9 8",
                                 "3 1 1 8 14 7 10 1",
                                 "6 1 13 6 4 3 11 4",
@@ -33,7 +33,7 @@ public class BJ19236 {
                         "33"
                 },
                 {
-                        new String[] {
+                        new String[]{
                                 "16 7 1 4 4 3 12 8",
                                 "14 7 7 6 3 4 10 2",
                                 "5 2 15 2 8 3 6 4",
@@ -42,7 +42,7 @@ public class BJ19236 {
                         "43"
                 },
                 {
-                        new String[] {
+                        new String[]{
                                 "12 6 14 5 4 5 6 7",
                                 "15 1 11 7 3 7 7 5",
                                 "10 3 8 3 16 6 1 1",
@@ -51,7 +51,7 @@ public class BJ19236 {
                         "76"
                 },
                 {
-                        new String[] {
+                        new String[]{
                                 "2 6 10 8 6 7 9 4",
                                 "1 7 16 6 4 2 5 8",
                                 "3 7 8 6 7 6 14 8",
@@ -75,12 +75,12 @@ public class BJ19236 {
     public class Main {
 
         int answer = 0;
-        int SHARK  = 99;
+        int SHARK = 99;
 
         Queue<SharkMap> queue;
 
-        int[][] directions = new int[][] { { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 },
-                { -1, 1 } };
+        int[][] directions = new int[][]{{-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1},
+                {-1, 1}};
 
         public String solution(String[] input) {
 
@@ -94,10 +94,11 @@ public class BJ19236 {
                 }
             }
 
+            answer = map[0][0];
             map[0][0] = SHARK;
 
             queue = new LinkedList<SharkMap>();
-            queue.add(new SharkMap(0, map, directionMap));
+            queue.add(new SharkMap(answer, map, directionMap));
 
             while (!queue.isEmpty()) {
                 bfs(queue.poll());
@@ -111,7 +112,7 @@ public class BJ19236 {
             moveFishes(sharkMap);
             moveShark(sharkMap);
 
-            answer = Math.max(answer, sharkMap.moveCount);
+            answer = Math.max(answer, sharkMap.score);
         }
 
         private void moveShark(SharkMap sharkMap) {
@@ -134,11 +135,11 @@ public class BJ19236 {
                                         System.arraycopy(sharkMap.directionMap[k], 0, newDirectionMap[k], 0, 4);
                                     }
 
-                                    SharkMap newSharkMap = new SharkMap(sharkMap.moveCount, newMap, newDirectionMap);
+                                    SharkMap newSharkMap = new SharkMap(sharkMap.score, newMap, newDirectionMap);
+                                    newSharkMap.score += newSharkMap.map[i + dx][j + dy];
                                     newSharkMap.map[i + dx][j + dy] = SHARK;
                                     newSharkMap.map[i][j] = -1;
                                     newSharkMap.directionMap[i][j] = -1;
-                                    newSharkMap.moveCount++;
                                     queue.add(newSharkMap);
                                 }
                                 if (dx != 0) {
@@ -205,13 +206,13 @@ public class BJ19236 {
 
         class SharkMap {
 
-            int     moveCount;
+            int score;
             int[][] map;
             int[][] directionMap;
 
             public SharkMap(int moveCount, int[][] map, int[][] directionMap) {
 
-                this.moveCount = moveCount;
+                this.score = moveCount;
                 this.map = map;
                 this.directionMap = directionMap;
             }
