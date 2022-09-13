@@ -23,32 +23,34 @@ def dfs(x_shark, y_shark, score, board):
     global maxScore
 
     score += board[x_shark][y_shark][0]
-    board[x_shark][y_shark][0] = 0
     maxScore = max(maxScore, score)
+    board[x_shark][y_shark][0] = 0
+    
 
-    for i in range(1, 17):
-        x, y = -1, -1
+    for fn in range(1, 17):
+        fx, fy = -1, -1
         for j in range(4):
             for k in range(4):
-                if board[j][k] == i:
-                    x = j, y = k
+                if board[j][k][0] == fn:
+                    fx = j
+                    fy = k
                     break
 
-        if x == -1 or y == -1:
+        if fx == -1 and fy == -1:
             continue
 
-        direct = board[x][y][1]
+        direct = board[fx][fy][1]
 
-        for j in range(8):
-            tmp_d = (direct+j) % 8
+        for d in range(8):
+            tmp_d = (direct+d) % 8
 
-            tmp_x = dx[tmp_d] + x
-            tmp_y = dy[tmp_d] + y
-            if not(0 <= tmp_x < 4 and 0 <= tmp_y < 4) or (tmp_x == x_shark, tmp_y == y_shark):
+            tmp_x = dx[tmp_d] + fx
+            tmp_y = dy[tmp_d] + fy
+            if not(0 <= tmp_x < 4 and 0 <= tmp_y < 4) or (tmp_x == x_shark and tmp_y == y_shark):
                 continue
 
-            board[x][y][1] = direct
-            board[x][y], board[tmp_x][tmp_y] = board[tmp_x][tmp_y], board[x][y]
+            board[fx][fy][1] = tmp_d
+            board[fx][fy], board[tmp_x][tmp_y] = board[tmp_x][tmp_y], board[fx][fy]
 
             break
 
@@ -58,10 +60,12 @@ def dfs(x_shark, y_shark, score, board):
 
         tmp_x = x_shark + dx[direct_shark]*i
         tmp_y = y_shark + dy[direct_shark]*i
-        if (0 <= tmp_x < 4 and 0 <= tmp_y < 4) and board[x][y][0] > 0:
+        if (0 <= tmp_x < 4 and 0 <= tmp_y < 4) and board[tmp_x][tmp_y][0] > 0:
             dfs(tmp_x, tmp_y, score, copy.deepcopy(board))
 
-
-print(board)
 dfs(0, 0, 0, board)
 print(maxScore)
+
+
+#python3 31020kb, 92ms
+#pypy3 117204kb, 187ms
