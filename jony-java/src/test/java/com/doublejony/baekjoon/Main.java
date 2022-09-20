@@ -23,13 +23,13 @@ public class Main {
         System.out.println(answer);
     }
 
-    final int UP    = 1;
-    final int DOWN  = 2;
-    final int LEFT  = 3;
+    final int UP = 1;
+    final int DOWN = 2;
+    final int LEFT = 3;
     final int RIGHT = 4;
 
-    int[] dx = { 0, -1, 1, 0, 0 };
-    int[] dy = { 0, 0, 0, -1, 1 };
+    int[] dx = {0, -1, 1, 0, 0};
+    int[] dy = {0, 0, 0, -1, 1};
 
     public String solution(String[] input) {
 
@@ -99,7 +99,7 @@ public class Main {
             if (sharkList.size() == 1 && sharkList.get(0).getNo() == 1) {
                 return String.valueOf(count);
             }
-            if (count > 1000) {
+            if (count >= 1000) {
                 return String.valueOf(-1);
             }
 
@@ -130,7 +130,7 @@ public class Main {
             List<Shark> deadList = new ArrayList<>();
 
             for (int i = 0; i < sharkList.size(); i++) {
-                for (int j = 0; j < sharkList.size(); j++) {
+                for (int j = i; j < sharkList.size(); j++) {
                     if (i != j) {
                         Shark a = sharkList.get(i);
                         Shark b = sharkList.get(j);
@@ -177,10 +177,10 @@ public class Main {
 
     class Shark implements Comparable<Shark> {
 
-        int           no; //Shark IndexNumber
-        int           h; //height
-        int           w; //width
-        int           direction;
+        int no; //Shark IndexNumber
+        int h; //height
+        int w; //width
+        int direction;
         List<Integer> upMap;
         List<Integer> downMap;
         List<Integer> leftMap;
