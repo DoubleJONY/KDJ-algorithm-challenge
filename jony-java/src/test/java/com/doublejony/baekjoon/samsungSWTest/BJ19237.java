@@ -7,7 +7,9 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.doublejony.common.AssertResolve.resolve;
 
@@ -21,9 +23,9 @@ public class BJ19237 {
     @DataProvider
     public static Object[][] testCase() {
         // @formatter:off
-        return new Object[][]{
+        return new Object[][] {
                 {
-                        new String[]{
+                        new String[] {
                                 "5 4 4",
                                 "0 0 0 0 3",
                                 "0 2 0 0 0",
@@ -51,7 +53,7 @@ public class BJ19237 {
                         "14"
                 },
                 {
-                        new String[]{
+                        new String[] {
                                 "4 2 6",
                                 "1 0 0 0",
                                 "0 0 0 0",
@@ -70,7 +72,7 @@ public class BJ19237 {
                         "26"
                 },
                 {
-                        new String[]{
+                        new String[] {
                                 "5 4 1",
                                 "0 0 0 0 3",
                                 "0 2 0 0 0",
@@ -98,7 +100,7 @@ public class BJ19237 {
                         "-1"
                 },
                 {
-                        new String[]{
+                        new String[] {
                                 "5 4 10",
                                 "0 0 0 0 3",
                                 "0 0 0 0 0",
@@ -140,6 +142,14 @@ public class BJ19237 {
 
     public class Main {
 
+        final int UP    = 1;
+        final int DOWN  = 2;
+        final int LEFT  = 3;
+        final int RIGHT = 4;
+
+        int[] dx = { 0, -1, 1, 0, 0 };
+        int[] dy = { 0, 0, 0, -1, 1 };
+
         public String solution(String[] input) {
 
             int N = Integer.parseInt(input[0].split(" ")[0]);
@@ -149,11 +159,10 @@ public class BJ19237 {
             int[][] sharkMap = new int[N][N];
             int[][] smellMap = new int[N][N];
 
-
             List<Shark> sharkList = new ArrayList<>();
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    sharkMap[i][j] = Integer.parseInt(input[i+1].split(" ")[j]);
+                    sharkMap[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
                     if (sharkMap[i][j] != 0) {
                         sharkList.add(new Shark(sharkMap[i][j], i, j));
                         smellMap[i][j] = k;
@@ -166,14 +175,14 @@ public class BJ19237 {
             sharkList.sort(Comparator.naturalOrder());
 
             for (int i = 0; i < M; i++) {
-                sharkList.get(i).setDirection(Integer.parseInt(input[1+N].split(" ")[i]));
+                sharkList.get(i).setDirection(Integer.parseInt(input[1 + N].split(" ")[i]));
             }
 
             for (int i = 0; i < M; i++) {
                 for (int j = 0; j < 4; j++) {
                     List<Integer> dir = new ArrayList<>();
                     for (int l = 0; l < 4; l++) {
-                        dir.add(Integer.parseInt(input[2+(i*4)+j+N].split(" ")[l]));
+                        dir.add(Integer.parseInt(input[2 + (i * 4) + j + N].split(" ")[l]));
                     }
                     switch (j) {
                         case 0:
@@ -192,22 +201,29 @@ public class BJ19237 {
                 }
             }
 
-
+            int count = 1;
             while (true) {
 
                 //move all
-                    //check empty space
-                //kill conflicts
+                for (Shark shark : sharkList) {
+                    shark.move(map);
+                }
+                map.killConflict(sharkList);
                 //reduce smell
                 map.reduceSmell();
                 //confirm new shark position
                 map.confirmSharkMap(sharkList);
 
                 //check finish (1번 상어만 살아남은 경우 & 1000번)
+                if (sharkList.size() == 1 && sharkList.get(0).getNo() == 1) {
+                    return String.valueOf(count);
+                }
+                if (count > 1000) {
+                    return String.valueOf(-1);
+                }
+
+                count++;
             }
-
-            return null;
-
         }
 
         class SharkMap {
@@ -220,6 +236,7 @@ public class BJ19237 {
             int[][] smellMap;
 
             public SharkMap(int n, int m, int k, int[][] sharkMap, int[][] smellMap) {
+
                 N = n;
                 M = m;
                 this.k = k;
@@ -227,17 +244,35 @@ public class BJ19237 {
                 this.smellMap = smellMap;
             }
 
-            public boolean isSharkConflict(int h, int w, List<Shark> sharkList) {
+            public void killConflict(List<Shark> sharkList) {
 
-            }
+                List<Shark> deadList = new ArrayList<>();
 
-            public void moveShark(int h, int w, int sharkNo) {
+                for (int i = 0; i < sharkList.size(); i++) {
+                    for (int j = i; j < sharkList.size(); j++) {
+                        if (i != j) {
+                            Shark a = sharkList.get(i);
+                            Shark b = sharkList.get(j);
+                            if (a.h == b.h && a.w == b.w) {
+                                if (a.no < b.no) {
+                                    if (!deadList.contains(b)) {
+                                        deadList.add(b);
+                                    }
+                                } else {
+                                    if (!deadList.contains(a)) {
+                                        deadList.add(a);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
-                //상어가 움직이는 순간 냄새가 1인 칸은 이동할 수 없다고 가정
-                sharkMap[h][w] = sharkNo;
+                deadList.forEach(sharkList::remove);
             }
 
             public void reduceSmell() {
+
                 for (int i = 0; i < N; i++) {
                     for (int j = 0; j < N; j++) {
                         smellMap[i][j]--;
@@ -250,6 +285,7 @@ public class BJ19237 {
             }
 
             public void confirmSharkMap(List<Shark> sharkList) {
+
                 for (Shark shark : sharkList) {
                     sharkMap[shark.getH()][shark.getW()] = shark.getNo();
                     smellMap[shark.getH()][shark.getW()] = k;
@@ -257,94 +293,171 @@ public class BJ19237 {
             }
         }
 
-        class Shark implements Comparable<Shark>{
-            int UP = 1;
-            int DOWN = 2;
-            int LEFT = 3;
-            int RIGHT = 4;
 
-            int no; //Shark IndexNumber
-            int h; //height
-            int w; //width
-            int direction;
+        class Shark implements Comparable<Shark> {
+
+            int           no; //Shark IndexNumber
+            int           h; //height
+            int           w; //width
+            int           direction;
             List<Integer> upMap;
             List<Integer> downMap;
             List<Integer> leftMap;
             List<Integer> rightMap;
 
             public Shark(int no, int h, int w) {
+
                 this.no = no;
                 this.h = h;
                 this.w = w;
             }
 
             public int getNo() {
+
                 return no;
             }
 
             public void setNo(int no) {
+
                 this.no = no;
             }
 
             public int getH() {
+
                 return h;
             }
 
             public void setH(int h) {
+
                 this.h = h;
             }
 
             public int getW() {
+
                 return w;
             }
 
             public void setW(int w) {
+
                 this.w = w;
             }
 
             public int getDirection() {
+
                 return direction;
             }
 
             public void setDirection(int direction) {
+
                 this.direction = direction;
             }
 
             public List<Integer> getUpMap() {
+
                 return upMap;
             }
 
             public void setUpMap(List<Integer> upMap) {
+
                 this.upMap = upMap;
             }
 
             public List<Integer> getDownMap() {
+
                 return downMap;
             }
 
             public void setDownMap(List<Integer> downMap) {
+
                 this.downMap = downMap;
             }
 
             public List<Integer> getLeftMap() {
+
                 return leftMap;
             }
 
             public void setLeftMap(List<Integer> leftMap) {
+
                 this.leftMap = leftMap;
             }
 
             public List<Integer> getRightMap() {
+
                 return rightMap;
             }
 
             public void setRightMap(List<Integer> rightMap) {
+
                 this.rightMap = rightMap;
             }
 
             @Override
             public int compareTo(Shark o) {
+
                 return this.getNo() > o.getNo() ? 1 : -1;
+            }
+
+            public void move(SharkMap map) {
+
+                List<Integer> priorityMap = new ArrayList<>();
+                switch (this.direction) {
+                    case UP:
+                        priorityMap = this.upMap;
+                        break;
+                    case DOWN:
+                        priorityMap = this.downMap;
+                        break;
+                    case LEFT:
+                        priorityMap = this.leftMap;
+                        break;
+                    case RIGHT:
+                        priorityMap = this.rightMap;
+                        break;
+                }
+
+                boolean moved = false;
+                for (int d : priorityMap) {
+                    int th = this.h + dx[d];
+                    int tw = this.w + dy[d];
+
+                    //isIndexOut?
+                    if (th < 0 || th >= map.N || tw < 0 || tw >= map.N) {
+                        continue;
+                    }
+
+                    //isSharkSmell?
+                    if (map.sharkMap[th][tw] != 0) {
+                        continue;
+                    }
+
+                    moved = true;
+                    this.h = th;
+                    this.w = tw;
+                    this.direction = d;
+                    break;
+                }
+
+                //return to own smell
+                if (!moved) {
+                    for (int d : priorityMap) {
+                        int th = this.h + dx[d];
+                        int tw = this.w + dy[d];
+
+                        //isIndexOut?
+                        if (th < 0 || th >= map.N || tw < 0 || tw >= map.N) {
+                            continue;
+                        }
+
+                        //isSharkSmell?
+                        if (map.sharkMap[th][tw] == this.no) {
+                            this.h = th;
+                            this.w = tw;
+                            this.direction = d;
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
