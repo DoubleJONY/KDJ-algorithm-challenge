@@ -30,6 +30,8 @@ def simulate(board, orders, y, x, fuel):
             return -1
 
         dist = get_distance(board, cy, cx, ty, tx)
+        if dist is None:
+            return -1
 
         cy, cx = ty, tx
         fuel -= dist
@@ -47,9 +49,9 @@ def find_closest_order(board, orders, remaining_order_ids, y, x):
         sy, sx, ty, tx = orders[order_id]
         order_dict[sy, sx] = order_id
 
-        candidates = []
-        queue = deque([(0, y, x)])
-        visited = set([(y, x)])
+    candidates = []
+    queue = deque([(0, y, x)])
+    visited = set([(y, x)])
 
     while queue:
         t, cy, cx = queue.popleft()
@@ -92,6 +94,7 @@ def get_distance(board, y, x, ty, tx):
                 continue
             pos_queue.append((t+1, ny, nx))
             visited.add((ny, nx))
+    return None
 
 
 print(simulate(board, orders, sy, sx, F))
