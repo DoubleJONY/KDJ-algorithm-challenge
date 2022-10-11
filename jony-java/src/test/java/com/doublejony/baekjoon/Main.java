@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Main {
@@ -23,85 +22,143 @@ public class Main {
         System.out.println(answer);
     }
 
-    int brokenCount = 0;
+    int N;
+    int M;
+    int K;
+
+    final int[] dr = {-1, -1, 0, 1, 1, 1, 0, -1};
+    final int[] dc = {0, 1, 1, 1, 0, -1, -1, -1};
 
     public String solution(String[] input) {
 
-        int N = Integer.parseInt(input[0].split(" ")[0]);
-        int K = Integer.parseInt(input[0].split(" ")[1]);
+        N = Integer.parseInt(input[0].split(" ")[0]);
+        M = Integer.parseInt(input[0].split(" ")[1]);
+        K = Integer.parseInt(input[0].split(" ")[2]);
 
-        LinkedList<BeltSpace> belt = new LinkedList<>();
-        LinkedList<BeltSpace> underBelt = new LinkedList<>();
-        for (int i = 0; i < 2 * N; i++) {
-            int hp = Integer.parseInt(input[1].split(" ")[i]);
-            if (i < N) {
-                belt.add(new BeltSpace(false, hp));
-            } else {
-                underBelt.add(new BeltSpace(false, hp));
-            }
-            if (hp == 0) {
-                brokenCount++;
-            }
+        List<Fireball> fireballs = new ArrayList<>();
+
+        for (int i = 0; i < M; i++) {
+            fireballs.add(new Fireball(
+                    Integer.parseInt(input[i + 1].split(" ")[0]) - 1,
+                    Integer.parseInt(input[i + 1].split(" ")[1]) - 1,
+                    Integer.parseInt(input[i + 1].split(" ")[2]),
+                    Integer.parseInt(input[i + 1].split(" ")[3]),
+                    Integer.parseInt(input[i + 1].split(" ")[4])
+            ));
         }
 
-        int step = 0;
-        while (brokenCount < K) {
-            step++;
-            rotate(belt, underBelt);
-            move(belt);
-            if (belt.getFirst().hp > 0) {
-                belt.getFirst().load();
-            }
+        for (int i = 0; i < K; i++) {
+            moveAll(fireballs);
+            mergeAll(fireballs);
         }
-        return String.valueOf(step);
+
+        return String.valueOf(fireballs.stream().mapToInt(fireball -> (int) fireball.m).sum());
     }
 
-    private void move(LinkedList<BeltSpace> belt) {
+    private void moveAll(List<Fireball> fireballs) {
+        fireballs.forEach(Fireball::move);
+    }
 
-        for (int i = belt.size() - 2; i >= 0; i--) {
-            BeltSpace beltSpace = belt.get(i);
-            if (beltSpace.hasRobot) {
-                BeltSpace nextBeltSpace = belt.get(i + 1);
-                if (nextBeltSpace.hp > 0 && !nextBeltSpace.hasRobot) {
-                    beltSpace.land();
-                    nextBeltSpace.load();
-                    belt.getLast().land();
+    private void mergeAll(List<Fireball> fireballs) {
+        List<Fireball> newFireballs = new ArrayList<>();
+        for (int i = 0; i < fireballs.size() - 1; i++) {
+            if (!fireballs.get(i).enable) {
+                continue;
+            }
+            List<Fireball> mergeFireballs = new ArrayList<>();
+            for (int j = i + 1; j < fireballs.size(); j++) {
+                if (fireballs.get(i).isOverlapped(fireballs.get(j))) {
+                    mergeFireballs.add(fireballs.get(j));
+                    fireballs.get(j).delete();
                 }
             }
+
+            if (mergeFireballs.isEmpty()) {
+                continue;
+            }
+
+            fireballs.get(i).delete();
+
+            double mergeM = fireballs.get(i).m;
+            int mergeS = fireballs.get(i).s;
+            int matchD = fireballs.get(i).d % 2;
+            boolean isMatchD = true;
+            for (Fireball fireball : mergeFireballs) {
+                mergeM += fireball.m;
+                mergeS += fireball.s;
+                if (fireball.d % 2 != matchD) {
+                    isMatchD = false;
+                }
+            }
+            if (mergeM / 5 > 0) {
+                newFireballs.addAll(fireballs.get((i)).merge(mergeM / 5, mergeS / (mergeFireballs.size() + 1), isMatchD));
+            }
         }
+        fireballs.removeIf(fireball -> !fireball.enable);
+        fireballs.addAll(newFireballs);
     }
 
-    private void rotate(LinkedList<BeltSpace> belt, LinkedList<BeltSpace> underBelt) {
+    class Fireball {
 
-        underBelt.addFirst(belt.pollLast());
-        belt.addFirst(underBelt.pollLast());
-        belt.getLast().land();
-    }
+        int r;
+        int c;
+        double m;
+        int s;
+        int d;
+        boolean enable;
 
-    class BeltSpace {
-
-        boolean hasRobot;
-        int     hp;
-
-        public BeltSpace(boolean hasRobot, int hp) {
-
-            this.hasRobot = hasRobot;
-            this.hp = hp;
+        public Fireball(int r, int c, double m, int s, int d) {
+            this.r = r;
+            this.c = c;
+            this.m = m;
+            this.s = s;
+            this.d = d;
+            this.enable = true;
         }
 
-        public void load() {
+        public void move() {
+            this.r = r + (dr[d] * s);
+            this.c = c + (dc[d] * s);
 
-            this.hasRobot = true;
-            this.hp--;
-
-            if (this.hp == 0) {
-                brokenCount++;
+            while (this.r >= N) {
+                this.r -= N;
+            }
+            while (this.r < 0) {
+                this.r += N;
+            }
+            while (this.c >= N) {
+                this.c -= N;
+            }
+            while (this.c < 0) {
+                this.c += N;
             }
         }
 
-        public void land() {
+        public boolean isOverlapped(Fireball o) {
+            return this.r == o.r && this.c == o.c && this.enable;
+        }
 
-            this.hasRobot = false;
+        public void delete() {
+            this.enable = false;
+        }
+
+        public List<Fireball> merge(double mergeM, int mergeS, boolean matchD) {
+
+            int[] newD = matchD ? new int[]{0, 2, 4, 6} : new int[]{1, 3, 5, 7};
+
+            List<Fireball> newFireballs = new ArrayList<>();
+
+            for (int i = 0; i < 4; i++) {
+                newFireballs.add(new Fireball(
+                        this.r,
+                        this.c,
+                        mergeM,
+                        mergeS,
+                        newD[i]
+                ));
+            }
+
+            return newFireballs;
         }
     }
 }
