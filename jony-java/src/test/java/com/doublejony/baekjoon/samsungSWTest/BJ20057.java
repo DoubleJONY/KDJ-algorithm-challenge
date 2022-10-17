@@ -110,20 +110,53 @@ public class BJ20057 {
 
     public class Main {
 
+        final int LEFT = 0;
+        final int DOWN = 1;
+        final int RIGHT = 2;
+        final int UP = 3;
+
+        int[] dh = {0, 1, 0, -1};
+        int[] dw = {-1, 0, 1, 0};
+
+        int[][] spreadMapLeft = new int[][]{
+                {0, 0, 2, 0, 0},
+                {0, 10, 7, 1, 0},
+                {5, -3, -2, -1, 0},
+                {0, 10, 7, 1, 0},
+                {0, 0, 2, 0, 0}
+        };
+
+        int[][] spreadMapRight = new int[][]{
+                {0, 0, 2, 0, 0},
+                {0, 1, 7, 10, 0},
+                {0, -1, -2, -3, 5},
+                {0, 1, 7, 10, 0},
+                {0, 0, 2, 0, 0}
+        };
+
+        int[][] spreadMapUp = new int[][]{
+                {0, 0, 5, 0, 0},
+                {0, 10, -3, 10, 0},
+                {2, 7, -2, 7, 2},
+                {0, 1, -1, 1, 0},
+                {0, 0, 0, 0, 0}
+        };
+
+        int[][] spreadMapDown = new int[][]{
+                {0, 0, 0, 0, 0},
+                {0, 1, -1, 1, 0},
+                {2, 7, -2, 7, 2},
+                {0, 10, -3, 10, 0},
+                {0, 0, 5, 0, 0}
+        };
+
+        int[][] map;
+
         public String solution(String[] input) {
 
             int N = Integer.parseInt(input[0].split(" ")[0]);
 
-            int[][] spreadMap = new int[][]{
-                    {0, 0, 2, 0, 0},
-                    {0, 10, 7, 1, 0},
-                    {5, 0, 0, 0, 0},
-                    {0, 10, 7, 1, 0},
-                    {0, 0, 2, 0, 0}
-            };
-
-
-            int[][] map = new int[N][N];
+            map = new int[N][N];
 
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
@@ -131,11 +164,40 @@ public class BJ20057 {
                 }
             }
 
-            move(N / 2, N / 2);
+            move((int) Math.ceil((double) N / 2.0), (int) Math.ceil((double) N / 2.0), LEFT,1, 1);
 
+            return null;
         }
 
-        private void move(int i, int j) {
+        private void move(int h, int w, int direction, int i, int step) {
+
+            int[][] spreadMap;
+
+            switch (direction) {
+                case LEFT:
+                    spreadMap = spreadMapLeft;
+                    break;
+                case RIGHT:
+                    spreadMap = spreadMapRight;
+                    break;
+                case UP:
+                    spreadMap = spreadMapUp;
+                    break;
+                case DOWN:
+                    spreadMap = spreadMapDown;
+                    break;
+            }
+
+            int originSand = map[h+dh[direction]][w+dw[direction]];
+
+            
+
+            if (step == 0) {
+                step++;
+            } else if (step == 1) {
+                i++;
+                step = 0;
+            }
 
 
         }
