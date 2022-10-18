@@ -110,6 +110,8 @@ public class BJ20057 {
 
     public class Main {
 
+        double result = 0;
+
         final int LEFT = 0;
         final int DOWN = 1;
         final int RIGHT = 2;
@@ -118,45 +120,45 @@ public class BJ20057 {
         int[] dh = {0, 1, 0, -1};
         int[] dw = {-1, 0, 1, 0};
 
-        int[][] spreadMapLeft = new int[][]{
+        double[][] spreadMapLeft = new double[][]{
                 {0, 0, 2, 0, 0},
                 {0, 10, 7, 1, 0},
-                {5, -3, -2, -1, 0},
+                {5, -1, 0, 0, 0},
                 {0, 10, 7, 1, 0},
                 {0, 0, 2, 0, 0}
         };
 
-        int[][] spreadMapRight = new int[][]{
+        double[][] spreadMapRight = new double[][]{
                 {0, 0, 2, 0, 0},
                 {0, 1, 7, 10, 0},
-                {0, -1, -2, -3, 5},
+                {0, 0, 0, -1, 5},
                 {0, 1, 7, 10, 0},
                 {0, 0, 2, 0, 0}
         };
 
-        int[][] spreadMapUp = new int[][]{
+        double[][] spreadMapUp = new double[][]{
                 {0, 0, 5, 0, 0},
-                {0, 10, -3, 10, 0},
-                {2, 7, -2, 7, 2},
-                {0, 1, -1, 1, 0},
+                {0, 10, -1, 10, 0},
+                {2, 7, 0, 7, 2},
+                {0, 1, 0, 1, 0},
                 {0, 0, 0, 0, 0}
         };
 
-        int[][] spreadMapDown = new int[][]{
+        double[][] spreadMapDown = new double[][]{
                 {0, 0, 0, 0, 0},
-                {0, 1, -1, 1, 0},
-                {2, 7, -2, 7, 2},
-                {0, 10, -3, 10, 0},
+                {0, 1, 0, 1, 0},
+                {2, 7, 0, 7, 2},
+                {0, 10, -1, 10, 0},
                 {0, 0, 5, 0, 0}
         };
 
-        int[][] map;
+        double[][] map;
 
         public String solution(String[] input) {
 
             int N = Integer.parseInt(input[0].split(" ")[0]);
 
-            map = new int[N][N];
+            map = new double[N][N];
 
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
@@ -164,42 +166,82 @@ public class BJ20057 {
                 }
             }
 
-            move((int) Math.ceil((double) N / 2.0), (int) Math.ceil((double) N / 2.0), LEFT,1, 1);
+            move((int) Math.floor((double) N / 2.0), (int) Math.floor((double) N / 2.0), LEFT,1, 1, 0);
 
-            return null;
+            return String.valueOf(result);
         }
 
-        private void move(int h, int w, int direction, int i, int step) {
+        private void move(int h, int w, int direction, int istep, int step, int beTurn) {
 
-            int[][] spreadMap;
+            while (true) {
+                double[][] spreadMap = new double[5][5];
 
-            switch (direction) {
-                case LEFT:
-                    spreadMap = spreadMapLeft;
-                    break;
-                case RIGHT:
-                    spreadMap = spreadMapRight;
-                    break;
-                case UP:
-                    spreadMap = spreadMapUp;
-                    break;
-                case DOWN:
-                    spreadMap = spreadMapDown;
-                    break;
+                switch (direction) {
+                    case LEFT:
+                        spreadMap = spreadMapLeft;
+                        break;
+                    case RIGHT:
+                        spreadMap = spreadMapRight;
+                        break;
+                    case UP:
+                        spreadMap = spreadMapUp;
+                        break;
+                    case DOWN:
+                        spreadMap = spreadMapDown;
+                        break;
+                }
+
+                //            int oh = h;
+                //            int ow = w;
+
+                h += dh[direction];
+                w += dw[direction];
+
+                double newSand = map[h][w];
+
+                double sum = 0;
+                int th = 0;
+                int tw = 0;
+                for (int i = -2; i < 3; i++) {
+                    for (int j = -2; j < 3; j++) {
+                        try {
+                            if (map[h + i][w + j] != -1 && spreadMap[i + 2][j + 2] == -1) {
+                                th = h + i;
+                                tw = w + j;
+                            } else {
+                                double sand = (newSand * spreadMap[i + 2][j + 2]) / 100.0;
+                                map[h + i][w + j] += sand;
+                                sum += sand;
+                            }
+                        } catch (IndexOutOfBoundsException e) {
+                            double sand = (newSand * spreadMap[i + 2][j + 2]) / 100.0;
+                            result += sand;
+                            sum += sand;
+                        }
+                    }
+                }
+
+                map[th][tw] = newSand - sum;
+
+                if (step < istep) {
+                    step++;
+                } else if (step == istep) {
+                    step = 1;
+                    direction++;
+                    if (direction > 3) {
+                        direction = 0;
+                    }
+                    if (beTurn == 1) {
+                        istep++;
+                        beTurn -= 2;
+                    }
+                    beTurn++;
+                }
+
+                if (h == 0 && w == 0) {
+                    return;
+                }
             }
-
-            int originSand = map[h+dh[direction]][w+dw[direction]];
-
-            
-
-            if (step == 0) {
-                step++;
-            } else if (step == 1) {
-                i++;
-                step = 0;
-            }
-
-
         }
     }
 }
