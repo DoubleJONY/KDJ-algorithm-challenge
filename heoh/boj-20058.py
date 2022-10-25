@@ -1,5 +1,7 @@
 from collections import deque
 
+DIR = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
 
 def main():
     N, Q = map(int, input().split())
@@ -8,11 +10,24 @@ def main():
 
     for i in range(Q):
         spell_firestorm(A, L[i])
+        # print(f'firestorm {i}:')
+        # print_mat(A)
+        # print()
         decrease_ice(A)
+        # print(f'ice {i}:')
+        # print_mat(A)
+        # print()
 
     print(sum_all(A))
     print(search_largest_group(A))
 
+
+def print_mat(A):
+    N = len(A)
+    for r in range(N):
+        for c in range(N):
+            print(A[r][c], end=' ')
+        print()
 
 def spell_firestorm(A, L):
     if L == 0:
@@ -26,44 +41,14 @@ def spell_firestorm(A, L):
 
 
 def rotate_area(A, sr, sc, width):
-    w = width // 2
-    min_r = sr
-    mid_r = sr + w
-    max_r = sr + width
-    min_c = sc
-    mid_c = sc + w
-    max_c = sc + width
-    
-    q1 = [min_r, min_c, mid_r, mid_c]
-    q2 = [min_r, mid_c, mid_r, max_c]
-    q3 = [mid_r, mid_c, max_r, max_c]
-    q4 = [mid_r, min_c, max_r, mid_c]
-    
-    a1 = get_area(A, *q1)
-    a2 = get_area(A, *q2)
-    a3 = get_area(A, *q3)
-    a4 = get_area(A, *q4)
+    B = [[0] * width for _ in range(width)]
+    for dr in range(width):
+        for dc in range(width):
+            B[dr][dc] = A[sr+dr][sc+dc]
 
-    set_area(A, *q1, a4)
-    set_area(A, *q2, a1)
-    set_area(A, *q3, a2)
-    set_area(A, *q4, a3)
-
-
-def get_area(A, sr, sc, er, ec):
-    values = []
-    for r in range(sr, er):
-        for c in range(sc, ec):
-            values.append(A[r][c])
-    return values
-
-
-def set_area(A, sr, sc, er, ec, values):
-    i = 0
-    for r in range(sr, er):
-        for c in range(sc, ec):
-            A[r][c] = values[i]
-            i += 1
+    for dr in range(width):
+        for dc in range(width):
+            A[sr+dc][sc+width-1-dr] = B[dr][dc]
 
 
 def decrease_ice(A):
@@ -72,7 +57,7 @@ def decrease_ice(A):
     N = len(A)
     for r in range(N):
         for c in range(N):
-            if A[r][c] > 0 and count_neighbors(A, r, c) < 3:
+            if A[r][c] > 0 and not (count_neighbors(A, r, c) >= 3):
                 decreasing_cells.append((r, c))
 
     for (r, c) in decreasing_cells:
@@ -81,9 +66,10 @@ def decrease_ice(A):
 
 def count_neighbors(A, r, c):
     N = len(A)
-    neighbors = [(r-1, c), (r+1, c), (r, c-1), (r, c+1)]
     count = 0
-    for nr, nc in neighbors:
+    for dr, dc in DIR:
+        nr = r + dr
+        nc = c + dc
         if 0 <= nr < N and 0 <= nc < N:
             if A[nr][nc] > 0:
                 count += 1
@@ -100,8 +86,6 @@ def sum_all(A):
 
 
 def search_largest_group(A):
-    DIR = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
     best = 0
 
     N = len(A)
@@ -120,8 +104,8 @@ def search_largest_group(A):
                         nc = cc + dc
                         if 0 <= nr < N and 0 <= nc < N and A[nr][nc] > 0 and (nr, nc) not in visited:
                             q.append((nr, nc))
-                            visited.add((nr, nc))
                             area += 1
+                        visited.add((nr, nc))
                 best = max(best, area)
     return best
 
