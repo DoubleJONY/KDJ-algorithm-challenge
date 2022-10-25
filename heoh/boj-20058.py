@@ -4,12 +4,14 @@ DIR = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
 
 def main():
+    global A, B
     N, Q = map(int, input().split())
     A = [list(map(int, input().split())) for _ in range(2**N)]
+    B = [[0] * (2**N) for _ in range(2**N)]
     L = list(map(int, input().split()))
 
     for i in range(Q):
-        spell_firestorm(A, L[i])
+        spell_firestorm(L[i])
         # print(f'firestorm {i}:')
         # print_mat(A)
         # print()
@@ -29,26 +31,24 @@ def print_mat(A):
             print(A[r][c], end=' ')
         print()
 
-def spell_firestorm(A, L):
+def spell_firestorm(L):
     if L == 0:
         return
 
+    global A, B
+    A, B = B, A
     N = len(A)
     width = 2 ** L
     for r in range(0, N, width):
         for c in range(0, N, width):
-            rotate_area(A, r, c, width)
+            rotate_area(r, c, width)
 
 
-def rotate_area(A, sr, sc, width):
-    B = [[0] * width for _ in range(width)]
+def rotate_area(sr, sc, width):
+    global A, B
     for dr in range(width):
         for dc in range(width):
-            B[dr][dc] = A[sr+dr][sc+dc]
-
-    for dr in range(width):
-        for dc in range(width):
-            A[sr+dc][sc+width-1-dr] = B[dr][dc]
+            A[sr+dc][sc+width-1-dr] = B[sr+dr][sc+dc]
 
 
 def decrease_ice(A):
