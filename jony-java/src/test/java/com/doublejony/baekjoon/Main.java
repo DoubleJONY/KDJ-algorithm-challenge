@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Main {
 
@@ -17,149 +20,168 @@ public class Main {
             input.add(temp);
         }
 
-        String answer = new Main().solution(input.toArray(new String[input.size()]));
+        String[] answer = new Main().solution(input.toArray(new String[input.size()]));
 
-        System.out.println(answer);
+        System.out.println(answer[0]);
+        System.out.println(answer[1]);
     }
 
-    int N;
-    int M;
-    int K;
+    int[] dh = new int[] { -1, 0, 1, 0 };
+    int[] dw = new int[] { 0, 1, 0, -1 };
 
-    final int[] dr = {-1, -1, 0, 1, 1, 1, 0, -1};
-    final int[] dc = {0, 1, 1, 1, 0, -1, -1, -1};
+    public String[] solution(String[] input) {
 
-    public String solution(String[] input) {
+        int N = Integer.parseInt(input[0].split(" ")[0]);
+        int Q = Integer.parseInt(input[0].split(" ")[1]);
 
-        N = Integer.parseInt(input[0].split(" ")[0]);
-        M = Integer.parseInt(input[0].split(" ")[1]);
-        K = Integer.parseInt(input[0].split(" ")[2]);
+        int nn = (int) Math.pow(2, N);
+        int[][] iceMap = new int[nn][nn];
 
-        List<Fireball> fireballs = new ArrayList<>();
-
-        for (int i = 0; i < M; i++) {
-            fireballs.add(new Fireball(
-                    Integer.parseInt(input[i + 1].split(" ")[0]) - 1,
-                    Integer.parseInt(input[i + 1].split(" ")[1]) - 1,
-                    Integer.parseInt(input[i + 1].split(" ")[2]),
-                    Integer.parseInt(input[i + 1].split(" ")[3]),
-                    Integer.parseInt(input[i + 1].split(" ")[4])
-            ));
-        }
-
-        for (int i = 0; i < K; i++) {
-            moveAll(fireballs);
-            mergeAll(fireballs);
-        }
-
-        return String.valueOf(fireballs.stream().mapToInt(fireball -> (int) fireball.m).sum());
-    }
-
-    private void moveAll(List<Fireball> fireballs) {
-        fireballs.forEach(Fireball::move);
-    }
-
-    private void mergeAll(List<Fireball> fireballs) {
-        List<Fireball> newFireballs = new ArrayList<>();
-        for (int i = 0; i < fireballs.size() - 1; i++) {
-            if (!fireballs.get(i).enable) {
-                continue;
+        for (int i = 0; i < nn; i++) {
+            for (int j = 0; j < nn; j++) {
+                iceMap[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
             }
-            List<Fireball> mergeFireballs = new ArrayList<>();
-            for (int j = i + 1; j < fireballs.size(); j++) {
-                if (fireballs.get(i).isOverlapped(fireballs.get(j))) {
-                    mergeFireballs.add(fireballs.get(j));
-                    fireballs.get(j).delete();
+        }
+
+        int[] lList = new int[Q];
+
+        for (int i = 0; i < Q; i++) {
+            lList[i] = Integer.parseInt(input[nn + 1].split(" ")[i]);
+        }
+
+        String[] result = new String[2];
+
+        for (int i = 0; i < Q; i++) {
+            spin(iceMap, lList[i]);
+            melt(iceMap);
+        }
+
+        result[0] = String.valueOf(sumIces(iceMap));
+        result[1] = String.valueOf(getBiggestIceSize(iceMap));
+
+        return new String[] { result[0], result[1] };
+    }
+
+    private void spin(int[][] iceMap, int L) {
+
+        int gridSize = (int) Math.pow(2, L);
+
+        for (int i = 0; i < iceMap.length; i += gridSize) {
+            for (int j = 0; j < iceMap.length; j += gridSize) {
+
+                int[][] localMap = new int[gridSize][gridSize];
+                for (int k = 0; k < gridSize; k++) {
+                    for (int l = 0; l < gridSize; l++) {
+                        localMap[k][l] = iceMap[i + k][j + l];
+                    }
+                }
+
+                int[][] rotatedMap = rotate(localMap);
+
+                for (int k = 0; k < gridSize; k++) {
+                    for (int l = 0; l < gridSize; l++) {
+                        iceMap[i + k][j + l] = rotatedMap[k][l];
+                    }
                 }
             }
-
-            if (mergeFireballs.isEmpty()) {
-                continue;
-            }
-
-            fireballs.get(i).delete();
-
-            double mergeM = fireballs.get(i).m;
-            int mergeS = fireballs.get(i).s;
-            int matchD = fireballs.get(i).d % 2;
-            boolean isMatchD = true;
-            for (Fireball fireball : mergeFireballs) {
-                mergeM += fireball.m;
-                mergeS += fireball.s;
-                if (fireball.d % 2 != matchD) {
-                    isMatchD = false;
-                }
-            }
-            if (mergeM / 5 > 0) {
-                newFireballs.addAll(fireballs.get((i)).merge(mergeM / 5, mergeS / (mergeFireballs.size() + 1), isMatchD));
-            }
         }
-        fireballs.removeIf(fireball -> !fireball.enable);
-        fireballs.addAll(newFireballs);
     }
 
-    class Fireball {
+    private int[][] rotate(int[][] arr) {
 
-        int r;
-        int c;
-        double m;
-        int s;
-        int d;
-        boolean enable;
+        int n = arr.length;
+        int m = arr[0].length;
+        int[][] rotate = new int[m][n];
 
-        public Fireball(int r, int c, double m, int s, int d) {
-            this.r = r;
-            this.c = c;
-            this.m = m;
-            this.s = s;
-            this.d = d;
-            this.enable = true;
-        }
-
-        public void move() {
-            this.r = r + (dr[d] * s);
-            this.c = c + (dc[d] * s);
-
-            while (this.r >= N) {
-                this.r -= N;
-            }
-            while (this.r < 0) {
-                this.r += N;
-            }
-            while (this.c >= N) {
-                this.c -= N;
-            }
-            while (this.c < 0) {
-                this.c += N;
+        for (int i = 0; i < rotate.length; i++) {
+            for (int j = 0; j < rotate[i].length; j++) {
+                rotate[i][j] = arr[n - 1 - j][i];
             }
         }
 
-        public boolean isOverlapped(Fireball o) {
-            return this.r == o.r && this.c == o.c && this.enable;
-        }
+        return rotate;
+    }
 
-        public void delete() {
-            this.enable = false;
-        }
+    private void melt(int[][] iceMap) {
 
-        public List<Fireball> merge(double mergeM, int mergeS, boolean matchD) {
+        int[][] newIceMap = new int[iceMap.length][iceMap.length];
 
-            int[] newD = matchD ? new int[]{0, 2, 4, 6} : new int[]{1, 3, 5, 7};
-
-            List<Fireball> newFireballs = new ArrayList<>();
-
-            for (int i = 0; i < 4; i++) {
-                newFireballs.add(new Fireball(
-                        this.r,
-                        this.c,
-                        mergeM,
-                        mergeS,
-                        newD[i]
-                ));
+        for (int i = 0; i < iceMap.length; i++) {
+            for (int j = 0; j < iceMap.length; j++) {
+                newIceMap[i][j] = iceMap[i][j];
             }
-
-            return newFireballs;
         }
+
+        for (int i = 0; i < iceMap.length; i++) {
+            for (int j = 0; j < iceMap.length; j++) {
+                if (iceMap[i][j] <= 0) {
+                    continue;
+                }
+                int iced = 0;
+                for (int k = 0; k < 4; k++) {
+                    try {
+                        if (iceMap[i + dh[k]][j + dw[k]] > 0) {
+                            iced++;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException ignored) {
+
+                    }
+                }
+                if (iced < 3) {
+                    newIceMap[i][j]--;
+                }
+            }
+        }
+
+        for (int i = 0; i < iceMap.length; i++) {
+            for (int j = 0; j < iceMap.length; j++) {
+                iceMap[i][j] = newIceMap[i][j];
+            }
+        }
+    }
+
+    private int sumIces(int[][] iceMap) {
+
+        return Arrays.stream(iceMap).mapToInt(ints -> Arrays.stream(ints, 0, iceMap.length).sum()).sum();
+    }
+
+    private int getBiggestIceSize(int[][] iceMap) {
+
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visitedMap = new boolean[iceMap.length][iceMap.length];
+
+        int max = 0;
+        for (int i = 0; i < iceMap.length; i++) {
+            for (int j = 0; j < iceMap.length; j++) {
+                if (iceMap[i][j] > 0 && !visitedMap[i][j]) {
+                    queue.add(new int[] { i, j });
+                    visitedMap[i][j] = true;
+                    int cnt = 1;
+
+                    while (!queue.isEmpty()) {
+                        int[] t = queue.poll();
+                        int th = t[0];
+                        int tw = t[1];
+
+                        for (int k = 0; k < 4; k++) {
+                            int nh = th + dh[k];
+                            int nw = tw + dw[k];
+                            try {
+                                if (iceMap[nh][nw] > 0 && !visitedMap[nh][nw]) {
+                                    visitedMap[nh][nw] = true;
+                                    queue.add(new int[] { nh, nw });
+                                    cnt++;
+                                }
+                            } catch (IndexOutOfBoundsException ignored) {
+
+                            }
+                        }
+                    }
+                    max = Math.max(max, cnt);
+                }
+            }
+        }
+        return max;
     }
 }
 
