@@ -11,6 +11,7 @@ class Solution:
     def init(self):
         N = self.N
         self.position_of = {}
+        self.student_of = {}
         self.empty_count = {(r, c): 4 for c in range(N) for r in range(N)}
         self.empty_cells = set(self.empty_count.keys())
         for r in range(self.N):
@@ -50,8 +51,9 @@ class Solution:
                         if best == 4:
                             break
             
-            print(best_cell)
             self.put_student(i, best_cell)
+
+        print(self.get_total_score())
 
     def get_score_dict(self, friends):
         N = self.N
@@ -60,7 +62,7 @@ class Solution:
         for f in filter(self.check_registered_student, friends):
             fr, fc = self.position_of[f]
             for n_pos in ((fr+dr, fc+dc) for dr, dc in DIRS):
-                if self.check_empty_cell(n_pos):
+                if not self.check_empty_cell(n_pos):
                     continue
                 scores[n_pos] += 1
         return scores
@@ -75,11 +77,29 @@ class Solution:
         N = self.N
         self.position_of[i] = pos
         r, c = pos
-        for pos in ((r+dr, c+dc) for dr, dc in DIRS):
-            nr, nc = pos
+        for n_pos in ((r+dr, c+dc) for dr, dc in DIRS):
+            nr, nc = n_pos
             if 0 <= nr < N and 0 <= nc < N:
-                self.empty_count[pos] -= 1
+                self.empty_count[n_pos] -= 1
         self.empty_cells.remove(pos)
+        self.student_of[pos] = i
+
+    def get_total_score(self):
+        total_score = 0
+        N = self.N
+        for i, *friends in self.A:
+            friends = set(friends)
+            pos = self.position_of[i]
+            r, c = pos
+            n_friends = 0
+            for n_pos in ((r+dr, c+dc) for dr, dc in DIRS):
+                nr, nc = n_pos
+                if 0 <= nr < N and 0 <= nc < N:
+                    n_id = self.student_of[n_pos]
+                    if n_id in friends:
+                        n_friends += 1
+            total_score += {0: 0, 1: 1, 2: 10, 3: 100, 4: 1000}[n_friends]
+        return total_score
 
 
 def main():
