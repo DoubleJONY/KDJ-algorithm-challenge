@@ -14,6 +14,7 @@ class Solution:
         self.student_of = {}
         self.empty_count = {(r, c): 4 for c in range(N) for r in range(N)}
         self.empty_cells = set(self.empty_count.keys())
+        self.max_empty_count = 4
         for r in range(self.N):
             self.empty_count[r, 0] -= 1
             self.empty_count[r, N-1] -= 1
@@ -48,8 +49,9 @@ class Solution:
                     if self.empty_count[pos] > best:
                         best = self.empty_count[pos]
                         best_cell = pos
-                        if best == 4:
+                        if best == self.max_empty_count:
                             break
+                self.max_empty_count = best
             
             self.put_student(i, best_cell)
 
