@@ -43,7 +43,7 @@ class Solution:
                 else:
                     best_cell = best_cells[0]
             else:
-                best = 0
+                best = -1
                 for pos in sorted(self.empty_cells):
                     if self.empty_count[pos] > best:
                         best = self.empty_count[pos]
