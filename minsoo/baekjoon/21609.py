@@ -81,15 +81,14 @@ def get_groups(grid: list[list[int]]) -> list[Group]:
                     continue
                 if (nr, nc) in visited:
                     continue
-                if group.color != RAINBOW and grid[nr][nc] != RAINBOW and group.color != grid[nr][nc]:
+                if grid[nr][nc] == BLANK or grid[nr][nc] == BLACK:
+                    continue
+                if group.color != RAINBOW and not (grid[nr][nc] == RAINBOW or grid[nr][nc] == group.color):
                     continue
 
                 visited.add((nr, nc))
                 if grid[nr][nc] != RAINBOW:
                     visited_other_than_rainbow.add((nr, nc))
-
-                if grid[nr][nc] == BLANK or grid[nr][nc] == BLACK:
-                    continue
 
                 q.append((nr, nc))
 
