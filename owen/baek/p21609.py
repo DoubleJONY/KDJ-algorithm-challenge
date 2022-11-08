@@ -53,7 +53,7 @@ while True:
                 i_, j_ = que.pop(0)
                 for k in range(4):
                     tx, ty = i_ + dx[k], j_ + dy[k]
-                    if (tx >= n or ty >= n or tx < 0 or ty < 0) and (board[tx][ty]==0 or board[tx][ty]==tmp_block ) and visited[tx][ty] == 0:
+                    if (tx < n and ty < n and tx >= 0 and ty >= 0) and (board[tx][ty]==0 or board[tx][ty]==tmp_block ) and visited[tx][ty] == 0:
                         tmp_group.append([tx, ty])
                         visited[tx][ty] = 1
                         if board[tx][ty]==0:
