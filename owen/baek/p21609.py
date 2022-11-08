@@ -1,9 +1,7 @@
 
-import numpy as np
-
 
 n, m = map(int, input().split())
-board = np.array([list(map(int, input().split())) for _ in range(n)])
+board = [list(map(int, input().split())) for _ in range(n)]
 
 
 
@@ -29,6 +27,16 @@ def gravity(board):
                 board[r][c] = temp
     return board
 
+def rotate(board):
+    tmp_board = [[0] *n for _ in range(n)]
+    
+    for i in range(n):
+        for j in range(n):
+            tmp_board[n-j-1][i] = board[i][j]
+            
+    return tmp_board
+
+
 while True:
     #기준블럭 : 블럭 좌표 리스트
     large_block = []
@@ -43,12 +51,14 @@ while True:
                 continue
             
             tmp_block = board[i][j]
-            visited[i][j] = 1
+            
             if tmp_block <= 0:
                 continue
+            visited[i][j] = 1
             tmp_group = [[i,j]]
             que = [[i,j]]
             tmp_rainbow = 0
+            
             while que:
                 i_, j_ = que.pop(0)
                 for k in range(4):
@@ -83,9 +93,9 @@ while True:
         board[bx][by] = -2
         
                
-    gravity(board)
-    np.rot90(board, 1)
-    gravity(board)
+    board = gravity(board)
+    board = rotate(board)
+    board = gravity(board)
     
 print(answer)
 
