@@ -25,7 +25,7 @@ def copy_water_evapo(cloud_xy, board):
                 board[cloud_xy[i][0]][cloud_xy[i][1]] += 1
 
     next_cloud = []  
-    
+    cloud_xy = set(cloud_xy)
     for i in range(n):
         for j in range(n):
             if (i,j) not in cloud_xy and board[i][j] >= 2 :
@@ -42,6 +42,7 @@ def want_rain(n, direc, ntime, board, next_cloud):
     
     for rx, ry in cloud_xy:
         board[rx][ry] += 1
+        
     
     board, next_cloud = copy_water_evapo(cloud_xy, board)
     
