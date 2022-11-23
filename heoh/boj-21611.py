@@ -57,18 +57,29 @@ class Solution:
         return groups
 
     def do_blast(self, input_groups):
-        groups = input_groups[:1]
-        for group in input_groups[1:]:
-            last = groups[-1]
+        groups = input_groups
+        while len(next_groups := self.do_blast_group(groups)) != len(groups):
+            groups = next_groups
+        return groups
+
+    def do_blast_group(self, groups):
+        next_groups = groups[:1]
+        blasted_groups = []
+        for group in groups[1:]:
+            if group[COUNT] >= 4:
+                blasted_groups.append(group)
+                continue
+
+            last = next_groups[-1]
             if last[COLOR] == group[COLOR]:
                 last[COUNT] += group[COUNT]
             else:
-                groups.append(group)
-                last = group
-            if last[COUNT] >= 4:
-                groups.pop()
-                self.counts[last[COLOR]] += last[COUNT]
-        return groups
+                next_groups.append(group)
+
+        for group in blasted_groups:
+            self.counts[group[COLOR]] += group[COUNT]
+
+        return next_groups
 
     def place_groups(self, groups):
         locs = self.iter_snail()
