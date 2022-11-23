@@ -113,19 +113,20 @@ for i in range(m):
                 tmp_ball.append( [ball_cnt, ball1d[target_idx]])
                 
             
-            if increase_cnt > (n**2 - 1):
+            if increase_cnt >= (n**2 - 1):
                 break
             ball_cnt = 1
             target_idx = bidx
-    if len(tmp_ball) < (n**2 - 1):
-        for _ in range((n**2 - 1) - len(tmp_ball) ):
-            tmp_ball.append([0])
+    
 
     
     ball1d = []
     for ab in tmp_ball:
         ball1d.extend(ab)
-    
+        
+    if len(ball1d) < (n**2 - 1):
+        for _ in range((n**2 - 1) - len(ball1d) ):
+            ball1d.append(0)
     
     ball1d = hit_ball(ball1d)
     
