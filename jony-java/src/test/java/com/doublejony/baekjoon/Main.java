@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -20,168 +20,184 @@ public class Main {
             input.add(temp);
         }
 
-        String[] answer = new Main().solution(input.toArray(new String[input.size()]));
+        String answer = new Main().solution(input.toArray(new String[input.size()]));
 
-        System.out.println(answer[0]);
-        System.out.println(answer[1]);
+        System.out.println(answer);
     }
 
-    int[] dh = new int[] { -1, 0, 1, 0 };
-    int[] dw = new int[] { 0, 1, 0, -1 };
+    int[] sum = new int[3];
 
-    public String[] solution(String[] input) {
+    int[] dx = { 0, -1, 1, 0, 0 };
+    int[] dy = { 0, 0, 0, -1, 1 };
+
+    int[] nextDir = { 0, 3, 4, 2, 1 };
+
+    int[][]       indexMap;
+    List<Integer> marbleString;
+    int           maxSize;
+
+    public String solution(String[] input) {
 
         int N = Integer.parseInt(input[0].split(" ")[0]);
-        int Q = Integer.parseInt(input[0].split(" ")[1]);
+        int M = Integer.parseInt(input[0].split(" ")[1]);
 
-        int nn = (int) Math.pow(2, N);
-        int[][] iceMap = new int[nn][nn];
-
-        for (int i = 0; i < nn; i++) {
-            for (int j = 0; j < nn; j++) {
-                iceMap[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
+        int[][] map = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
             }
         }
 
-        int[] lList = new int[Q];
-
-        for (int i = 0; i < Q; i++) {
-            lList[i] = Integer.parseInt(input[nn + 1].split(" ")[i]);
+        Queue<Spell> spellQueue = new LinkedList<>();
+        for (int i = 0; i < M; i++) {
+            spellQueue.add(new Spell(
+                    Integer.parseInt(input[N + 1 + i].split(" ")[0]),
+                    Integer.parseInt(input[N + 1 + i].split(" ")[1])
+            ));
         }
 
-        String[] result = new String[2];
+        prepare(N, map);
+        int[][] blizzardPoints = getBlizzardPoints(N / 2);
 
-        for (int i = 0; i < Q; i++) {
-            spin(iceMap, lList[i]);
-            melt(iceMap);
+        while (!spellQueue.isEmpty()) {
+            blizzard(spellQueue.poll(), blizzardPoints);
+            popMarble();
+            if (!spellQueue.isEmpty()) {
+                groupMarble();
+            }
         }
 
-        result[0] = String.valueOf(sumIces(iceMap));
-        result[1] = String.valueOf(getBiggestIceSize(iceMap));
-
-        return new String[] { result[0], result[1] };
+        return String.valueOf(IntStream.range(0, 3).map(i -> sum[i] * (i + 1)).sum());
     }
 
-    private void spin(int[][] iceMap, int L) {
+    private int[][] getBlizzardPoints(int d) {
 
-        int gridSize = (int) Math.pow(2, L);
+        int[][] blizzardPoints = new int[4][d];
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 1; j <= d; j++) {
+                blizzardPoints[i - 1][j - 1] = indexMap[d + (dx[i] * j)][d + (dy[i] * j)];
+            }
+        }
+        return blizzardPoints;
+    }
 
-        for (int i = 0; i < iceMap.length; i += gridSize) {
-            for (int j = 0; j < iceMap.length; j += gridSize) {
+    private void popMarble() {
 
-                int[][] localMap = new int[gridSize][gridSize];
-                for (int k = 0; k < gridSize; k++) {
-                    for (int l = 0; l < gridSize; l++) {
-                        localMap[k][l] = iceMap[i + k][j + l];
+        boolean isPoped = false;
+
+        int stack = 0;
+        int stackNum = 0;
+        for (int i = 0; i < marbleString.size(); i++) {
+
+            if (marbleString.get(i).equals(stackNum)) {
+                stack++;
+            } else {
+                if (stack >= 4) {
+                    isPoped = true;
+                    sum[stackNum - 1] += stack;
+                    for (int j = 0; j < stack; j++) {
+                        marbleString.set(i - (j + 1), 0);
                     }
                 }
+                stackNum = marbleString.get(i);
+                stack = 1;
+            }
+        }
 
-                int[][] rotatedMap = rotate(localMap);
+        if (isPoped) {
+            removeZero();
+            popMarble();
+        }
+    }
 
-                for (int k = 0; k < gridSize; k++) {
-                    for (int l = 0; l < gridSize; l++) {
-                        iceMap[i + k][j + l] = rotatedMap[k][l];
+    private void groupMarble() {
+
+        List<Integer> groupString = new LinkedList<>();
+
+        int stack = 1;
+        int stackNum = marbleString.get(0);
+        for (int i = 1; i < marbleString.size(); i++) {
+            if (marbleString.get(i).equals(stackNum)) {
+                stack++;
+            } else {
+                if (groupString.size() <= maxSize) {
+                    groupString.add(stack);
+                    groupString.add(stackNum);
+                } else {
+                    break;
+                }
+                stackNum = marbleString.get(i);
+                stack = 1;
+            }
+        }
+
+        marbleString = groupString;
+    }
+
+    private void blizzard(Spell spell, int[][] blizzardPoints) {
+
+        for (int i = 0; i < spell.s; i++) {
+            try {
+                marbleString.set(blizzardPoints[spell.d - 1][i], 0);
+            } catch (IndexOutOfBoundsException ignored) {
+
+            }
+        }
+        removeZero();
+    }
+
+    private void removeZero() {
+
+        marbleString.removeIf(x -> x.equals(0));
+    }
+
+    private void prepare(int N, int[][] map) {
+
+        int x = N / 2, y = N / 2;
+        int nx;
+        int ny;
+        int curDir = 3;
+        int d = 1;
+        int num = 0;
+
+        indexMap = new int[N][N];
+        indexMap[x][y] = -1;
+
+        marbleString = new LinkedList<>();
+
+        while (true) {
+            for (int k = 0; k < 2; k++) {
+                for (int i = 0; i < d; i++) {
+                    if (x == 0 && y == 0) {
+                        maxSize = (N * N) - 1;
+                        removeZero();
+                        return;
                     }
+                    nx = x + dx[curDir];
+                    ny = y + dy[curDir];
+                    indexMap[nx][ny] = num;
+                    marbleString.add(map[nx][ny]);
+                    num++;
+
+                    x = nx;
+                    y = ny;
                 }
+                curDir = nextDir[curDir];
             }
+            d++;
         }
     }
 
-    private int[][] rotate(int[][] arr) {
+    private class Spell {
 
-        int n = arr.length;
-        int m = arr[0].length;
-        int[][] rotate = new int[m][n];
+        int d;
+        int s;
 
-        for (int i = 0; i < rotate.length; i++) {
-            for (int j = 0; j < rotate[i].length; j++) {
-                rotate[i][j] = arr[n - 1 - j][i];
-            }
+        public Spell(int d, int s) {
+
+            this.d = d;
+            this.s = s;
         }
-
-        return rotate;
-    }
-
-    private void melt(int[][] iceMap) {
-
-        int[][] newIceMap = new int[iceMap.length][iceMap.length];
-
-        for (int i = 0; i < iceMap.length; i++) {
-            for (int j = 0; j < iceMap.length; j++) {
-                newIceMap[i][j] = iceMap[i][j];
-            }
-        }
-
-        for (int i = 0; i < iceMap.length; i++) {
-            for (int j = 0; j < iceMap.length; j++) {
-                if (iceMap[i][j] <= 0) {
-                    continue;
-                }
-                int iced = 0;
-                for (int k = 0; k < 4; k++) {
-                    try {
-                        if (iceMap[i + dh[k]][j + dw[k]] > 0) {
-                            iced++;
-                        }
-                    } catch (ArrayIndexOutOfBoundsException ignored) {
-
-                    }
-                }
-                if (iced < 3) {
-                    newIceMap[i][j]--;
-                }
-            }
-        }
-
-        for (int i = 0; i < iceMap.length; i++) {
-            for (int j = 0; j < iceMap.length; j++) {
-                iceMap[i][j] = newIceMap[i][j];
-            }
-        }
-    }
-
-    private int sumIces(int[][] iceMap) {
-
-        return Arrays.stream(iceMap).mapToInt(ints -> Arrays.stream(ints, 0, iceMap.length).sum()).sum();
-    }
-
-    private int getBiggestIceSize(int[][] iceMap) {
-
-        Queue<int[]> queue = new LinkedList<>();
-        boolean[][] visitedMap = new boolean[iceMap.length][iceMap.length];
-
-        int max = 0;
-        for (int i = 0; i < iceMap.length; i++) {
-            for (int j = 0; j < iceMap.length; j++) {
-                if (iceMap[i][j] > 0 && !visitedMap[i][j]) {
-                    queue.add(new int[] { i, j });
-                    visitedMap[i][j] = true;
-                    int cnt = 1;
-
-                    while (!queue.isEmpty()) {
-                        int[] t = queue.poll();
-                        int th = t[0];
-                        int tw = t[1];
-
-                        for (int k = 0; k < 4; k++) {
-                            int nh = th + dh[k];
-                            int nw = tw + dw[k];
-                            try {
-                                if (iceMap[nh][nw] > 0 && !visitedMap[nh][nw]) {
-                                    visitedMap[nh][nw] = true;
-                                    queue.add(new int[] { nh, nw });
-                                    cnt++;
-                                }
-                            } catch (IndexOutOfBoundsException ignored) {
-
-                            }
-                        }
-                    }
-                    max = Math.max(max, cnt);
-                }
-            }
-        }
-        return max;
     }
 }
 
