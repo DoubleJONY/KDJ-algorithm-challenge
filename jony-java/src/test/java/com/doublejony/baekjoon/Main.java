@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.stream.IntStream;
 
 public class Main {
 
@@ -25,178 +23,181 @@ public class Main {
         System.out.println(answer);
     }
 
-    int[] sum = new int[3];
+    int N;
+    int M;
 
-    int[] dx = { 0, -1, 1, 0, 0 };
-    int[] dy = { 0, 0, 0, -1, 1 };
+    final int UP    = 0;
+    final int RIGHT = 1;
+    final int DOWN  = 2;
+    final int LEFT  = 3;
 
-    int[] nextDir = { 0, 3, 4, 2, 1 };
+    final int[] dw = { 0, 1, 0, -1 };
+    final int[] dh = { -1, 0, 1, 0 };
 
-    int[][]       indexMap;
-    List<Integer> marbleString;
-    int           maxSize;
+    final int dArray[] = new int[] { UP, RIGHT, DOWN, LEFT };
 
     public String solution(String[] input) {
 
-        int N = Integer.parseInt(input[0].split(" ")[0]);
-        int M = Integer.parseInt(input[0].split(" ")[1]);
+        N = Integer.parseInt(input[0].split(" ")[0]);
+        M = Integer.parseInt(input[0].split(" ")[1]);
+        int K = Integer.parseInt(input[0].split(" ")[2]);
 
-        int[][] map = new int[N][N];
+        int[][] map = new int[N][M];
+
         for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+            for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(input[i + 1].split(" ")[j]);
             }
         }
 
-        Queue<Spell> spellQueue = new LinkedList<>();
-        for (int i = 0; i < M; i++) {
-            spellQueue.add(new Spell(
-                    Integer.parseInt(input[N + 1 + i].split(" ")[0]),
-                    Integer.parseInt(input[N + 1 + i].split(" ")[1])
-            ));
-        }
+        Dice dice = new Dice();
+        int answer = 0;
 
-        prepare(N, map);
-        int[][] blizzardPoints = getBlizzardPoints(N / 2);
+        for (int i = 0; i < K; i++) {
+            dice.move();
 
-        while (!spellQueue.isEmpty()) {
-            blizzard(spellQueue.poll(), blizzardPoints);
-            popMarble();
-            if (!spellQueue.isEmpty()) {
-                groupMarble();
+            int[][] copyMap = new int[N][M];
+            for (int j = 0; j < map.length; j++) {
+                System.arraycopy(map[j], 0, copyMap[j], 0, map[0].length);
+            }
+            answer += copyMap[dice.h][dice.w] * getScoreCount(copyMap, copyMap[dice.h][dice.w], dice.h, dice.w);
+
+            if (dice.getBottomNum() > map[dice.h][dice.w]) {
+                dice.rotate(false);
+            } else if (dice.getBottomNum() < map[dice.h][dice.w]) {
+                dice.rotate(true);
             }
         }
 
-        return String.valueOf(IntStream.range(0, 3).map(i -> sum[i] * (i + 1)).sum());
+        return String.valueOf(answer);
     }
 
-    private int[][] getBlizzardPoints(int d) {
+    private int getScoreCount(int[][] map, int num, int h, int w) {
 
-        int[][] blizzardPoints = new int[4][d];
-        for (int i = 1; i <= 4; i++) {
-            for (int j = 1; j <= d; j++) {
-                blizzardPoints[i - 1][j - 1] = indexMap[d + (dx[i] * j)][d + (dy[i] * j)];
-            }
-        }
-        return blizzardPoints;
-    }
+        int count = 1;
+        map[h][w] = 0;
 
-    private void popMarble() {
-
-        boolean isPoped = false;
-
-        int stack = 0;
-        int stackNum = 0;
-        for (int i = 0; i < marbleString.size(); i++) {
-
-            if (marbleString.get(i).equals(stackNum)) {
-                stack++;
-            } else {
-                if (stack >= 4) {
-                    isPoped = true;
-                    sum[stackNum - 1] += stack;
-                    for (int j = 0; j < stack; j++) {
-                        marbleString.set(i - (j + 1), 0);
-                    }
-                }
-                stackNum = marbleString.get(i);
-                stack = 1;
-            }
-        }
-
-        if (isPoped) {
-            removeZero();
-            popMarble();
-        }
-    }
-
-    private void groupMarble() {
-
-        List<Integer> groupString = new LinkedList<>();
-
-        int stack = 1;
-        int stackNum = marbleString.get(0);
-        for (int i = 1; i < marbleString.size(); i++) {
-            if (marbleString.get(i).equals(stackNum)) {
-                stack++;
-            } else {
-                if (groupString.size() <= maxSize) {
-                    groupString.add(stack);
-                    groupString.add(stackNum);
-                } else {
-                    break;
-                }
-                stackNum = marbleString.get(i);
-                stack = 1;
-            }
-        }
-
-        marbleString = groupString;
-    }
-
-    private void blizzard(Spell spell, int[][] blizzardPoints) {
-
-        for (int i = 0; i < spell.s; i++) {
+        for (int i = 0; i < 4; i++) {
             try {
-                marbleString.set(blizzardPoints[spell.d - 1][i], 0);
-            } catch (IndexOutOfBoundsException ignored) {
-
-            }
-        }
-        removeZero();
-    }
-
-    private void removeZero() {
-
-        marbleString.removeIf(x -> x.equals(0));
-    }
-
-    private void prepare(int N, int[][] map) {
-
-        int x = N / 2, y = N / 2;
-        int nx;
-        int ny;
-        int curDir = 3;
-        int d = 1;
-        int num = 0;
-
-        indexMap = new int[N][N];
-        indexMap[x][y] = -1;
-
-        marbleString = new LinkedList<>();
-
-        while (true) {
-            for (int k = 0; k < 2; k++) {
-                for (int i = 0; i < d; i++) {
-                    if (x == 0 && y == 0) {
-                        maxSize = (N * N) - 1;
-                        removeZero();
-                        return;
-                    }
-                    nx = x + dx[curDir];
-                    ny = y + dy[curDir];
-                    indexMap[nx][ny] = num;
-                    marbleString.add(map[nx][ny]);
-                    num++;
-
-                    x = nx;
-                    y = ny;
+                if (map[dh[i] + h][dw[i] + w] == num) {
+                    count += getScoreCount(map, num, (dh[i] + h), (dw[i] + w));
                 }
-                curDir = nextDir[curDir];
+            } catch (IndexOutOfBoundsException ignored) {
             }
-            d++;
         }
+
+        return count;
     }
 
-    private class Spell {
+    private class Dice {
 
-        int d;
-        int s;
+        int h;
+        int w;
+        int direction;
 
-        public Spell(int d, int s) {
+        LinkedList<Integer> vBelt;
+        LinkedList<Integer> hBelt;
 
-            this.d = d;
-            this.s = s;
+        public Dice() {
+
+            this.h = 0;
+            this.w = 0;
+            this.direction = RIGHT;
+
+            this.vBelt = new LinkedList<>();
+            vBelt.add(2);
+            vBelt.add(1);
+            vBelt.add(5);
+            vBelt.add(6);
+
+            this.hBelt = new LinkedList<>();
+            hBelt.add(4);
+            hBelt.add(1);
+            hBelt.add(3);
+            hBelt.add(6);
+        }
+
+        public void rotate(boolean isCounterClockwise) {
+
+            this.direction = isCounterClockwise ? (this.direction + 3) % 4 : (this.direction + 1) % 4;
+        }
+
+        public int getUpsideNum() {
+
+            return this.vBelt.get(1);
+        }
+
+        public int getBottomNum() {
+
+            return this.vBelt.get(3);
+        }
+
+        public void move() {
+
+            movePoint();
+
+            switch (this.direction) {
+                case UP:
+                    moveVBelt(1, true);
+                    break;
+                case RIGHT:
+                    moveHBelt(1, false);
+                    break;
+                case DOWN:
+                    moveVBelt(1, false);
+                    break;
+                case LEFT:
+                    moveHBelt(1, true);
+                    break;
+            }
+        }
+
+        private void movePoint() {
+
+            int th = this.h + dh[this.direction];
+            int tw = this.w + dw[this.direction];
+
+            if (th < 0 || th >= N) {
+                rotate(false);
+                rotate(false);
+                th = this.h + dh[this.direction];
+            }
+            if (tw < 0 || tw >= M) {
+                rotate(false);
+                rotate(false);
+                tw = this.w + dw[this.direction];
+            }
+
+            this.h = th;
+            this.w = tw;
+        }
+
+        public void moveVBelt(int count, boolean reverse) {
+
+            if (reverse) {
+                count = 4 - (count % 4);
+            }
+
+            for (int i = 0; i < count; i++) {
+                vBelt.addFirst(vBelt.removeLast());
+            }
+
+            hBelt.set(1, vBelt.get(1));
+            hBelt.set(3, vBelt.get(3));
+        }
+
+        public void moveHBelt(int count, boolean reverse) {
+
+            if (reverse) {
+                count = 4 - (count % 4);
+            }
+
+            for (int i = 0; i < count; i++) {
+                hBelt.addFirst(hBelt.removeLast());
+            }
+
+            vBelt.set(1, hBelt.get(1));
+            vBelt.set(3, hBelt.get(3));
         }
     }
 }
