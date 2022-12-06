@@ -19,7 +19,7 @@ def retrieve_samples(problem: int) -> dict[str, list]:
     if not isinstance(problem, int):
         raise ValueError(f"Problem id must be given in integer not {type(problem)}.")
 
-    if not check_url_validity(url := os.path.join(BASE_URL, str(problem))):
+    if not check_url_validity(url := f"{BASE_URL}/{problem}"):
         raise ValueError(f"{url} is not a valid url.")
 
     try:
@@ -56,7 +56,7 @@ def message(sample: str, expected: str, expectation: str) -> None:
 
 
 def test() -> None:
-    filename = sys.argv[1].split("/")[-1]
+    filename = sys.argv[1].split("\\")[-1]
     filepath = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
 
     numbers = []
