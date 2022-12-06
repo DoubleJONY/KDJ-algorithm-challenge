@@ -16,20 +16,20 @@ WALL_RIGHT = 2
 class Solution:
     def read_input(self):
         CELL_EMPTY = 0
-        CELL_CENSOR = 5
+        CELL_SENSOR = 5
         CELL_TO_DIR = {1: RIGHT, 2: LEFT, 3: UP, 4: DOWN}
         WALL_TO_FLAG = {0: WALL_UP, 1: WALL_RIGHT}
 
         self.R, self.C, self.K = map(int, input().split())
 
         self.heaters = []
-        self.censors = []
+        self.sensors = []
         for r in range(self.R):
             for c, v in enumerate(map(int, input().split())):
                 if v == CELL_EMPTY:
                     continue
-                elif v == CELL_CENSOR:
-                    self.censors.append((r, c))
+                elif v == CELL_SENSOR:
+                    self.sensors.append((r, c))
                 else:
                     self.heaters.append(Heater(r, c, CELL_TO_DIR[v]))
 
@@ -216,7 +216,7 @@ class Solution:
         self.n_chocolates += 1
 
     def check_temperature_is_over_k(self):
-        for r, c in self.censors:
+        for r, c in self.sensors:
             if self.map[r][c] < self.K:
                 return False
         return True
