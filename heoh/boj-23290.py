@@ -17,25 +17,26 @@ class Solution:
 
     def read_input(self):
         self.M, self.S = map(int, input().split())
-        self.fishes = []
+        self.fishes = Counter()
         for _ in range(self.M):
             f_x, f_y, d = map(int, input().split())
-            fish = [f_y, f_x, d-1]
-            self.fishes.append(fish)
+            self.fishes[f_y, f_x, d-1] += 1
         s_x, s_y = map(int, input().split())
         self.shark = [s_y, s_x]
         self.smell_time_map = Counter()
-        self.duplicating_fishes = []
+        self.duplicating_fishes = None
         self.t = 100
 
     def spell_duplication(self):
-        self.duplicating_fishes = []
-        for f in self.fishes:
-            self.duplicating_fishes.append(f.copy())
+        self.duplicating_fishes = self.fishes.copy()
 
     def move_all_fishes(self):
+        next_fishes = Counter()
         for fish in self.fishes:
-            self.move_fish(fish)
+            n_fishes = self.fishes[fish]
+            fish = self.move_fish(fish)
+            next_fishes[fish] += n_fishes
+        self.fishes = next_fishes
 
     def move_fish(self, fish):
         x, y, d = fish
@@ -44,10 +45,8 @@ class Solution:
             dy, dx = DIR[nd]
             nx, ny = x+dx, y+dy
             if self.check_movable_fish(nx, ny):
-                fish[0] = nx
-                fish[1] = ny
-                fish[2] = nd
-                break
+                return nx, ny, nd
+        return x, y, d
 
     def check_movable_fish(self, x, y):
         WIDTH = HEIGHT = 4
@@ -64,7 +63,7 @@ class Solution:
     def move_shark(self):
         fish_map = Counter()
         for x, y, d in self.fishes:
-            fish_map[x, y] += 1
+            fish_map[x, y] += self.fishes[x, y, d]
 
         def dfs(x, y, dirs: list, visited: set, score):
             if len(dirs) == 3:
@@ -110,7 +109,13 @@ class Solution:
         return True
 
     def remove_fishes(self, x, y):
-        self.fishes = list(filter(lambda fish: fish[0] != x or fish[1] != y, self.fishes))
+        next_fishes = Counter()
+        for fish in self.fishes:
+            fx, fy, d = fish
+            if (fx, fy) == (x, y):
+                continue
+            next_fishes[fish] = self.fishes[fish]
+        self.fishes = next_fishes
         self.smell_time_map[x, y] = self.t
 
     def update_smell(self):
@@ -121,7 +126,7 @@ class Solution:
         self.duplicating_fishes = []
 
     def count_all_fishes(self):
-        return len(self.fishes)
+        return sum(self.fishes.values())
 
 
 if __name__ == '__main__':
