@@ -2,9 +2,10 @@ import os
 import subprocess
 import sys
 from collections import defaultdict
-from urllib.parse import urlparse
+from typing import Optional
+from urllib.parse import urljoin, urlparse
 
-BASE_URL = "https://www.acmicpc.net/problem"
+BASE_URL = "https://www.acmicpc.net/problem/"
 
 
 def check_url_validity(url: str) -> bool:
@@ -19,7 +20,7 @@ def retrieve_samples(problem: int) -> dict[str, list]:
     if not isinstance(problem, int):
         raise ValueError(f"Problem id must be given in integer not {type(problem)}.")
 
-    if not check_url_validity(url := os.path.join(BASE_URL, str(problem))):
+    if not check_url_validity(url := urljoin(BASE_URL, str(problem))):
         raise ValueError(f"{url} is not a valid url.")
 
     try:
@@ -40,23 +41,9 @@ def retrieve_samples(problem: int) -> dict[str, list]:
     return samples
 
 
-def message(sample: str, expected: str, expectation: str) -> None:
-    """
-    Messages to be printed.
-
-    :param expected: True sample output retrieved with its input counterpart.
-    :param expectation: Result of one's program.
-    """
-
-    print(
-        f"sample input:\n{sample.strip()}"
-        f"\n\noutput: {expectation.strip()}"
-        f"\nanswer: {expected.strip()}\n"
-    )
-
-
 def test() -> None:
-    filename = sys.argv[1].split("/")[-1]
+    filename = os.path.basename(sys.argv[1])
+    # force solver and tester to locate in same directory
     filepath = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
 
     numbers = []
@@ -73,7 +60,24 @@ def test() -> None:
             ["python", filepath], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         ) as proc:
             output, err = proc.communicate(input=sample_input.encode("utf-8"))
-            message(sample_input, sample_output.strip(), output.decode('utf-8'))
+            message(
+                sample_input=sample_input.strip(),
+                sample_output=sample_output.strip(),
+                stdout=output.decode("utf-8").strip(),
+                stderr=err.decode("utf-8").strip() if isinstance(err, bytes) else None
+            )
+
+
+def message(*, sample_input: str, sample_output: str, stdout: str, stderr: Optional[str]) -> None:
+    """
+    Write any message to be printed.
+    """
+
+    print(
+        f"sample:\n{sample_input}\n"
+        f"\nanswer: {sample_output}"
+        f"\noutput: {stdout}\n"
+    )
 
 
 if __name__ == "__main__":
