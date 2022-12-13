@@ -26,7 +26,7 @@ class Solution:
         self.shark = [s_y, s_x]
         self.smell_time_map = Counter()
         self.duplicating_fishes = []
-        self.t = 0
+        self.t = 100
 
     def spell_duplication(self):
         self.duplicating_fishes = []
@@ -57,7 +57,7 @@ class Solution:
             return False
         if [x, y] == self.shark:
             return False
-        if self.smell_time_map[x, y] - 2 >= self.t:
+        if self.smell_time_map[x, y] >= self.t - 2:
             return False
         return True
 
@@ -72,18 +72,17 @@ class Solution:
 
             best_dirs = None
             best_score = -1
-            for d in [0,2,4,6]:
+            for d in [2,0,6,4]:
                 dy, dx = DIR[d]
                 nx, ny = x+dx, y+dy
 
                 if not self.check_movable_shark(nx, ny):
                     continue
-                if (nx, ny) in visited:
-                    continue
 
-                visited.add((nx, ny))
-                next_score, next_dirs = dfs(nx, ny, dirs + [d], visited, score + fish_map[nx, ny])
-                visited.remove((nx, ny))
+                n_fishes = fish_map[nx, ny] if (nx, ny) not in visited else 0
+                next_visited = set(visited)
+                next_visited.add((nx, ny))
+                next_score, next_dirs = dfs(nx, ny, dirs + [d], next_visited, score + n_fishes)
 
                 if next_score > best_score:
                     best_score = next_score
