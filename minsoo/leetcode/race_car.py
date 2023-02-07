@@ -5,9 +5,9 @@
 class Solution:
     def racecar(self, target: int) -> int:
         """
-                                              Where we want to know
-                                                        |
-                                                        v
+                                                        Where we want to know
+                                                                  |
+                                                                  v
         distance:  0             pivot - subpivot     pivot      pos      2^(m + 1) - 1
         num_moves: 0                  m - n             m                     m + 1
                    |--------------------|-------------->|---------|-------------|
