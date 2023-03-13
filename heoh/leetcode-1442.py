@@ -4,12 +4,9 @@ class Solution:
         
         n_triplets = 0
         for i in range(len(arr)):
-            for j in range(i+1, len(arr)):
-                for k in range(j, len(arr)):
-                    a = self.xor_range(i, j-1)
-                    b = self.xor_range(j, k)
-                    if a == b:
-                        n_triplets += 1
+            for k in range(i+1, len(arr)):
+                if self.xor_range(i, k) == 0:
+                    n_triplets += k - i
 
         return n_triplets
             
@@ -25,3 +22,12 @@ class Solution:
 
     def xor_range(self, left, right):
         return self.cache[left, right]
+
+
+def test():
+    assert Solution().countTriplets([2,3,1,6,7]) == 4
+    assert Solution().countTriplets([1,1,1,1,1]) == 10
+
+
+if __name__ == '__main__':
+    test()
