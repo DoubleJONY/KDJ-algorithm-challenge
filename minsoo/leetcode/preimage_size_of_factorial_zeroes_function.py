@@ -1,4 +1,4 @@
-# https://leetcode.com/problems/preimage-size-of-factorial-zeroes-function/solutions/117821/four-binary-search-solutions-based-on-different-ideas/
+# https://leetcode.com/problems/preimage-size-of-factorial-zeroes-function/
 # ref: https://leetcode.com/problems/preimage-size-of-factorial-zeroes-function/solutions/117821/four-binary-search-solutions-based-on-different-ideas/
 
 
